@@ -4,7 +4,7 @@
 
 ## Előfeltételek
 
-1. A csapat meccseihez tartozó **PDF jegyzőkönyvek** letöltve és feldolgozva legyenek az `nb2_full.sqlite`-ban
+1. A csapat meccseihez tartozó **PDF jegyzőkönyvek** letöltve és feldolgozva legyenek az `scoresheet.sqlite`-ban
 2. Ismerd a csapat **MKOSZ bajnokság kódját** és **team ID-ját** (a menetrend oldalról)
 3. Ismerd a csapat **pontos nevét** ahogy az adatbázisban (`matches.team_a/team_b`) szerepel
 
@@ -163,10 +163,10 @@ Ha automatikus frissítés is kell, a `update_attendance.py`-t is ki kell bőví
 python3 download_scoresheets.py x2526 {MKOSZ_COMP} ./pdfs/
 
 # 2. Feldolgozás
-python3 extract_scoresheet.py ./pdfs/ --db nb2_full.sqlite
+python3 extract_scoresheet.py ./pdfs/ --db scoresheet.sqlite
 
 # 3. Ellenőrzés: a csapat megjelenik-e az adatbázisban
-sqlite3 nb2_full.sqlite "SELECT DISTINCT team_a FROM matches WHERE match_id LIKE '{PREFIX}%' AND team_a LIKE '%CSAPATNÉV%'"
+sqlite3 scoresheet.sqlite "SELECT DISTINCT team_a FROM matches WHERE match_id LIKE '{PREFIX}%' AND team_a LIKE '%CSAPATNÉV%'"
 ```
 
 ---
