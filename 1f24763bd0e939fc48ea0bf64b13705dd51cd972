@@ -1,0 +1,31 @@
+.github/workflows/daily-update.yml
+  cc1e7e1eff2b82b9 1-46
+generate_dashboards.py
+  cc1e7e1eff2b82b9 16-18,22
+.github/workflows/update-attendance.yml
+  cc1e7e1eff2b82b9 1-32
+README.md
+  cc1e7e1eff2b82b9 1-38
+.gitignore
+  cc1e7e1eff2b82b9 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.8",
+  "base_commit_sha": "1f24763bd0e939fc48ea0bf64b13705dd51cd972",
+  "prompts": {
+    "cc1e7e1eff2b82b9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "85d12401-fbc2-4b2a-b6f0-5ec8a5ce3610",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Peter Laczko <peter.laczko@railsware.com>",
+      "messages": [],
+      "total_additions": 125,
+      "total_deletions": 2,
+      "accepted_lines": 124,
+      "overriden_lines": 0
+    }
+  }
+}
