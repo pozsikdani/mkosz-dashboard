@@ -23,16 +23,12 @@ jobs:
       - name: Python csomagok telepítése
         run: pip install PyMuPDF requests beautifulsoup4
 
-      - name: Scoresheet DB letöltése
-        run: git clone --depth 1 https://github.com/pozsikdani/mkosz-scoresheet.git /tmp/mkosz-scoresheet
-
-      - name: PBP repo klónozása
-        run: git clone --depth 1 https://github.com/pozsikdani/mkosz-play-by-play.git /tmp/mkosz-pbp
+      - name: Stats DB letöltése
+        run: git clone --depth 1 https://github.com/pozsikdani/mkosz-stats.git /tmp/mkosz-stats
 
       - name: Dashboard generálás
         env:
-          NB2_DB_PATH: /tmp/mkosz-scoresheet/nb2_full.sqlite
-          PBP_DB_PATH: /tmp/mkosz-pbp/pbp.sqlite
+          STATS_DB_PATH: /tmp/mkosz-stats/mkosz_stats.sqlite
         run: python3 generate_dashboards.py site
 
       - name: Commit és push ha változott
