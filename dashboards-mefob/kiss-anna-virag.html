@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KISS ANNA VIRÁG — 2025/26 Dashboard</title>
+<title>Kiss Anna Virág — 2025/26 Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -103,9 +103,9 @@
   <a href="index.html" class="back-link">&larr; Csapat áttekintő</a>
   <div class="header">
     <div class="header-info">
-      <h1>KISS ANNA VIRÁG</h1>
+      <h1>Kiss Anna Virág</h1>
       <div class="subtitle">
-        <span>#6</span> &nbsp;|&nbsp; Közgáz SC és DSK &nbsp;|&nbsp; Leány egyetemi Nyugat &nbsp;|&nbsp; 2025/26 alapszakasz
+        <span>#None</span> &nbsp;|&nbsp; Közgáz SC és DSK &nbsp;|&nbsp; Leány egyetemi Nyugat &nbsp;|&nbsp; 2025/26 alapszakasz
       </div>
     </div>
     <div class="header-stats">
@@ -191,7 +191,7 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/0", "pf": 2, "share": 13.8, "start": true}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": 25, "fg2": 6, "fg3": 4, "ft": "1/2", "pf": 1, "share": 43.9, "start": true}, {"date": "11.10", "opp": "Szoese", "res": "W", "pts": 20, "fg2": 7, "fg3": 2, "ft": "0/0", "pf": 1, "share": 23.8, "start": true}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": 19, "fg2": 5, "fg3": 3, "ft": "0/1", "pf": 0, "share": 25.3, "start": true}, {"date": "12.08", "opp": "Bme-Mafc", "res": "W", "pts": 12, "fg2": 6, "fg3": 0, "ft": "0/0", "pf": 0, "share": 16.0, "start": true}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": 13, "fg2": 3, "fg3": 2, "ft": "1/3", "pf": 1, "share": 24.1, "start": true}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 4, "share": 5.8, "start": true}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 14, "fg2": 7, "fg3": 0, "ft": "0/0", "pf": 0, "share": 15.1, "start": true}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": 21, "fg2": 10, "fg3": 0, "ft": "1/2", "pf": 0, "share": 27.6, "start": true}];
+const games = [{"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/0", "pf": 2, "share": 13.8, "start": true}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": 25, "fg2": 6, "fg3": 4, "ft": "1/2", "pf": 1, "share": 43.9, "start": true}, {"date": "11.10", "opp": "Szoese", "res": "W", "pts": 20, "fg2": 7, "fg3": 2, "ft": "0/0", "pf": 1, "share": 23.8, "start": true}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": 19, "fg2": 5, "fg3": 3, "ft": "0/1", "pf": 0, "share": 25.3, "start": true}, {"date": "12.08", "opp": "Bme-Mafc", "res": "W", "pts": 12, "fg2": 6, "fg3": 0, "ft": "0/0", "pf": 0, "share": 16.0, "start": true}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": 13, "fg2": 3, "fg3": 2, "ft": "1/3", "pf": 1, "share": 24.1, "start": true}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 4, "share": 5.8, "start": true}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 14, "fg2": 7, "fg3": 0, "ft": "0/0", "pf": 0, "share": 15.1, "start": true}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": 21, "fg2": 10, "fg3": 0, "ft": "1/2", "pf": 0, "share": 27.6, "start": true}, {"date": "03.30", "opp": "Bme-Mafc", "res": "L", "pts": null}];
 const maxPts = 25;
 
 const tbody = document.getElementById('gameLogBody');
@@ -252,11 +252,11 @@ new Chart(document.getElementById('quarterChart').getContext('2d'), {
   data: {
     labels:['Q1','Q2','Q3','Q4'],
     datasets:[{
-      label:'Összes pont', data:[0, 0, 0, 0],
+      label:'Összes pont', data:[37, 25, 32, 42],
       backgroundColor:['rgba(196,30,58,0.7)','rgba(196,30,58,0.5)','rgba(196,30,58,0.55)','rgba(196,30,58,0.5)'],
       borderColor:'#C41E3A', borderWidth:2, borderRadius:6,
     },{
-      label:'3FG bedobva', data:[0, 0, 0, 0],
+      label:'3FG bedobva', data:[3, 2, 4, 2],
       backgroundColor:'rgba(253,121,168,0.5)', borderColor:'#fd79a8', borderWidth:2, borderRadius:6,
     }]
   },
