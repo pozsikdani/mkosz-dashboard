@@ -2,7 +2,7 @@ name: Napi dashboard frissítés
 
 on:
   schedule:
-    - cron: '17 6 * * *'  # 6:17 UTC (8:17 CET) — after scoresheet extraction at 6:00
+    - cron: '0 7 * * *'  # 7:00 UTC — after stats import at 6:30
   workflow_dispatch: {}
 
 permissions:
