@@ -104,8 +104,8 @@ TEAMS = {
         "color": "#fdcb6e",  # sárga
     },
     "kozgaz-mefob": {
-        "team_pattern": "%Közgáz SC és DSK%",
-        "team_pattern_broad": "%Közgáz%",
+        "team_pattern": "%KÖZGÁZ SC ÉS DSK%",
+        "team_pattern_broad": "%KÖZGÁZ%",
         "comp_code": "whun_univn",
         "team_name": "Közgáz SC és DSK",
         "team_short": "MEFOB Női",
@@ -118,8 +118,8 @@ TEAMS = {
         "color": "#00cec9",  # teal
     },
     "kozgaz-mefob-ferfi": {
-        "team_pattern": "%Közgáz SC és DSK%",
-        "team_pattern_broad": "%Közgáz%",
+        "team_pattern": "%KÖZGÁZ SC ÉS DSK%",
+        "team_pattern_broad": "%KÖZGÁZ%",
         "comp_code": "hun_univn",
         "team_name": "Közgáz SC és DSK",
         "team_short": "MEFOB Férfi",

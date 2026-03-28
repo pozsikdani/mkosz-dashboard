@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Garami Júlia Eszter — 2025/26 Dashboard</title>
+<title>GARAMI JÚLIA ESZTER — 2025/26 Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -103,9 +103,9 @@
   <a href="index.html" class="back-link">&larr; Csapat áttekintő</a>
   <div class="header">
     <div class="header-info">
-      <h1>Garami Júlia Eszter</h1>
+      <h1>GARAMI JÚLIA ESZTER</h1>
       <div class="subtitle">
-        <span>#None</span> &nbsp;|&nbsp; Közgáz SC és DSK &nbsp;|&nbsp; Leány egyetemi Nyugat &nbsp;|&nbsp; 2025/26 alapszakasz
+        <span>#35</span> &nbsp;|&nbsp; Közgáz SC és DSK &nbsp;|&nbsp; Leány egyetemi Nyugat &nbsp;|&nbsp; 2025/26 alapszakasz
       </div>
     </div>
     <div class="header-stats">
@@ -191,7 +191,7 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 0, "share": 0.0, "start": false}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": 6, "fg2": 3, "fg3": 0, "ft": "0/0", "pf": 0, "share": 10.5, "start": false}, {"date": "11.10", "opp": "Szoese", "res": "W", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/2", "pf": 0, "share": 3.6, "start": true}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": null}, {"date": "12.08", "opp": "Bme-Mafc", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 2.7, "start": false}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 0, "share": 0.0, "start": false}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 0, "share": 0.0, "start": false}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 4, "fg2": 1, "fg3": 0, "ft": "2/2", "pf": 1, "share": 4.3, "start": false}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/2", "pf": 0, "share": 3.9, "start": true}, {"date": "03.30", "opp": "Bme-Mafc", "res": "L", "pts": null}];
+const games = [{"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 0, "share": 0.0, "start": false}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": 6, "fg2": 3, "fg3": 0, "ft": "0/0", "pf": 0, "share": 10.5, "start": false}, {"date": "11.10", "opp": "Szoese", "res": "W", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/2", "pf": 0, "share": 3.6, "start": true}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": null}, {"date": "12.08", "opp": "Bme-Mafc", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 2.7, "start": false}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 0, "share": 0.0, "start": false}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 0, "share": 0.0, "start": false}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 4, "fg2": 1, "fg3": 0, "ft": "2/2", "pf": 1, "share": 4.3, "start": false}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/2", "pf": 0, "share": 3.9, "start": true}];
 const maxPts = 6;
 
 const tbody = document.getElementById('gameLogBody');
@@ -252,7 +252,7 @@ new Chart(document.getElementById('quarterChart').getContext('2d'), {
   data: {
     labels:['Q1','Q2','Q3','Q4'],
     datasets:[{
-      label:'Összes pont', data:[4, 5, 7, 2],
+      label:'Összes pont', data:[0, 0, 0, 0],
       backgroundColor:['rgba(196,30,58,0.7)','rgba(196,30,58,0.5)','rgba(196,30,58,0.55)','rgba(196,30,58,0.5)'],
       borderColor:'#C41E3A', borderWidth:2, borderRadius:6,
     },{
