@@ -322,7 +322,7 @@ def get_roster(conn, cfg, tp):
               AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
         )
         SELECT COALESCE(pgs.license_number, pgs.player_name) as lic,
-               pgs.player_name, pgs.jersey_number,
+               pgs.player_name, MAX(pgs.jersey_number) as jersey_number,
                COUNT(*) as games,
                SUM(pgs.points) as total_pts,
                ROUND(1.0*SUM(pgs.points)/COUNT(*),1) as ppg,
