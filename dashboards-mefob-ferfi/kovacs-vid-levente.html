@@ -109,7 +109,7 @@
       </div>
     </div>
     <div class="header-stats">
-      <div class="header-stat"><div class="val accent">5.0</div><div class="label">PPG</div></div>
+      <div class="header-stat"><div class="val accent">5.1</div><div class="label">PPG</div></div>
       <div class="header-stat"><div class="val green">12</div><div class="label">Meccs</div></div>
       <div class="header-stat"><div class="val pink">4</div><div class="label">3FG</div></div>
       <div class="header-stat"><div class="val" style="color:var(--accent4)">14</div><div class="label">Csúcs</div></div>
@@ -117,10 +117,10 @@
     </div>
   </div>
   <div class="grid grid-4 mb20">
-    <div class="card mini-stat"><div class="big" style="color:var(--accent)">60</div><div class="desc">Összes pont</div></div>
+    <div class="card mini-stat"><div class="big" style="color:var(--accent)">61</div><div class="desc">Összes pont</div></div>
     <div class="card mini-stat"><div class="big" style="color:var(--accent2)">43%</div><div class="desc">FT% (6/14)</div></div>
     <div class="card mini-stat"><div class="big" style="color:var(--accent3)">0.8</div><div class="desc">Fault / meccs</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--accent4)">5.1%</div><div class="desc">Csapat pont részesedés</div></div>
+    <div class="card mini-stat"><div class="big" style="color:var(--accent4)">5.2%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
   <div class="grid grid-2 mb20">
     <div class="card">
@@ -191,7 +191,7 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 2, "share": 6.2, "start": true}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 12, "fg2": 5, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.3, "start": true}, {"date": "11.03", "opp": "University Of Pann.", "res": "W", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 2, "share": 4.1, "start": false}, {"date": "11.17", "opp": "Mosonmagyaróvár Un.", "res": "L", "pts": 3, "fg2": 0, "fg3": 1, "ft": "0/2", "pf": 2, "share": 4.1, "start": false}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": 1, "fg2": 0, "fg3": 0, "ft": "1/2", "pf": 1, "share": 0.9, "start": true}, {"date": "12.01", "opp": "Pte-Peac", "res": "L", "pts": 7, "fg2": 3, "fg3": 0, "ft": "1/2", "pf": 1, "share": 14.9, "start": true}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": 5, "fg2": 1, "fg3": 1, "ft": "0/0", "pf": 0, "share": 7.7, "start": false}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": null}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": 5, "fg2": 1, "fg3": 1, "ft": "0/0", "pf": 1, "share": 4.8, "start": false}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 14, "fg2": 5, "fg3": 1, "ft": "1/4", "pf": 0, "share": 9.5, "start": false}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/2", "pf": 0, "share": 3.0, "start": false}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": null}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 0, "share": 0.0, "start": false}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": null}, {"date": "03.23", "opp": "Pte-Peac", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 0, "share": 1.4, "start": false}];
+const games = [{"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 2, "share": 6.2, "start": true}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 12, "fg2": 5, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.3, "start": true}, {"date": "11.03", "opp": "University Of Pann.", "res": "W", "pts": 5, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 2, "share": 5.2, "start": false}, {"date": "11.17", "opp": "Mosonmagyaróvár Un.", "res": "L", "pts": 3, "fg2": 0, "fg3": 1, "ft": "0/2", "pf": 2, "share": 4.1, "start": false}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": 1, "fg2": 0, "fg3": 0, "ft": "1/2", "pf": 1, "share": 0.9, "start": true}, {"date": "12.01", "opp": "Pte-Peac", "res": "L", "pts": 7, "fg2": 3, "fg3": 0, "ft": "1/2", "pf": 1, "share": 14.9, "start": true}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": 5, "fg2": 1, "fg3": 1, "ft": "0/0", "pf": 0, "share": 7.7, "start": false}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": null}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": 5, "fg2": 1, "fg3": 1, "ft": "0/0", "pf": 1, "share": 4.8, "start": false}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 14, "fg2": 5, "fg3": 1, "ft": "1/4", "pf": 0, "share": 9.5, "start": false}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/2", "pf": 0, "share": 3.0, "start": false}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": null}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 0, "share": 0.0, "start": false}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": null}, {"date": "03.23", "opp": "Pte-Peac", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 0, "share": 1.4, "start": false}];
 const maxPts = 14;
 
 const tbody = document.getElementById('gameLogBody');
@@ -220,7 +220,7 @@ new Chart(document.getElementById('scoringTrend').getContext('2d'), {
       pointBorderColor:played.map(g=>g.res==='W'?'#00b894':'#e17055'),
       pointRadius:6, pointHoverRadius:9, borderWidth:3,
     }, {
-      label:'Átlag (5.0)', data:played.map(()=>5.0),
+      label:'Átlag (5.1)', data:played.map(()=>5.1),
       borderColor:'rgba(255,255,255,0.2)', borderDash:[6,4],
       pointRadius:0, borderWidth:1, fill:false,
     }]
@@ -270,9 +270,9 @@ new Chart(document.getElementById('quarterChart').getContext('2d'), {
 new Chart(document.getElementById('opponentChart').getContext('2d'), {
   type:'bar',
   data: {
-    labels:["Smafc 1860 Soproni.", "Tfse", "Ludovika Sportegye.", "Pte-Peac", "University Of Pann.", "Szombathelyi Egyet.", "University Of Pann.", "Mosonmagyaróvár Un.", "Vesc"],
+    labels:["Smafc 1860 Soproni.", "University Of Pann.", "Tfse", "Ludovika Sportegye.", "Pte-Peac", "Szombathelyi Egyet.", "University Of Pann.", "Mosonmagyaróvár Un.", "Vesc"],
     datasets:[{
-      label:'PPG', data:[13.0, 5.0, 5.0, 4.5, 4.0, 4.0, 3.0, 1.5, 1.0],
+      label:'PPG', data:[13.0, 5.0, 5.0, 5.0, 4.5, 4.0, 3.0, 1.5, 1.0],
       backgroundColor:["rgba(0,206,201,0.7)", "rgba(253,203,110,0.6)", "rgba(253,203,110,0.6)", "rgba(253,203,110,0.6)", "rgba(253,203,110,0.6)", "rgba(253,203,110,0.6)", "rgba(225,112,85,0.5)", "rgba(225,112,85,0.5)", "rgba(225,112,85,0.5)"],
       borderColor:["#00cec9", "#fdcb6e", "#fdcb6e", "#fdcb6e", "#fdcb6e", "#fdcb6e", "#e17055", "#e17055", "#e17055"],
       borderWidth:2, borderRadius:6,
