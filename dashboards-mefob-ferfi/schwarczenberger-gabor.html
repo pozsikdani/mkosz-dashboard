@@ -105,7 +105,7 @@
     <div class="header-info">
       <h1>SCHWARCZENBERGER GÁBOR</h1>
       <div class="subtitle">
-        <span>#35</span> &nbsp;|&nbsp; Közgáz SC és DSK &nbsp;|&nbsp; Fiú egyetemi Nyugat &nbsp;|&nbsp; 2025/26 alapszakasz | 2 technikai, 2 sportszerűtlen hiba
+        <span>#35</span> &nbsp;|&nbsp; Közgáz SC és DSK &nbsp;|&nbsp; Fiú egyetemi Nyugat &nbsp;|&nbsp; 2025/26 alapszakasz | 3 technikai, 3 sportszerűtlen hiba
       </div>
     </div>
     <div class="header-stats">
@@ -118,7 +118,7 @@
   </div>
   <div class="grid grid-4 mb20">
     <div class="card mini-stat"><div class="big" style="color:var(--accent)">228</div><div class="desc">Összes pont</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--accent2)">50%</div><div class="desc">FT% (25/50)</div></div>
+    <div class="card mini-stat"><div class="big" style="color:var(--accent2)">53%</div><div class="desc">FT% (27/51)</div></div>
     <div class="card mini-stat"><div class="big" style="color:var(--accent3)">2.5</div><div class="desc">Fault / meccs</div></div>
     <div class="card mini-stat"><div class="big" style="color:var(--accent4)">11.5%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
@@ -142,8 +142,8 @@
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:var(--accent4)">FT</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:16%;background:var(--accent4);">25/50</div></div>
-          <div class="shot-pct" style="color:var(--accent4)">25 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:17%;background:var(--accent4);">27/51</div></div>
+          <div class="shot-pct" style="color:var(--accent4)">27 pt</div>
         </div>
       </div>
       <div style="margin-top:20px;"><div class="chart-wrap" style="height:160px;"><canvas id="shotPie"></canvas></div></div>
@@ -180,7 +180,7 @@
       <div>
         <div style="color:var(--accent3);font-weight:700;margin-bottom:6px;">Fejlesztendő területek</div>
         <ul style="padding-left:18px;color:var(--text-dim);">
-          <li><span style="color:#fff;font-weight:600;">Inkonzisztens: 2-25 pont szórás</span></li><li><span style="color:#fff;font-weight:600;">Gyenge büntető: 50% (25/50)</span></li><li><span style="color:#fff;font-weight:600;">University Of Pann. ellen gyenge: 2.0 PPG</span></li><li><span style="color:#fff;font-weight:600;">4 meccsen nem kapott lehetőséget (DNP)</span></li>
+          <li><span style="color:#fff;font-weight:600;">Inkonzisztens: 2-25 pont szórás</span></li><li><span style="color:#fff;font-weight:600;">Gyenge büntető: 53% (27/51)</span></li><li><span style="color:#fff;font-weight:600;">University Of Pann. ellen gyenge: 2.0 PPG</span></li><li><span style="color:#fff;font-weight:600;">4 meccsen nem kapott lehetőséget (DNP)</span></li>
         </ul>
       </div>
     </div>
@@ -191,7 +191,7 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": 13, "fg2": 6, "fg3": 0, "ft": "1/3", "pf": 3, "share": 20.0, "start": true}, {"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": 13, "fg2": 6, "fg3": 0, "ft": "1/3", "pf": 3, "share": 20.0, "start": true}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/1", "pf": 3, "share": 6.8, "start": true}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/1", "pf": 3, "share": 6.8, "start": true}, {"date": "11.03", "opp": "University Of Pann.", "res": "W", "pts": null}, {"date": "11.17", "opp": "Mosonmagyaróvár Un.", "res": "L", "pts": 8, "fg2": 2, "fg3": 1, "ft": "1/2", "pf": 4, "share": 11.0, "start": true}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": 15, "fg2": 6, "fg3": 0, "ft": "3/7", "pf": 1, "share": 13.6, "start": true}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": 15, "fg2": 6, "fg3": 0, "ft": "3/7", "pf": 0, "share": 13.6, "start": true}, {"date": "12.01", "opp": "Pte-Peac", "res": "L", "pts": null}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": 9, "fg2": 4, "fg3": 0, "ft": "1/2", "pf": 3, "share": 13.8, "start": true}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": 9, "fg2": 4, "fg3": 0, "ft": "1/2", "pf": 3, "share": 13.8, "start": true}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 25, "fg2": 8, "fg3": 2, "ft": "1/1", "pf": 1, "share": 27.2, "start": true}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 23, "fg2": 8, "fg3": 2, "ft": "1/1", "pf": 1, "share": 25.0, "start": true}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": null}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 3, "fg3": 2, "ft": "1/2", "pf": 2, "share": 8.8, "start": true}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 3, "fg3": 2, "ft": "1/2", "pf": 2, "share": 8.8, "start": true}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 2, "share": 2.0, "start": true}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 2, "share": 2.0, "start": true}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 9, "fg2": 4, "fg3": 0, "ft": "1/2", "pf": 4, "share": 11.0, "start": true}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 9, "fg2": 4, "fg3": 0, "ft": "1/2", "pf": 4, "share": 11.0, "start": true}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 13, "fg2": 0, "fg3": 3, "ft": "4/6", "pf": 3, "share": 12.6, "start": true}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 13, "fg2": 0, "fg3": 3, "ft": "4/6", "pf": 3, "share": 12.6, "start": true}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": null}, {"date": "03.23", "opp": "Pte-Peac", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/0", "pf": 3, "share": 5.4, "start": false}];
+const games = [{"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": 13, "fg2": 6, "fg3": 0, "ft": "1/3", "pf": 3, "share": 20.0, "start": true}, {"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": 13, "fg2": 6, "fg3": 0, "ft": "1/3", "pf": 3, "share": 20.0, "start": true}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/1", "pf": 3, "share": 6.8, "start": true}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/1", "pf": 3, "share": 6.8, "start": true}, {"date": "11.03", "opp": "University Of Pann.", "res": "W", "pts": null}, {"date": "11.17", "opp": "Mosonmagyaróvár Un.", "res": "L", "pts": 8, "fg2": 2, "fg3": 1, "ft": "1/2", "pf": 4, "share": 11.0, "start": true}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": 15, "fg2": 6, "fg3": 0, "ft": "3/7", "pf": 1, "share": 13.6, "start": true}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": 15, "fg2": 6, "fg3": 0, "ft": "3/7", "pf": 0, "share": 13.6, "start": true}, {"date": "12.01", "opp": "Pte-Peac", "res": "L", "pts": null}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": 9, "fg2": 4, "fg3": 0, "ft": "1/2", "pf": 3, "share": 13.8, "start": true}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": 9, "fg2": 4, "fg3": 0, "ft": "1/2", "pf": 3, "share": 13.8, "start": true}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 25, "fg2": 9, "fg3": 2, "ft": "1/1", "pf": 1, "share": 27.2, "start": true}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 23, "fg2": 8, "fg3": 2, "ft": "1/1", "pf": 1, "share": 25.0, "start": true}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": null}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 3, "fg3": 2, "ft": "1/2", "pf": 2, "share": 8.8, "start": true}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 3, "fg3": 2, "ft": "1/2", "pf": 2, "share": 8.8, "start": true}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 2, "share": 2.0, "start": true}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 2, "share": 2.0, "start": true}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 9, "fg2": 3, "fg3": 0, "ft": "3/3", "pf": 4, "share": 11.0, "start": true}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 9, "fg2": 4, "fg3": 0, "ft": "1/2", "pf": 4, "share": 11.0, "start": true}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 13, "fg2": 0, "fg3": 3, "ft": "4/6", "pf": 3, "share": 12.6, "start": true}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 13, "fg2": 0, "fg3": 3, "ft": "4/6", "pf": 3, "share": 12.6, "start": true}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": null}, {"date": "03.23", "opp": "Pte-Peac", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/0", "pf": 3, "share": 5.4, "start": false}];
 const maxPts = 25;
 
 const tbody = document.getElementById('gameLogBody');
@@ -239,8 +239,8 @@ new Chart(document.getElementById('scoringTrend').getContext('2d'), {
 new Chart(document.getElementById('shotPie').getContext('2d'), {
   type:'doughnut',
   data: {
-    labels:['3FG (45 pt)','2FG (156 pt)','FT (25 pt)'],
-    datasets:[{ data:[45,156,25], backgroundColor:['#C41E3A','#00cec9','#fdcb6e'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
+    labels:['3FG (45 pt)','2FG (156 pt)','FT (27 pt)'],
+    datasets:[{ data:[45,156,27], backgroundColor:['#C41E3A','#00cec9','#fdcb6e'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
   },
   options: { responsive:true, maintainAspectRatio:false, cutout:'60%',
     plugins:{ legend:{ position:'right', labels:{ padding:12, usePointStyle:true, font:{size:11} } } }
