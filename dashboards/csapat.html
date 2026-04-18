@@ -440,9 +440,9 @@ new Chart(attCtx, {
   type:'bar',
   plugins:[attThresholdPlugin],
   data: {
-    labels:["Fodor", "Lénárt", "Bartus", "Szalay", "Kadocsa", "Somogyi", "Szakács", "Bernacchini", "Bencze", "Dudás", "Matskási", "Tóth", "Kovács", "Essősy", "Alfarag", "Horváth", "Földes", "Virág", "Pozsik (edző)"],
+    labels:["Fodor", "Lénárt", "Bartus", "Szalay", "Kadocsa", "Somogyi", "Szakács", "Bernacchini", "Bencze", "Matskási", "Dudás", "Tóth", "Kovács", "Essősy", "Alfarag", "Horváth", "Földes", "Virág", "Pozsik (edző)"],
     datasets:[{
-      data:[88, 76, 71, 66, 66, 63, 61, 61, 57, 49, 49, 46, 41, 39, 37, 37, 22, 20, 93],
+      data:[88, 74, 70, 67, 67, 65, 60, 60, 59, 49, 47, 44, 40, 37, 35, 35, 21, 19, 91],
       backgroundColor:["rgba(0,184,148,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(253,203,110,0.7)"],
       borderColor:["#00b894", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#fdcb6e"],
       borderWidth:2, borderRadius:4, borderSkipped:false,
@@ -453,7 +453,7 @@ new Chart(attCtx, {
     plugins: {
       legend:{ display:false },
       tooltip:{ callbacks:{ label: function(ctx) {
-        const ratios = ["36/41", "31/41", "29/41", "27/41", "27/41", "26/41", "25/41", "25/41", "17/30", "20/41", "20/41", "19/41", "17/41", "16/41", "15/41", "15/41", "9/41", "8/41", "38/41"];
+        const ratios = ["38/43", "32/43", "30/43", "29/43", "29/43", "28/43", "26/43", "26/43", "19/32", "21/43", "20/43", "19/43", "17/43", "16/43", "15/43", "15/43", "9/43", "8/43", "39/43"];
         return ratios[ctx.dataIndex] + ' (' + ctx.parsed.x + '%)';
       } } },
     },
