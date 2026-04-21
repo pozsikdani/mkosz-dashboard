@@ -296,12 +296,13 @@ def _team_like(conn, cfg):
     """Determine which LIKE pattern to use. If broad pattern matches exactly
     one team in the competition, use it (simpler queries). Otherwise use specific."""
     broad = cfg["team_pattern_broad"]
-    cc = cfg["comp_code"]
-    rows = conn.execute("""
-        SELECT DISTINCT team_a_name FROM matches WHERE comp_code = ? AND season = ? AND team_a_name LIKE ?
+    comps = _comp_list(cfg)
+    _cph = ",".join("?" * len(comps))
+    rows = conn.execute(f"""
+        SELECT DISTINCT team_a_name FROM matches WHERE comp_code IN ({_cph}) AND season = ? AND team_a_name LIKE ?
         UNION
-        SELECT DISTINCT team_b_name FROM matches WHERE comp_code = ? AND season = ? AND team_b_name LIKE ?
-    """, (cc, SEASON, broad, cc, SEASON, broad)).fetchall()
+        SELECT DISTINCT team_b_name FROM matches WHERE comp_code IN ({_cph}) AND season = ? AND team_b_name LIKE ?
+    """, (*comps, SEASON, broad, *comps, SEASON, broad)).fetchall()
     if len(rows) == 1:
         return broad
     return cfg["team_pattern"]
@@ -312,13 +313,20 @@ def _is_pbp(cfg):
     return cfg["comp_code"] in PBP_COMPS
 
 
+def _comp_list(cfg):
+    """Return [primary comp_code, ...mkosz_extra_comps] — used for SQL IN clause.
+    Enables combining alapszakasz + rájátszás matches into one dataset."""
+    return [cfg["comp_code"]] + list(cfg.get("mkosz_extra_comps", []))
+
+
 def get_roster(conn, cfg, tp):
-    cc = cfg["comp_code"]
-    return conn.execute("""
+    comps = _comp_list(cfg)
+    ph = ",".join("?" * len(comps))
+    return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team
-            FROM matches m WHERE m.comp_code = ? AND m.season = ?
+            FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
               AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
         )
         SELECT COALESCE(pgs.license_number, pgs.player_name) as lic,
@@ -335,13 +343,14 @@ def get_roster(conn, cfg, tp):
         JOIN kg ON pgs.gamecode = kg.gamecode AND pgs.team = kg.kg_team
         GROUP BY COALESCE(pgs.license_number, pgs.player_name)
         ORDER BY total_pts DESC
-    """, (tp, cc, SEASON, tp, tp)).fetchall()
+    """, (tp, *comps, SEASON, tp, tp)).fetchall()
 
 
 def get_game_log(conn, cfg, tp, player_id):
     """Get game log for a player. player_id is license_number or player_name."""
-    cc = cfg["comp_code"]
-    return conn.execute("""
+    comps = _comp_list(cfg)
+    ph = ",".join("?" * len(comps))
+    return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode, m.match_date,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team,
@@ -349,7 +358,7 @@ def get_game_log(conn, cfg, tp, player_id):
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opponent,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg_score,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as opp_score
-            FROM matches m WHERE m.comp_code = ? AND m.season = ?
+            FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
               AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
         )
         SELECT kg.gamecode, kg.match_date, kg.hv, kg.opponent, kg.kg_score, kg.opp_score,
@@ -361,17 +370,18 @@ def get_game_log(conn, cfg, tp, player_id):
             AND COALESCE(pgs.license_number, pgs.player_name) = ?
             AND pgs.team = kg.kg_team
         ORDER BY kg.match_date
-    """, (tp, tp, tp, tp, tp, cc, SEASON, tp, tp, player_id)).fetchall()
+    """, (tp, tp, tp, tp, tp, *comps, SEASON, tp, tp, player_id)).fetchall()
 
 
 def get_quarter_stats(conn, cfg, tp, player_id):
     """Get quarter stats for a player using scoring_events table."""
-    cc = cfg["comp_code"]
-    return conn.execute("""
+    comps = _comp_list(cfg)
+    ph = ",".join("?" * len(comps))
+    return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team
-            FROM matches m WHERE m.comp_code = ? AND m.season = ?
+            FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
               AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
         )
         SELECT se.quarter,
@@ -383,17 +393,18 @@ def get_quarter_stats(conn, cfg, tp, player_id):
         JOIN kg ON se.gamecode = kg.gamecode AND se.team = kg.kg_team
         WHERE se.license_number = ?
         GROUP BY se.quarter ORDER BY se.quarter
-    """, (tp, cc, SEASON, tp, tp, player_id)).fetchall()
+    """, (tp, *comps, SEASON, tp, tp, player_id)).fetchall()
 
 
 def get_quarter_stats_pbp(conn, cfg, tp, player_id):
     """Get quarter stats for a player using pbp_events table."""
-    cc = cfg["comp_code"]
-    return conn.execute("""
+    comps = _comp_list(cfg)
+    ph = ",".join("?" * len(comps))
+    return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team
-            FROM matches m WHERE m.comp_code = ? AND m.season = ?
+            FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
               AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
               AND m.score_a + m.score_b > 0
         )
@@ -407,17 +418,18 @@ def get_quarter_stats_pbp(conn, cfg, tp, player_id):
         WHERE e.player_name = (SELECT pgs.player_name FROM player_game_stats pgs
               WHERE COALESCE(pgs.license_number, pgs.player_name) = ? LIMIT 1)
         GROUP BY e.quarter ORDER BY e.quarter
-    """, (tp, cc, SEASON, tp, tp, player_id)).fetchall()
+    """, (tp, *comps, SEASON, tp, tp, player_id)).fetchall()
 
 
 def get_opponent_ppg(conn, cfg, tp, player_id):
-    cc = cfg["comp_code"]
-    return conn.execute("""
+    comps = _comp_list(cfg)
+    ph = ",".join("?" * len(comps))
+    return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team,
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opponent
-            FROM matches m WHERE m.comp_code = ? AND m.season = ?
+            FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
               AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
         )
         SELECT kg.opponent,
@@ -429,17 +441,18 @@ def get_opponent_ppg(conn, cfg, tp, player_id):
         WHERE COALESCE(pgs.license_number, pgs.player_name) = ?
         GROUP BY kg.opponent
         ORDER BY ppg DESC
-    """, (tp, tp, cc, SEASON, tp, tp, player_id)).fetchall()
+    """, (tp, tp, *comps, SEASON, tp, tp, player_id)).fetchall()
 
 
 def get_tech_unsport(conn, cfg, tp, player_id):
     """Get tech and unsportsmanlike foul counts for a player."""
-    cc = cfg["comp_code"]
-    rows = conn.execute("""
+    comps = _comp_list(cfg)
+    ph = ",".join("?" * len(comps))
+    rows = conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team
-            FROM matches m WHERE m.comp_code = ? AND m.season = ?
+            FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
               AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
         ),
         player_jerseys AS (
@@ -455,7 +468,7 @@ def get_tech_unsport(conn, cfg, tp, player_id):
         JOIN player_jerseys pj ON pf.gamecode = pj.gamecode AND pf.team = pj.team
             AND pf.jersey_number = pj.jersey_number
         WHERE pf.foul_category IN ('T','U')
-    """, (tp, cc, SEASON, tp, tp, player_id)).fetchone()
+    """, (tp, *comps, SEASON, tp, tp, player_id)).fetchone()
     if rows is None:
         return (0, 0)
     return (rows[0] or 0, rows[1] or 0)
@@ -465,7 +478,8 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
     """PBP-based team stats for competitions with pbp_events data.
     Uses pbp_events for scoring runs, shooting totals, top scorers.
     Uses quarter_scores JSON from matches for quarter averages + scenarios."""
-    cc = cfg["comp_code"]
+    comps = _comp_list(cfg)
+    _cph = ",".join("?" * len(comps))
     d = {}
 
     # Build match filter
@@ -487,7 +501,7 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opp,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as op
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
               AND m.score_a + m.score_b > 0
         )
         SELECT COUNT(*), SUM(CASE WHEN kg>op THEN 1 ELSE 0 END),
@@ -501,7 +515,7 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
                SUM(CASE WHEN hv='V' AND kg>op THEN 1 ELSE 0 END),
                SUM(CASE WHEN hv='V' THEN 1 ELSE 0 END)
         FROM kg
-    """, (tp, tp, tp, tp, cc, SEASON, *_mp)).fetchone()
+    """, (tp, tp, tp, tp, *comps, SEASON, *_mp)).fetchone()
     d["games"], d["wins"], d["losses"] = r[0], r[1], r[2]
     d["scored"], d["allowed"] = r[3], r[4]
     d["ppg"], d["opp_ppg"] = r[5], r[6]
@@ -519,19 +533,19 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opp,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as op
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
               AND m.score_a + m.score_b > 0
         )
         SELECT match_date, hv, opp, kg, op FROM kg ORDER BY match_date
-    """, (tp, tp, tp, tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, tp, tp, tp, *comps, SEASON, *_mp)).fetchall()
 
     # Quarter averages — from quarter_scores JSON in matches table
     matches_qs = conn.execute(f"""
         SELECT m.quarter_scores,
                CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t
-        FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+        FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
           AND m.score_a + m.score_b > 0
-    """, (tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, *comps, SEASON, *_mp)).fetchall()
 
     q_data = {str(i): {"kg": [], "op": []} for i in range(1, 5)}
     for row in matches_qs:
@@ -570,9 +584,9 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
                CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t,
                CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg_final,
                CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as opp_final
-        FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+        FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
           AND m.score_a + m.score_b > 0
-    """, (tp, tp, tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, tp, tp, *comps, SEASON, *_mp)).fetchall()
 
     for row in match_finals:
         qs_json, team_side, kg_final, opp_final = row
@@ -619,7 +633,7 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
                 SELECT m.gamecode, m.match_date,
                        CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t,
                        CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opp
-                FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+                FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
                   AND m.score_a + m.score_b > 0
             ),
             made AS (
@@ -640,7 +654,7 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
             FROM with_rid WHERE is_team={is_team_val}
             GROUP BY gamecode, rid
             ORDER BY run_pts DESC LIMIT 5
-        """, (tp, tp, cc, SEASON, *_mp)).fetchall()
+        """, (tp, tp, *comps, SEASON, *_mp)).fetchall()
         d[label] = rows
 
     # Team shooting totals — from pbp_events
@@ -648,7 +662,7 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
               AND m.score_a + m.score_b > 0
         )
         SELECT SUM(CASE WHEN e.event_type='THREE_MADE' THEN 1 ELSE 0 END) as fg3,
@@ -656,7 +670,7 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
                SUM(CASE WHEN e.event_type='FT_MADE' THEN 1 ELSE 0 END) as ftm,
                SUM(CASE WHEN e.event_type IN ('FT_MADE','FT_MISS') THEN 1 ELSE 0 END) as fta
         FROM pbp_events e JOIN kg ON e.gamecode=kg.gamecode AND e.team=kg.t
-    """, (tp, cc, SEASON, *_mp)).fetchone()
+    """, (tp, *comps, SEASON, *_mp)).fetchone()
     d["fg3"], d["fg2"], d["ftm"], d["fta"] = r
 
     # Top scorers
@@ -664,7 +678,7 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
               AND m.score_a + m.score_b > 0
         ),
         per_game AS (
@@ -678,20 +692,20 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
                ROUND(1.0*SUM(pts)/NULLIF(COUNT(*),0),1) as ppg, COUNT(*) as gp
         FROM per_game
         GROUP BY player_name ORDER BY tp DESC LIMIT 3
-    """, (tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, *comps, SEASON, *_mp)).fetchall()
 
     # Players used count
     d["players_used"] = conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
               AND m.score_a + m.score_b > 0
         )
         SELECT COUNT(DISTINCT e.player_name)
         FROM pbp_events e JOIN kg ON e.gamecode=kg.gamecode AND e.team=kg.t
         WHERE e.player_name IS NOT NULL
-    """, (tp, cc, SEASON, *_mp)).fetchone()[0]
+    """, (tp, *comps, SEASON, *_mp)).fetchone()[0]
 
     # Closest games
     d["closest"] = conn.execute(f"""
@@ -700,12 +714,12 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opp,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as op
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
               AND m.score_a + m.score_b > 0
         )
         SELECT match_date, opp, kg, op, ABS(kg-op) as diff
         FROM kg ORDER BY diff ASC LIMIT 3
-    """, (tp, tp, tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, tp, tp, *comps, SEASON, *_mp)).fetchall()
 
     return d
 
@@ -987,7 +1001,7 @@ def generate_html(player_data, game_log, quarter_stats, opp_stats, tech, unsport
     <div class="header-info">
       <h1>{name}</h1>
       <div class="subtitle">
-        <span>#{jersey}</span> &nbsp;|&nbsp; {team_display} &nbsp;|&nbsp; {group_display} &nbsp;|&nbsp; 2025/26 alapszakasz{tech_text}
+        <span>#{jersey}</span> &nbsp;|&nbsp; {team_display} &nbsp;|&nbsp; {group_display} &nbsp;|&nbsp; 2025/26 szezon{tech_text}
       </div>
     </div>
     <div class="header-stats">
@@ -1176,7 +1190,8 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
     """Gather all team-level statistics for the team dashboard (scoresheet-based).
     hv_filter: None=all, 'H'=home only, 'V'=away only.
     """
-    cc = cfg["comp_code"]
+    comps = _comp_list(cfg)
+    _cph = ",".join("?" * len(comps))
     d = {}
 
     # Build match filter based on hv_filter
@@ -1198,7 +1213,7 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opp,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as op
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         )
         SELECT COUNT(*), SUM(CASE WHEN kg>op THEN 1 ELSE 0 END),
                SUM(CASE WHEN kg<op THEN 1 ELSE 0 END),
@@ -1211,7 +1226,7 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
                SUM(CASE WHEN hv='V' AND kg>op THEN 1 ELSE 0 END),
                SUM(CASE WHEN hv='V' THEN 1 ELSE 0 END)
         FROM kg
-    """, (tp, tp, tp, tp, cc, SEASON, *_mp)).fetchone()
+    """, (tp, tp, tp, tp, *comps, SEASON, *_mp)).fetchone()
     d["games"], d["wins"], d["losses"] = r[0], r[1], r[2]
     d["scored"], d["allowed"] = r[3], r[4]
     d["ppg"], d["opp_ppg"] = r[5], r[6]
@@ -1229,17 +1244,17 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opp,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as op
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         )
         SELECT match_date, hv, opp, kg, op FROM kg ORDER BY match_date
-    """, (tp, tp, tp, tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, tp, tp, tp, *comps, SEASON, *_mp)).fetchall()
 
     # Quarter averages
     d["quarters"] = conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         )
         SELECT qs.quarter,
                ROUND(1.0*SUM(CASE WHEN kg.t='A' THEN qs.score_a ELSE qs.score_b END)/NULLIF(COUNT(*),0),1),
@@ -1251,7 +1266,7 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
         FROM quarter_scores qs JOIN kg ON qs.gamecode=kg.gamecode
         WHERE qs.quarter IN ('1','2','3','4')
         GROUP BY qs.quarter ORDER BY qs.quarter
-    """, (tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, *comps, SEASON, *_mp)).fetchall()
 
     # Scenario analysis: halftime lead/deficit
     d["scenarios"] = conn.execute(f"""
@@ -1260,7 +1275,7 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg_final,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as opp_final
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         ),
         halves AS (
             SELECT kg.gamecode, kg.kg_final, kg.opp_final,
@@ -1295,7 +1310,7 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
                SUM(CASE WHEN kg_3q<opp_3q THEN 1 ELSE 0 END),
                SUM(CASE WHEN kg_3q<opp_3q AND kg_final>opp_final THEN 1 ELSE 0 END)
         FROM halves
-    """, (tp, tp, tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, tp, tp, *comps, SEASON, *_mp)).fetchall()
 
     # Top 5 scoring runs FOR and AGAINST
     for label, is_team_val in [("runs_for", 1), ("runs_against", 0)]:
@@ -1305,7 +1320,7 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
                 SELECT m.gamecode, m.match_date,
                        CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t,
                        CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opp
-                FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+                FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
             ),
             made AS (
                 SELECT se.gamecode, se.event_seq, se.points, se.quarter,
@@ -1324,7 +1339,7 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
             FROM with_rid WHERE is_team={is_team_val}
             GROUP BY gamecode, rid
             ORDER BY run_pts DESC LIMIT 5
-        """, (tp, tp, cc, SEASON, *_mp)).fetchall()
+        """, (tp, tp, *comps, SEASON, *_mp)).fetchall()
         d[label] = rows
 
     # Team shooting totals
@@ -1332,14 +1347,14 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         )
         SELECT SUM(CASE WHEN se.made=1 AND se.points=3 THEN 1 ELSE 0 END) as fg3,
                SUM(CASE WHEN se.made=1 AND se.points=2 THEN 1 ELSE 0 END) as fg2,
                SUM(CASE WHEN se.made=1 AND se.points=1 THEN 1 ELSE 0 END) as ftm,
                SUM(CASE WHEN se.points IN (0,1) THEN 1 ELSE 0 END) as fta
         FROM scoring_events se JOIN kg ON se.gamecode=kg.gamecode AND se.team=kg.t
-    """, (tp, cc, SEASON, *_mp)).fetchone()
+    """, (tp, *comps, SEASON, *_mp)).fetchone()
     d["fg3"], d["fg2"], d["ftm"], d["fta"] = r
 
     # Top scorers (for fun facts)
@@ -1347,24 +1362,24 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         )
         SELECT pgs.player_name, SUM(pgs.points) as tp,
                ROUND(1.0*SUM(pgs.points)/NULLIF(COUNT(*),0),1) as ppg, COUNT(*) as gp
         FROM player_game_stats pgs JOIN kg ON pgs.gamecode=kg.gamecode AND pgs.team=kg.t
         GROUP BY COALESCE(pgs.license_number, pgs.player_name) ORDER BY tp DESC LIMIT 3
-    """, (tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, *comps, SEASON, *_mp)).fetchall()
 
     # Players used count
     d["players_used"] = conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as t
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         )
         SELECT COUNT(DISTINCT COALESCE(pgs.license_number, pgs.player_name))
         FROM player_game_stats pgs JOIN kg ON pgs.gamecode=kg.gamecode AND pgs.team=kg.t
-    """, (tp, cc, SEASON, *_mp)).fetchone()[0]
+    """, (tp, *comps, SEASON, *_mp)).fetchone()[0]
 
     # Closest games
     d["closest"] = conn.execute(f"""
@@ -1373,11 +1388,11 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opp,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as op
-            FROM matches m WHERE m.comp_code = ? AND m.season = ? AND {_mf}
+            FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         )
         SELECT match_date, opp, kg, op, ABS(kg-op) as diff
         FROM kg ORDER BY diff ASC LIMIT 3
-    """, (tp, tp, tp, cc, SEASON, *_mp)).fetchall()
+    """, (tp, tp, tp, *comps, SEASON, *_mp)).fetchall()
 
     return d
 
@@ -1620,8 +1635,9 @@ def scrape_schedule_county(cfg):
 
 def get_calendar_data_db(conn, cfg, tp):
     """Fallback: fetch match data from SQLite."""
-    cc = cfg["comp_code"]
-    rows = conn.execute("""
+    comps = _comp_list(cfg)
+    _cph = ",".join("?" * len(comps))
+    rows = conn.execute(f"""
         SELECT m.match_date, m.match_time,
                CASE WHEN m.team_a_name LIKE ? THEN 'H' ELSE 'A' END as home_away,
                CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opponent,
@@ -1629,10 +1645,10 @@ def get_calendar_data_db(conn, cfg, tp):
                CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as opp_score,
                m.gamecode
         FROM matches m
-        WHERE m.comp_code = ? AND m.season = ?
+        WHERE m.comp_code IN ({_cph}) AND m.season = ?
           AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
         ORDER BY m.match_date
-    """, (tp, tp, tp, tp, cc, SEASON, tp, tp)).fetchall()
+    """, (tp, tp, tp, tp, *comps, SEASON, tp, tp)).fetchall()
     # Convert to same dict format as scrape_schedule
     return [{
         "date": r[0], "time": r[1] or "",
@@ -1974,7 +1990,7 @@ new Chart(attCtx, {{
     <div class="header-info">
       <h1>{team_name}</h1>
       <div class="subtitle">
-        <span>CSAPAT STATISZTIKÁK</span> &nbsp;|&nbsp; {group_name} &nbsp;|&nbsp; 2025/26 alapszakasz
+        <span>CSAPAT STATISZTIKÁK</span> &nbsp;|&nbsp; {group_name} &nbsp;|&nbsp; 2025/26 szezon
       </div>
     </div>
     <div class="header-stats" id="headerStats">
@@ -2579,7 +2595,7 @@ body{{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:va
   <div class="header">
     <div>
       <h1>Menetrend</h1>
-      <div class="subtitle">{cfg["team_name"]} &nbsp;|&nbsp; <span>{cfg["group_name"]}</span> &nbsp;|&nbsp; 2025/26 alapszakasz</div>
+      <div class="subtitle">{cfg["team_name"]} &nbsp;|&nbsp; <span>{cfg["group_name"]}</span> &nbsp;|&nbsp; 2025/26 szezon</div>
     </div>
     <div class="header-stats">
       <div class="header-stat"><div class="val green">{wins}</div><div class="label">Győzelem</div></div>
@@ -3138,7 +3154,7 @@ def generate_index(players, cfg, team_key=None):
   <a href="../index.html" class="back-link">&larr; Főoldal</a>
   <div class="team-header">
     <h1>{cfg["team_name"]}</h1>
-    <div class="sub">{cfg["group_name"]} &nbsp;|&nbsp; <span>2025/26 alapszakasz</span> &nbsp;|&nbsp; Játékos dashboardok</div>
+    <div class="sub">{cfg["group_name"]} &nbsp;|&nbsp; <span>2025/26 szezon</span> &nbsp;|&nbsp; Játékos dashboardok</div>
   </div>
   <a href="csapat.html" class="team-card">
     <div class="team-icon">📊</div>
