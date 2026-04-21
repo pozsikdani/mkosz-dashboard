@@ -105,12 +105,12 @@
     <div class="header-info">
       <h1>MOLNÁR KATA FRUZSINA</h1>
       <div class="subtitle">
-        <span>#15</span> &nbsp;|&nbsp; KÖZGÁZ &nbsp;|&nbsp; Női A - Cziffra Mihály &nbsp;|&nbsp; 2025/26 alapszakasz
+        <span>#15</span> &nbsp;|&nbsp; KÖZGÁZ &nbsp;|&nbsp; Női A - Cziffra Mihály &nbsp;|&nbsp; 2025/26 szezon
       </div>
     </div>
     <div class="header-stats">
       <div class="header-stat"><div class="val accent">0.0</div><div class="label">PPG</div></div>
-      <div class="header-stat"><div class="val green">1</div><div class="label">Meccs</div></div>
+      <div class="header-stat"><div class="val green">2</div><div class="label">Meccs</div></div>
       <div class="header-stat"><div class="val pink">0</div><div class="label">3FG</div></div>
       <div class="header-stat"><div class="val" style="color:var(--accent4)">0</div><div class="label">Csúcs</div></div>
       
@@ -191,7 +191,7 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.29", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null}, {"date": "11.05", "opp": "Kék Rókák", "res": "L", "pts": null}, {"date": "11.16", "opp": "Beac Blse", "res": "W", "pts": null}, {"date": "11.19", "opp": "Szpa - Hse", "res": "W", "pts": null}, {"date": "11.23", "opp": "Regi Waldorf U23", "res": "W", "pts": null}, {"date": "12.17", "opp": "Beac Bics", "res": "W", "pts": null}, {"date": "01.21", "opp": "Parthus Se", "res": "W", "pts": null}, {"date": "01.28", "opp": "Beac Muff", "res": "W", "pts": null}, {"date": "02.01", "opp": "Törekvés Se", "res": "W", "pts": null}, {"date": "02.11", "opp": "Beac Budafok", "res": "W", "pts": null}, {"date": "03.04", "opp": "Radobasket-Csepel", "res": "L", "pts": null}, {"date": "03.22", "opp": "Bkg Veresegyház", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 1, "share": 0.0, "start": false}];
+const games = [{"date": "10.29", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null}, {"date": "11.05", "opp": "Kék Rókák", "res": "L", "pts": null}, {"date": "11.16", "opp": "Beac Blse", "res": "W", "pts": null}, {"date": "11.19", "opp": "Szpa - Hse", "res": "W", "pts": null}, {"date": "11.23", "opp": "Regi Waldorf U23", "res": "W", "pts": null}, {"date": "12.17", "opp": "Beac Bics", "res": "W", "pts": null}, {"date": "01.21", "opp": "Parthus Se", "res": "W", "pts": null}, {"date": "01.28", "opp": "Beac Muff", "res": "W", "pts": null}, {"date": "02.01", "opp": "Törekvés Se", "res": "W", "pts": null}, {"date": "02.11", "opp": "Beac Budafok", "res": "W", "pts": null}, {"date": "03.04", "opp": "Radobasket-Csepel", "res": "L", "pts": null}, {"date": "03.22", "opp": "Bkg Veresegyház", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 1, "share": 0.0, "start": false}, {"date": "04.14", "opp": "Külkereskedelmi Sc", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 1, "share": 0.0, "start": false}];
 const maxPts = 1;
 
 const tbody = document.getElementById('gameLogBody');
@@ -270,11 +270,11 @@ new Chart(document.getElementById('quarterChart').getContext('2d'), {
 new Chart(document.getElementById('opponentChart').getContext('2d'), {
   type:'bar',
   data: {
-    labels:["Bkg Veresegyház"],
+    labels:["Külkereskedelmi Sc", "Bkg Veresegyház"],
     datasets:[{
-      label:'PPG', data:[0.0],
-      backgroundColor:["rgba(0,206,201,0.7)"],
-      borderColor:["#00cec9"],
+      label:'PPG', data:[0.0, 0.0],
+      backgroundColor:["rgba(0,206,201,0.7)", "rgba(0,206,201,0.7)"],
+      borderColor:["#00cec9", "#00cec9"],
       borderWidth:2, borderRadius:6,
     }]
   },
