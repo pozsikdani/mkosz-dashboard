@@ -73,6 +73,7 @@
   .badge.l { background:rgba(225,112,85,0.15); color:var(--red); }
   .badge.h { background:rgba(143,168,200,0.15); color:#8fa8c8; }
   .badge.v { background:rgba(253,203,110,0.15); color:var(--accent4); }
+  .m-hv { font-size:0.75rem; font-weight:700; color:var(--text); }
   .run-tbl { width:100%; border-collapse:collapse; font-size:0.82rem; }
   .run-tbl th { text-align:left; font-size:0.7rem; text-transform:uppercase; color:var(--text-dim); padding:6px 8px; border-bottom:1px solid var(--border); }
   .run-tbl td { padding:6px 8px; border-bottom:1px solid var(--border); }
@@ -262,7 +263,7 @@ function renderGameLog(s) {
     const diffColor = diff > 0 ? 'var(--green)' : 'var(--red)';
     const tr = document.createElement('tr');
     tr.innerHTML = '<td>'+g.date+'</td>'
-      +'<td><span class="badge '+(g.hv==='H'?'h':'v')+'">'+g.hv+'</span></td>'
+      +'<td><span class="m-hv">'+(g.hv==='H'?'vs':'@')+'</span></td>'
       +'<td>'+g.opp+'</td>'
       +'<td style="font-weight:700;">'+g.kg+'-'+g.op+'</td>'
       +'<td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td>'
