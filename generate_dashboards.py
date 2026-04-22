@@ -899,6 +899,8 @@ def generate_html(player_data, game_log, quarter_stats, opp_stats, tech, unsport
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+<link rel="apple-touch-icon" href="/kozgaz_logo.png">
 <title>{name} — 2025/26 Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
@@ -1867,6 +1869,8 @@ new Chart(attCtx, {{
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+<link rel="apple-touch-icon" href="/kozgaz_logo.png">
 <title>{team_short} — Csapat Dashboard 2025/26</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
@@ -2524,6 +2528,8 @@ def generate_calendar(matches, cfg, team_key=None):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+<link rel="apple-touch-icon" href="/kozgaz_logo.png">
 <title>{cfg["team_short"]} — Menetrend 2025/26</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -2893,6 +2899,8 @@ def generate_homepage(team_summaries):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+<link rel="apple-touch-icon" href="/kozgaz_logo.png">
 <title>Közgáz Basketball</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -3079,6 +3087,8 @@ def generate_index(players, cfg, team_key=None):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+<link rel="apple-touch-icon" href="/kozgaz_logo.png">
 <title>{cfg["team_short"]} — Játékos Dashboardok 2025/26</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
