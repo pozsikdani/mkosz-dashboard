@@ -118,7 +118,7 @@
   </div>
   <div class="grid grid-4 mb20">
     <div class="card mini-stat"><div class="big" style="color:var(--accent)">73</div><div class="desc">Összes pont</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--accent2)">65%</div><div class="desc">FT% (15/23)</div></div>
+    <div class="card mini-stat"><div class="big" style="color:var(--accent2)">62%</div><div class="desc">FT% (13/21)</div></div>
     <div class="card mini-stat"><div class="big" style="color:var(--accent3)">1.6</div><div class="desc">Fault / meccs</div></div>
     <div class="card mini-stat"><div class="big" style="color:var(--accent4)">7.0%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
@@ -132,18 +132,18 @@
       <div style="margin-top:20px;">
         <div class="shot-row">
           <div class="shot-label" style="color:var(--accent)">3FG</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:19%;background:var(--accent);">3 db</div></div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:20%;background:var(--accent);">3 db</div></div>
           <div class="shot-pct" style="color:var(--accent)">9 pt</div>
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:var(--accent2)">2FG</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:100%;background:var(--accent2);">24 db</div></div>
-          <div class="shot-pct" style="color:var(--accent2)">48 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:100%;background:var(--accent2);">23 db</div></div>
+          <div class="shot-pct" style="color:var(--accent2)">46 pt</div>
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:var(--accent4)">FT</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:31%;background:var(--accent4);">15/23</div></div>
-          <div class="shot-pct" style="color:var(--accent4)">15 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:28%;background:var(--accent4);">13/21</div></div>
+          <div class="shot-pct" style="color:var(--accent4)">13 pt</div>
         </div>
       </div>
       <div style="margin-top:20px;"><div class="chart-wrap" style="height:160px;"><canvas id="shotPie"></canvas></div></div>
@@ -191,7 +191,7 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/1", "pf": 1, "share": 5.2, "start": true}, {"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/1", "pf": 1, "share": 5.2, "start": true}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/2", "pf": 3, "share": 3.5, "start": true}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/2", "pf": 3, "share": 3.5, "start": true}, {"date": "11.10", "opp": "Szoese", "res": "W", "pts": null}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 2, "share": 0.0, "start": true}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 2, "share": 0.0, "start": true}, {"date": "12.08", "opp": "Bme-Mafc", "res": "W", "pts": null}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": 8, "fg2": 3, "fg3": 0, "ft": "2/2", "pf": 2, "share": 14.8, "start": true}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": 8, "fg2": 3, "fg3": 0, "ft": "2/2", "pf": 2, "share": 14.8, "start": true}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 2.9, "start": true}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": 5, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 7.2, "start": true}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/0", "pf": 0, "share": 8.6, "start": true}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/0", "pf": 0, "share": 8.6, "start": true}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": 9, "fg2": 1, "fg3": 1, "ft": "4/6", "pf": 3, "share": 11.8, "start": true}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": 7, "fg2": 1, "fg3": 1, "ft": "4/6", "pf": 3, "share": 9.2, "start": true}, {"date": "03.30", "opp": "Bme-Mafc", "res": "W", "pts": 8, "fg2": 2, "fg3": 1, "ft": "1/1", "pf": 0, "share": 10.5, "start": true}];
+const games = [{"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/1", "pf": 1, "share": 5.2, "start": true}, {"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": 3, "fg2": 1, "fg3": 0, "ft": "1/1", "pf": 1, "share": 5.2, "start": true}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/2", "pf": 3, "share": 3.5, "start": true}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/2", "pf": 3, "share": 3.5, "start": true}, {"date": "11.10", "opp": "Szoese", "res": "W", "pts": null}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 2, "share": 0.0, "start": true}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": 0, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 2, "share": 0.0, "start": true}, {"date": "12.08", "opp": "Bme-Mafc", "res": "W", "pts": null}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": 8, "fg2": 3, "fg3": 0, "ft": "2/2", "pf": 2, "share": 14.8, "start": true}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": 8, "fg2": 3, "fg3": 0, "ft": "2/2", "pf": 2, "share": 14.8, "start": true}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 2.9, "start": true}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": 5, "fg2": 0, "fg3": 0, "ft": "0/0", "pf": 1, "share": 7.2, "start": true}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/0", "pf": 0, "share": 8.6, "start": true}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 8, "fg2": 4, "fg3": 0, "ft": "0/0", "pf": 0, "share": 8.6, "start": true}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": 9, "fg2": 1, "fg3": 1, "ft": "4/6", "pf": 3, "share": 11.8, "start": true}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": 7, "fg2": 1, "fg3": 1, "ft": "2/4", "pf": 3, "share": 9.2, "start": true}, {"date": "03.30", "opp": "Bme-Mafc", "res": "W", "pts": 8, "fg2": 2, "fg3": 1, "ft": "1/1", "pf": 0, "share": 10.5, "start": true}];
 const maxPts = 9;
 
 const tbody = document.getElementById('gameLogBody');
@@ -239,8 +239,8 @@ new Chart(document.getElementById('scoringTrend').getContext('2d'), {
 new Chart(document.getElementById('shotPie').getContext('2d'), {
   type:'doughnut',
   data: {
-    labels:['3FG (9 pt)','2FG (48 pt)','FT (15 pt)'],
-    datasets:[{ data:[9,48,15], backgroundColor:['#C41E3A','#00cec9','#fdcb6e'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
+    labels:['3FG (9 pt)','2FG (46 pt)','FT (13 pt)'],
+    datasets:[{ data:[9,46,13], backgroundColor:['#C41E3A','#00cec9','#fdcb6e'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
   },
   options: { responsive:true, maintainAspectRatio:false, cutout:'60%',
     plugins:{ legend:{ position:'right', labels:{ padding:12, usePointStyle:true, font:{size:11} } } }
