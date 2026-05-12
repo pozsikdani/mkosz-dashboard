@@ -2708,6 +2708,31 @@ def generate_match_page(details, cfg, team_key):
                 <td>{p["pf"]}</td>
                 <td class="special-cell">{special_badges}</td>
             </tr>'''
+        # Összesítő (totals) sor
+        t_pts = sum(p["points"] for p in kg_players)
+        t_fg2 = sum(p["fg2_made"] for p in kg_players)
+        t_fg3 = sum(p["fg3_made"] for p in kg_players)
+        t_ftm = sum(p["ft_made"] for p in kg_players)
+        t_fta = sum(p["ft_att"] for p in kg_players)
+        t_pf = sum(p["pf"] for p in kg_players)
+        t_tech = sum(p.get("tech", 0) for p in kg_players)
+        t_unsport = sum(p.get("unsport", 0) for p in kg_players)
+        t_ft = (f'{t_ftm}/{t_fta} ({round(100 * t_ftm / t_fta)}%)' if t_fta else "–")
+        t_special = ''
+        if t_tech:
+            t_special += f'<span class="foul-badge tech">T{("×" + str(t_tech)) if t_tech > 1 else ""}</span>'
+        if t_unsport:
+            t_special += f'<span class="foul-badge unsport">U{("×" + str(t_unsport)) if t_unsport > 1 else ""}</span>'
+        kg_body += f'''<tr class="totals">
+            <td class="starter-cell"></td>
+            <td class="pname">Összesen</td>
+            <td>{t_pts}</td>
+            <td>{t_fg2}</td>
+            <td>{t_fg3}</td>
+            <td>{t_ft}</td>
+            <td>{t_pf}</td>
+            <td class="special-cell">{t_special}</td>
+        </tr>'''
         kg_html = f'''<div class="game-log-wrap">
         <table class="box-score">
           <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
@@ -2937,6 +2962,17 @@ def generate_match_page(details, cfg, team_key):
   }}
   .box-score tr:last-child td {{ border-bottom:none; }}
   .box-score tr:hover {{ background:rgba(196,30,58,0.05); }}
+  .box-score tr.totals td {{
+    font-weight:800; padding-top:12px; padding-bottom:12px;
+    background:rgba(255,255,255,0.03);
+    border-top:2px solid var(--border);
+    border-bottom:none;
+  }}
+  .box-score tr.totals:hover {{ background:rgba(255,255,255,0.03); }}
+  .box-score tr.totals td.pname {{
+    color:var(--text-dim); text-transform:uppercase;
+    font-size:0.7rem; letter-spacing:1px;
+  }}
   .opp-stats {{
     display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;
     margin-bottom:12px;

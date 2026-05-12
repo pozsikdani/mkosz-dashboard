@@ -137,6 +137,17 @@
   }
   .box-score tr:last-child td { border-bottom:none; }
   .box-score tr:hover { background:rgba(196,30,58,0.05); }
+  .box-score tr.totals td {
+    font-weight:800; padding-top:12px; padding-bottom:12px;
+    background:rgba(255,255,255,0.03);
+    border-top:2px solid var(--border);
+    border-bottom:none;
+  }
+  .box-score tr.totals:hover { background:rgba(255,255,255,0.03); }
+  .box-score tr.totals td.pname {
+    color:var(--text-dim); text-transform:uppercase;
+    font-size:0.7rem; letter-spacing:1px;
+  }
   .opp-stats {
     display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;
     margin-bottom:12px;
@@ -330,7 +341,16 @@
                 <td>–</td>
                 <td>1</td>
                 <td class="special-cell"></td>
-            </tr></tbody>
+            </tr><tr class="totals">
+            <td class="starter-cell"></td>
+            <td class="pname">Összesen</td>
+            <td>79</td>
+            <td>23</td>
+            <td>8</td>
+            <td>9/16 (56%)</td>
+            <td>18</td>
+            <td class="special-cell"><span class="foul-badge unsport">U×2</span></td>
+        </tr></tbody>
         </table>
         </div>
 </div>
