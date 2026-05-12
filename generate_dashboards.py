@@ -3063,28 +3063,85 @@ def generate_match_page(details, cfg, team_key):
     home_label = shorten_opponent(details["team_a_name"])
     away_label = shorten_opponent(details["team_b_name"])
 
-    fun_facts.append(f'Vezetés-váltás: <b>{lead_changes}</b> alkalommal fordult át a meccs')
-    fun_facts.append(f'Legnagyobb vezetés: <b>{home_label} +{max_a}</b> / <b>{away_label} +{max_b}</b>')
-    fun_facts.append(f'Leghosszabb sorozat (válasz nélkül): <b>{home_label} {run_a}-0</b> / <b>{away_label} {run_b}-0</b>')
-    qw_text = f'<b>{home_label} {q_won_a}</b> / <b>{away_label} {q_won_b}</b>'
-    if q_tied: qw_text += f' / <b>{q_tied} döntetlen</b>'
-    fun_facts.append(f'Negyedek megnyerve: {qw_text}')
-    fun_facts.append(f'Összes személyes fault: <b>Közgáz {kg_total_fouls}</b> / <b>{away_label if details["kg_is_home"] else home_label} {opp_total_fouls}</b>')
-    fun_facts.append(f'Időkérések: <b>{home_label} {home_to_count}</b> / <b>{away_label} {away_to_count}</b>')
-    fun_facts.append(f'Közgáz pontok eloszlása: kezdőktől <b>{kg_starter_pts}p</b>, padról <b>{kg_bench_pts}p</b>')
+    # 'vs' típusú összehasonlítások — vizuális sáv két csapat között
+    # Tuple: (label, home_value, away_value, fmt_function, note)
+    vs_items = []
+    def _fmt_int(v): return str(v)
+    def _fmt_plus(v): return f"+{v}"
+    def _fmt_p(v): return f"{v}p"
+    def _fmt_run(v): return f"{v}-0"
+
+    vs_items.append(("Legnagyobb vezetés", max_a, max_b, _fmt_plus, None))
+    vs_items.append(("Leghosszabb sorozat", run_a, run_b, _fmt_run, "válasz nélküli pont"))
+    vs_items.append(("Negyedek megnyerve", q_won_a, q_won_b, _fmt_int, (f"{q_tied} döntetlen" if q_tied else None)))
+    # Faultok-nál fontos hogy a kisebb a "jobb", de a fő mutató ugyanaz
+    vs_items.append(("Összes személyes fault", kg_total_fouls if details["kg_is_home"] else opp_total_fouls,
+                     opp_total_fouls if details["kg_is_home"] else kg_total_fouls, _fmt_int, "összes egyéni"))
+    vs_items.append(("Időkérések", home_to_count, away_to_count, _fmt_int, None))
+    if clutch_a or clutch_b:
+        vs_items.append(("Záró 5 perc", clutch_a, clutch_b, _fmt_p, "utolsó 5 percben"))
+    if drought_a or drought_b:
+        vs_items.append(("Leghosszabb pont-szárazság", drought_a, drought_b, _fmt_p, "becslés"))
+
+    # KG fókuszú: melyik szín lesz a "winner" — ha Közgáz van pluszban, zöld; ha az ellenfél, szürke
+    def _vs_card(label, hv, av, fmt, note):
+        total = (hv or 0) + (av or 0)
+        if total <= 0:
+            h_pct = a_pct = 50
+        else:
+            h_pct = round(100 * hv / total)
+            a_pct = 100 - h_pct
+        home_winner = hv > av
+        away_winner = av > hv
+        # KG zöld, ellenfél szürke; ha egyforma, mindkettő semleges
+        kg_color = "#00b894"
+        opp_color = "#8b8da0"
+        if details["kg_is_home"]:
+            h_color, a_color = kg_color, opp_color
+        else:
+            h_color, a_color = opp_color, kg_color
+        # Highlight winner side
+        h_class = "vs-side vs-winner" if home_winner else "vs-side"
+        a_class = "vs-side vs-winner" if away_winner else "vs-side"
+        note_html = f'<div class="vs-note">{note}</div>' if note else ''
+        return f'''<div class="vs-card">
+          <div class="vs-label">{label}</div>
+          <div class="vs-values">
+            <div class="{h_class}">
+              <div class="vs-team">{home_label}</div>
+              <div class="vs-val" style="color:{h_color if home_winner else 'var(--text-dim)'}">{fmt(hv)}</div>
+            </div>
+            <div class="{a_class}">
+              <div class="vs-val" style="color:{a_color if away_winner else 'var(--text-dim)'}">{fmt(av)}</div>
+              <div class="vs-team">{away_label}</div>
+            </div>
+          </div>
+          <div class="vs-bar">
+            <div class="vs-bar-fill" style="width:{h_pct}%;background:{h_color};"></div>
+            <div class="vs-bar-fill" style="width:{a_pct}%;background:{a_color};"></div>
+          </div>
+          {note_html}
+        </div>'''
+
+    vs_cards_html = '<div class="vs-grid">'
+    for item in vs_items:
+        vs_cards_html += _vs_card(*item)
+    vs_cards_html += '</div>'
+
+    # Szöveges (egy értékű) facts — fact-item stílus megmarad
+    text_facts = []
+    text_facts.append(f'Vezetés-váltás: <b>{lead_changes}</b> alkalommal fordult át a meccs')
+    text_facts.append(f'Közgáz pontok eloszlása: kezdőktől <b>{kg_starter_pts}p</b>, padról <b>{kg_bench_pts}p</b>')
     fo_str = f'<b>{len(kg_fouled_out)}</b> kipontozott' if kg_fouled_out else 'senki sem pontozódott ki'
     cl_str = f', <b style="color:var(--green)">{len(kg_clean)}</b> hibázatlan játékos' if kg_clean else ''
-    fun_facts.append(f'Fault-helyzet (Közgáz): {fo_str}{cl_str}')
-    if clutch_a or clutch_b:
-        clutch_winner = "Közgáz" if (clutch_b if details["kg_is_home"]==False else clutch_a) > (clutch_a if details["kg_is_home"]==False else clutch_b) else home_label
-        fun_facts.append(f'Záró 5 perc: <b>{home_label} {clutch_a}p</b> / <b>{away_label} {clutch_b}p</b>')
-    if drought_a or drought_b:
-        fun_facts.append(f'Leghosszabb pont-szárazság: <b>{home_label} {drought_a}p</b> / <b>{away_label} {drought_b}p</b> <span style="opacity:0.6">(becslés)</span>')
-    fun_facts.append(f'Meccs tempó: <b>{pace}</b> kosár / negyed')
+    text_facts.append(f'Fault-helyzet (Közgáz): {fo_str}{cl_str}')
+    text_facts.append(f'Meccs tempó: <b>{pace}</b> kosár / negyed')
 
-    facts_html = ""
-    for f in fun_facts:
-        facts_html += f'<div class="fact-item">{f}</div>'
+    facts_text_html = ""
+    for f in text_facts:
+        facts_text_html += f'<div class="fact-item">{f}</div>'
+
+    facts_html = vs_cards_html + facts_text_html
 
     # ─────────────────────────────────────────────────────────────
     # Quarter MVP — legtöbb pontot dobó játékos negyedenként mindkét csapatban
@@ -3306,6 +3363,38 @@ def generate_match_page(details, cfg, team_key):
     color:var(--text-dim); line-height:1.5;
   }}
   .fact-item b {{ color:#fff; }}
+  /* VS-stílusú összehasonlítások */
+  .vs-grid {{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    gap:10px; margin-bottom:14px;
+  }}
+  .vs-card {{
+    background:rgba(255,255,255,0.025); border-radius:10px;
+    padding:12px 14px;
+  }}
+  .vs-label {{
+    font-size:0.65rem; color:var(--text-dim);
+    text-transform:uppercase; letter-spacing:0.7px; font-weight:600;
+    margin-bottom:8px;
+  }}
+  .vs-values {{
+    display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    align-items:end; margin-bottom:7px;
+  }}
+  .vs-side {{ display:flex; flex-direction:column; gap:2px; }}
+  .vs-side:nth-child(1) {{ align-items:flex-start; text-align:left; }}
+  .vs-side:nth-child(2) {{ align-items:flex-end; text-align:right; }}
+  .vs-team {{ font-size:0.7rem; color:var(--text-dim); font-weight:500; }}
+  .vs-val {{ font-size:1.45rem; font-weight:800; line-height:1; }}
+  .vs-bar {{
+    display:flex; height:6px; border-radius:3px; overflow:hidden;
+    background:rgba(255,255,255,0.04);
+  }}
+  .vs-bar-fill {{ height:100%; transition:width 0.3s; }}
+  .vs-note {{
+    font-size:0.68rem; color:var(--text-dim); font-style:italic;
+    margin-top:6px;
+  }}
   /* Negyed MVP grid */
   .qmvp-grid {{
     display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));

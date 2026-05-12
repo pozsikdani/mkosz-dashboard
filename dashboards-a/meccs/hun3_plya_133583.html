@@ -126,6 +126,38 @@
     color:var(--text-dim); line-height:1.5;
   }
   .fact-item b { color:#fff; }
+  /* VS-stílusú összehasonlítások */
+  .vs-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    gap:10px; margin-bottom:14px;
+  }
+  .vs-card {
+    background:rgba(255,255,255,0.025); border-radius:10px;
+    padding:12px 14px;
+  }
+  .vs-label {
+    font-size:0.65rem; color:var(--text-dim);
+    text-transform:uppercase; letter-spacing:0.7px; font-weight:600;
+    margin-bottom:8px;
+  }
+  .vs-values {
+    display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    align-items:end; margin-bottom:7px;
+  }
+  .vs-side { display:flex; flex-direction:column; gap:2px; }
+  .vs-side:nth-child(1) { align-items:flex-start; text-align:left; }
+  .vs-side:nth-child(2) { align-items:flex-end; text-align:right; }
+  .vs-team { font-size:0.7rem; color:var(--text-dim); font-weight:500; }
+  .vs-val { font-size:1.45rem; font-weight:800; line-height:1; }
+  .vs-bar {
+    display:flex; height:6px; border-radius:3px; overflow:hidden;
+    background:rgba(255,255,255,0.04);
+  }
+  .vs-bar-fill { height:100%; transition:width 0.3s; }
+  .vs-note {
+    font-size:0.68rem; color:var(--text-dim); font-style:italic;
+    margin-top:6px;
+  }
   /* Negyed MVP grid */
   .qmvp-grid {
     display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
@@ -343,10 +375,7 @@
   <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="opp-row"><td class="team-cell">Bkg Dse</td><td>15</td><td>25</td><td>21</td><td>11</td><td class="total">72</td></tr><tr class="kg-row"><td class="team-cell">Közgáz A</td><td>15</td><td>17</td><td>21</td><td>26</td><td class="total">79</td></tr></tbody></table></div>
 </div>
 
-<div class="card" style="margin-bottom:20px;">
-  <h3>Érdekességek & Fun facts</h3>
-  <div class="fact-item">Vezetés-váltás: <b>10</b> alkalommal fordult át a meccs</div><div class="fact-item">Legnagyobb vezetés: <b>Bkg Dse +10</b> / <b>Közgáz A +7</b></div><div class="fact-item">Leghosszabb sorozat (válasz nélkül): <b>Bkg Dse 12-0</b> / <b>Közgáz A 12-0</b></div><div class="fact-item">Negyedek megnyerve: <b>Bkg Dse 1</b> / <b>Közgáz A 1</b> / <b>2 döntetlen</b></div><div class="fact-item">Összes személyes fault: <b>Közgáz 18</b> / <b>Bkg Dse 13</b></div><div class="fact-item">Időkérések: <b>Bkg Dse 5</b> / <b>Közgáz A 4</b></div><div class="fact-item">Közgáz pontok eloszlása: kezdőktől <b>67p</b>, padról <b>12p</b></div><div class="fact-item">Fault-helyzet (Közgáz): senki sem pontozódott ki, <b style="color:var(--green)">1</b> hibázatlan játékos</div><div class="fact-item">Záró 5 perc: <b>Bkg Dse 3p</b> / <b>Közgáz A 7p</b></div><div class="fact-item">Leghosszabb pont-szárazság: <b>Bkg Dse 11p</b> / <b>Közgáz A 12p</b> <span style="opacity:0.6">(becslés)</span></div><div class="fact-item">Meccs tempó: <b>14.8</b> kosár / negyed</div>
-</div>
+
 
 <div class="card" style="margin-bottom:20px;">
   <h3>Negyed MVP-k</h3>
