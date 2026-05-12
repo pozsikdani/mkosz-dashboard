@@ -3590,7 +3590,7 @@ def generate_match_page(details, cfg, team_key):
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Érdekességek & Fun facts</h3>
   {facts_html}
-</div>''' if fun_facts else ''}
+</div>''' if (vs_items or text_facts) else ''}
 
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Negyed MVP-k</h3>
