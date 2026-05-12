@@ -338,13 +338,13 @@ const quarterMarkerPlugin = {
       const tw = ctx.measureText(text).width;
       const bx = px - tw/2 - padX;
       const by = top + 4;
-      // Háttér
-      ctx.fillStyle = 'rgba(196,30,58,0.85)';
+      // Háttér (semleges sötétszürke)
+      ctx.fillStyle = 'rgba(45,47,56,0.95)';
       ctx.beginPath();
       ctx.roundRect ? ctx.roundRect(bx, by, tw + padX*2, 18, 6) : ctx.rect(bx, by, tw + padX*2, 18);
       ctx.fill();
       // Szöveg
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = '#e8e8f0';
       ctx.textBaseline = 'middle';
       ctx.fillText(text, px - tw/2, by + 9);
     });
