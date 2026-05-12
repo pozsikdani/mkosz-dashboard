@@ -110,6 +110,14 @@
   .dist-legend .legend-swatch.seg-2pt { background:#7e6fa8; }
   .dist-legend .legend-swatch.seg-3pt { background:#c08560; }
   .dist-legend .legend-swatch.seg-ft  { background:#6b8395; }
+  .title-note {
+    font-size:0.7rem; font-weight:500; color:var(--text-dim);
+    text-transform:none; letter-spacing:0; margin-left:6px;
+  }
+  .lead-note {
+    font-size:0.72rem; color:var(--text-dim); margin-top:10px;
+    font-style:italic; text-align:center;
+  }
   .chart-legend {
     display:flex; justify-content:center; gap:18px;
     margin:-4px 0 12px;
@@ -284,6 +292,16 @@
     <span class="legend-item"><span class="legend-swatch seg-3pt"></span>3 pontos</span>
     <span class="legend-item"><span class="legend-swatch seg-ft"></span>Büntető</span>
   </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Vezetési idő <span class="title-note">(becslés)</span></h3>
+  <div class="dist-bar" style="margin-top:8px;">
+          <div class="dist-seg" style="background:#8b8da0;flex-basis:57%;" title="Bkg Dse: 28 perc (57%)">Bkg Dse 57%</div>
+          <div class="dist-seg" style="background:#00b894;flex-basis:29%;" title="Közgáz A: 14 perc (29%)">Közgáz A 29%</div>
+          <div class="dist-seg" style="background:#3a3c46;flex-basis:14%;" title="Döntetlen: 7 perc (14%)">döntetlen 14%</div>
+        </div>
+        <div class="lead-note">A jegyzőkönyv perc-adatainak hiányos kitöltése miatt ez egy becslés (~5-15% pontatlanság).</div>
 </div>
 
 <div class="card">

@@ -1706,7 +1706,7 @@ def get_match_details(conn, cfg, tp, gamecode):
     # Eredmény alakulása (score progression) — scoring_events alapján
     progression_rows = conn.execute("""
         SELECT se.event_seq, se.quarter, se.score_a, se.score_b,
-               se.team, se.points, se.shot_type, pgs.player_name
+               se.team, se.points, se.shot_type, pgs.player_name, se.minute
         FROM scoring_events se
         LEFT JOIN player_game_stats pgs
             ON pgs.gamecode = se.gamecode
@@ -1719,6 +1719,7 @@ def get_match_details(conn, cfg, tp, gamecode):
         {
             "seq": r[0], "quarter": r[1], "score_a": r[2], "score_b": r[3],
             "team": r[4], "points": r[5], "shot": r[6], "player": r[7],
+            "minute": r[8],
         }
         for r in progression_rows
     ]
@@ -2862,6 +2863,85 @@ def generate_match_page(details, cfg, team_key):
     else:
         dist_html = _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist) + _dist_row("Közgáz A", kg_dist)
 
+    # Vezetési idő (lead time) — becslés a scoring_events minute mezője alapján
+    def _calc_lead_times(progression):
+        if not progression:
+            return None
+        # Forward-fill missing minutes within each quarter
+        events = []
+        for ev in progression:
+            try:
+                m = int(ev.get("minute")) if ev.get("minute") not in (None, "") else None
+            except (ValueError, TypeError):
+                m = None
+            events.append({"q": ev["quarter"], "m": m, "sa": ev["score_a"], "sb": ev["score_b"]})
+        # Forward fill per quarter
+        for q in range(1, 5):
+            last_m = 0
+            for e in events:
+                if e["q"] != q:
+                    continue
+                if e["m"] is None:
+                    e["m"] = last_m
+                else:
+                    last_m = e["m"]
+        # Compute time t = (q-1)*10 + minute, sum lead durations
+        a_min = b_min = tie_min = 0.0
+        prev_t = 0.0
+        prev_a = prev_b = 0
+        for e in events:
+            cur_t = (e["q"] - 1) * 10 + (e["m"] or 0)
+            dt = max(0.0, cur_t - prev_t)
+            if dt:
+                if prev_a > prev_b:
+                    a_min += dt
+                elif prev_b > prev_a:
+                    b_min += dt
+                else:
+                    tie_min += dt
+            prev_t = cur_t
+            prev_a, prev_b = e["sa"], e["sb"]
+        # Final segment to end of Q4 (40:00)
+        final_t = 40.0
+        dt = max(0.0, final_t - prev_t)
+        if dt:
+            if prev_a > prev_b:
+                a_min += dt
+            elif prev_b > prev_a:
+                b_min += dt
+            else:
+                tie_min += dt
+        total = a_min + b_min + tie_min
+        if total <= 0:
+            return None
+        return {
+            "a_min": a_min, "b_min": b_min, "tie_min": tie_min, "total": total,
+            "pct_a": round(100 * a_min / total),
+            "pct_b": round(100 * b_min / total),
+            "pct_tie": round(100 * tie_min / total),
+        }
+
+    lead = _calc_lead_times(progression)
+    if lead:
+        home_name = shorten_opponent(details["team_a_name"])
+        away_name = shorten_opponent(details["team_b_name"])
+        home_min = round(lead["a_min"])
+        away_min = round(lead["b_min"])
+        tie_min = round(lead["tie_min"])
+        home_color = "#00b894" if details["kg_is_home"] else "#8b8da0"
+        away_color = "#8b8da0" if details["kg_is_home"] else "#00b894"
+        l_home = f'{home_name} {lead["pct_a"]}%' if lead["pct_a"] >= 10 else ''
+        l_away = f'{away_name} {lead["pct_b"]}%' if lead["pct_b"] >= 10 else ''
+        l_tie = f'döntetlen {lead["pct_tie"]}%' if lead["pct_tie"] >= 10 else ''
+        lead_html = f'''<div class="dist-bar" style="margin-top:8px;">
+          <div class="dist-seg" style="background:{home_color};flex-basis:{lead["pct_a"]}%;" title="{home_name}: {home_min} perc ({lead["pct_a"]}%)">{l_home}</div>
+          <div class="dist-seg" style="background:{away_color};flex-basis:{lead["pct_b"]}%;" title="{away_name}: {away_min} perc ({lead["pct_b"]}%)">{l_away}</div>
+          <div class="dist-seg" style="background:#3a3c46;flex-basis:{lead["pct_tie"]}%;" title="Döntetlen: {tie_min} perc ({lead["pct_tie"]}%)">{l_tie}</div>
+        </div>
+        <div class="lead-note">A jegyzőkönyv perc-adatainak hiányos kitöltése miatt ez egy becslés (~5-15% pontatlanság).</div>'''
+    else:
+        lead_html = ""
+
     venue_html = f'<span> · {details["venue"]}</span>' if details["venue"] else ''
     match_time_html = f' {details["match_time"]}' if details["match_time"] else ''
 
@@ -2977,6 +3057,14 @@ def generate_match_page(details, cfg, team_key):
   .dist-legend .legend-swatch.seg-2pt {{ background:#7e6fa8; }}
   .dist-legend .legend-swatch.seg-3pt {{ background:#c08560; }}
   .dist-legend .legend-swatch.seg-ft  {{ background:#6b8395; }}
+  .title-note {{
+    font-size:0.7rem; font-weight:500; color:var(--text-dim);
+    text-transform:none; letter-spacing:0; margin-left:6px;
+  }}
+  .lead-note {{
+    font-size:0.72rem; color:var(--text-dim); margin-top:10px;
+    font-style:italic; text-align:center;
+  }}
   .chart-legend {{
     display:flex; justify-content:center; gap:18px;
     margin:-4px 0 12px;
@@ -3113,6 +3201,11 @@ def generate_match_page(details, cfg, team_key):
     <span class="legend-item"><span class="legend-swatch seg-ft"></span>Büntető</span>
   </div>
 </div>''' if (kg_dist or opp_dist) else ''}
+
+{f'''<div class="card" style="margin-bottom:20px;">
+  <h3>Vezetési idő <span class="title-note">(becslés)</span></h3>
+  {lead_html}
+</div>''' if lead_html else ''}
 
 <div class="card">
   <h3>Közgáz játékosok</h3>
