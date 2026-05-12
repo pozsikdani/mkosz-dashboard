@@ -536,7 +536,7 @@ def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
             FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
               AND m.score_a + m.score_b > 0
         )
-        SELECT match_date, hv, opp, kg, op FROM kg ORDER BY match_date
+        SELECT gamecode, match_date, hv, opp, kg, op FROM kg ORDER BY match_date
     """, (tp, tp, tp, tp, *comps, SEASON, *_mp)).fetchall()
 
     # Quarter averages — from quarter_scores JSON in matches table
@@ -1251,7 +1251,7 @@ def get_team_stats(conn, cfg, tp, hv_filter=None):
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as op
             FROM matches m WHERE m.comp_code IN ({_cph}) AND m.season = ? AND {_mf}
         )
-        SELECT match_date, hv, opp, kg, op FROM kg ORDER BY match_date
+        SELECT gamecode, match_date, hv, opp, kg, op FROM kg ORDER BY match_date
     """, (tp, tp, tp, tp, *comps, SEASON, *_mp)).fetchall()
 
     # Quarter averages
@@ -1666,14 +1666,115 @@ def get_calendar_data_db(conn, cfg, tp):
     } for r in rows] if rows else None
 
 
+def get_match_details(conn, cfg, tp, gamecode):
+    """Lekéri egy konkrét meccs összes részletét: matches + quarter_scores + player_game_stats.
+
+    A `tp` segítségével eldöntjük melyik csapat a Közgáz (team='A' vagy 'B').
+
+    Returns:
+        dict with keys: gamecode, match_date, match_time, venue, team_a_name,
+        team_b_name, score_a, score_b, kg_side, kg_is_home, kg_won,
+        kg_team_name, opp_team_name, quarters, kg_players, opp_players, opp_total
+    """
+    # Match info
+    m_row = conn.execute("""
+        SELECT match_date, match_time, venue, team_a_name, team_b_name, score_a, score_b
+        FROM matches WHERE gamecode = ?
+    """, (gamecode,)).fetchone()
+    if not m_row:
+        return None
+    match_date, match_time, venue, team_a, team_b, score_a, score_b = m_row
+
+    # Melyik csapat a Közgáz
+    if team_a and re.match(tp.replace("%", ".*"), team_a, re.IGNORECASE):
+        kg_side = "A"
+    else:
+        kg_side = "B"
+    kg_is_home = (kg_side == "A")
+    kg_score = score_a if kg_is_home else score_b
+    opp_score = score_b if kg_is_home else score_a
+    kg_won = (kg_score is not None and opp_score is not None and kg_score > opp_score)
+
+    # Negyedenkénti bontás
+    q_rows = conn.execute("""
+        SELECT quarter, score_a, score_b FROM quarter_scores
+        WHERE gamecode = ? AND quarter IN ('1','2','3','4')
+        ORDER BY quarter
+    """, (gamecode,)).fetchall()
+    quarters = [(int(q[0]), q[1] or 0, q[2] or 0) for q in q_rows]
+
+    # Player game stats — mindkét csapat
+    pgs_rows = conn.execute("""
+        SELECT team, COALESCE(license_number, player_name) as lic,
+               player_name, jersey_number, points,
+               fg2_made, fg3_made, ft_made, ft_attempted,
+               personal_fouls, is_starter
+        FROM player_game_stats
+        WHERE gamecode = ?
+        ORDER BY points DESC, player_name
+    """, (gamecode,)).fetchall()
+
+    kg_players = []
+    opp_players = []
+    for r in pgs_rows:
+        team, lic, name, jersey, pts, fg2, fg3, ftm, fta, pf, starter = r
+        p = {
+            "license": lic, "name": name, "jersey": jersey or "",
+            "points": pts or 0, "fg2_made": fg2 or 0, "fg3_made": fg3 or 0,
+            "ft_made": ftm or 0, "ft_att": fta or 0,
+            "pf": pf or 0, "starter": bool(starter),
+        }
+        if team == kg_side:
+            kg_players.append(p)
+        else:
+            opp_players.append(p)
+
+    # Ellenfél összesítő
+    opp_total = {
+        "points": opp_score or 0,
+        "fg2_made": sum(p["fg2_made"] for p in opp_players),
+        "fg3_made": sum(p["fg3_made"] for p in opp_players),
+        "ft_made": sum(p["ft_made"] for p in opp_players),
+        "ft_att": sum(p["ft_att"] for p in opp_players),
+        "top_scorer": None,
+    }
+    if opp_players:
+        ts = max(opp_players, key=lambda p: p["points"])
+        if ts["points"] > 0:
+            opp_total["top_scorer"] = {"name": ts["name"], "points": ts["points"]}
+
+    return {
+        "gamecode": gamecode,
+        "match_date": match_date,
+        "match_time": match_time,
+        "venue": venue or "",
+        "team_a_name": team_a,
+        "team_b_name": team_b,
+        "score_a": score_a,
+        "score_b": score_b,
+        "kg_side": kg_side,
+        "kg_is_home": kg_is_home,
+        "kg_won": kg_won,
+        "kg_team_name": team_a if kg_is_home else team_b,
+        "opp_team_name": team_b if kg_is_home else team_a,
+        "kg_score": kg_score,
+        "opp_score": opp_score,
+        "quarters": quarters,
+        "kg_players": kg_players,
+        "opp_players": opp_players,
+        "opp_total": opp_total,
+    }
+
+
 def _stats_to_js(d):
     """Convert a stats dict to a JSON-serializable dict for client-side rendering."""
     games = d["games"] or 0
     # Game log
     game_log = []
     for g in d["game_log"]:
-        date, hv, opp, kg, op = g
+        gamecode, date, hv, opp, kg, op = g
         game_log.append({
+            "gamecode": gamecode,
             "date": date[5:].replace("-", "."), "hv": hv,
             "opp": shorten_opponent(opp),
             "kg": kg, "op": op,
@@ -1752,8 +1853,12 @@ def _stats_to_js(d):
 
 
 def generate_team_dashboard(stats_all, cfg, team_key=None, att_data=None,
-                            stats_home=None, stats_away=None):
-    """Generate team-level dashboard HTML with Home/Away/All toggle."""
+                            stats_home=None, stats_away=None, match_urls=None):
+    """Generate team-level dashboard HTML with Home/Away/All toggle.
+
+    match_urls: dict mapping gamecode -> relative match-page URL.
+    When set, game log rows for those gamecodes become clickable.
+    """
     d = stats_all
     games = d["games"]
     team_name = cfg["team_name"]
@@ -2091,6 +2196,7 @@ const STATS = {{
   home: {json.dumps(js_home, ensure_ascii=False)},
   away: {json.dumps(js_away, ensure_ascii=False)}
 }};
+const MATCH_URLS = {json.dumps(match_urls or {}, ensure_ascii=False)};
 
 let trendChart, quarterChart, shotChart;
 let currentView = 'all';
@@ -2103,12 +2209,20 @@ function renderGameLog(s) {{
     const diffStr = diff > 0 ? '+'+diff : ''+diff;
     const diffColor = diff > 0 ? 'var(--green)' : 'var(--red)';
     const tr = document.createElement('tr');
+    const url = MATCH_URLS[g.gamecode];
     tr.innerHTML = '<td>'+g.date+'</td>'
       +'<td><span class="m-hv">'+(g.hv==='H'?'vs':'@')+'</span></td>'
       +'<td>'+g.opp+'</td>'
       +'<td style="font-weight:700;">'+g.kg+'-'+g.op+'</td>'
       +'<td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td>'
       +'<td style="font-weight:700;color:'+diffColor+';">'+diffStr+'</td>';
+    if (url) {{
+      tr.style.cursor = 'pointer';
+      tr.title = 'Meccs részletei';
+      tr.onclick = () => {{ window.location.href = url; }};
+      tr.onmouseenter = () => tr.style.background = 'rgba(196,30,58,0.08)';
+      tr.onmouseleave = () => tr.style.background = '';
+    }}
     tbody.appendChild(tr);
   }});
 }}
@@ -2481,6 +2595,308 @@ def _build_calendar_grid(matches_by_date, multi_team=False):
     return months_html, calendar_js
 
 
+def generate_match_page(details, cfg, team_key):
+    """Generate one match-detail HTML page (Közgáz focus layout).
+
+    details: dict from get_match_details()
+    """
+    kg_won = details["kg_won"]
+    kg_score = details["kg_score"]
+    opp_score = details["opp_score"]
+    kg_name = details["kg_team_name"]
+    opp_name = details["opp_team_name"]
+    kg_is_home = details["kg_is_home"]
+
+    # Magyar dátum
+    md = details["match_date"]
+    try:
+        dt = datetime.strptime(md, "%Y-%m-%d")
+        date_hu = f"{dt.year}. {MONTH_NAMES_HU[dt.month].lower()} {dt.day}."
+    except Exception:
+        date_hu = md
+
+    result_label = "GYŐZELEM" if kg_won else "VERESÉG"
+    result_color = "var(--green)" if kg_won else "var(--red)"
+    diff = (kg_score or 0) - (opp_score or 0)
+    diff_str = f"+{diff}" if diff > 0 else str(diff)
+
+    # Negyedek táblázat
+    q_rows = details["quarters"]
+    if q_rows:
+        q_html = '<table class="q-table"><thead><tr><th></th>'
+        for q, _, _ in q_rows:
+            q_html += f'<th>Q{q}</th>'
+        q_html += '<th>Σ</th></tr></thead><tbody>'
+        # Hazai sor
+        q_html += f'<tr class="{"kg-row" if kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_a_name"]) if not kg_is_home else "Közgáz A"}</td>'
+        for _, sa, _ in q_rows:
+            q_html += f'<td>{sa}</td>'
+        q_html += f'<td class="total">{details["score_a"] or 0}</td></tr>'
+        # Vendég sor
+        q_html += f'<tr class="{"kg-row" if not kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_b_name"]) if kg_is_home else "Közgáz A"}</td>'
+        for _, _, sb in q_rows:
+            q_html += f'<td>{sb}</td>'
+        q_html += f'<td class="total">{details["score_b"] or 0}</td></tr>'
+        q_html += '</tbody></table>'
+    else:
+        q_html = '<div class="empty-state">Nincs negyedenkénti adat ehhez a meccshez.</div>'
+
+    # Közgáz box score
+    kg_players = sorted(details["kg_players"], key=lambda p: -p["points"])
+    if kg_players:
+        top_pts = max(p["points"] for p in kg_players) if kg_players else 0
+        kg_body = ""
+        for p in kg_players:
+            pts_style = ""
+            if p["points"] == top_pts and top_pts > 0:
+                pts_style = ' style="color:var(--green);font-weight:800;"'
+            ft = f'{p["ft_made"]}/{p["ft_att"]}' if p["ft_att"] else "–"
+            kg_body += f'''<tr>
+                <td class="pname">{p["name"]}</td>
+                <td{pts_style}>{p["points"]}</td>
+                <td>{p["fg2_made"]}</td>
+                <td>{p["fg3_made"]}</td>
+                <td>{ft}</td>
+                <td>{p["pf"]}</td>
+            </tr>'''
+        kg_html = f'''<div class="game-log-wrap">
+        <table class="box-score">
+          <thead><tr><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th></tr></thead>
+          <tbody>{kg_body}</tbody>
+        </table>
+        </div>'''
+    else:
+        kg_html = '<div class="empty-state">Nincs játékos-adat (vsz. képes PDF).</div>'
+
+    # Ellenfél összesítő
+    opp_t = details["opp_total"]
+    opp_ft_pct = round(100 * opp_t["ft_made"] / opp_t["ft_att"]) if opp_t["ft_att"] else 0
+    opp_top_html = ""
+    if opp_t["top_scorer"]:
+        opp_top_html = f'<div class="opp-top"><span class="lbl">Top scorer:</span> <span class="val">{opp_t["top_scorer"]["name"]}</span> <span class="pts">{opp_t["top_scorer"]["points"]} pt</span></div>'
+
+    opp_summary = f'''
+      <div class="opp-stats">
+        <div class="opp-stat"><div class="lbl">Pont</div><div class="val">{opp_t["points"]}</div></div>
+        <div class="opp-stat"><div class="lbl">2FG</div><div class="val">{opp_t["fg2_made"]}</div></div>
+        <div class="opp-stat"><div class="lbl">3FG</div><div class="val">{opp_t["fg3_made"]}</div></div>
+        <div class="opp-stat"><div class="lbl">FT</div><div class="val">{opp_t["ft_made"]}/{opp_t["ft_att"]} ({opp_ft_pct}%)</div></div>
+      </div>
+      {opp_top_html}'''
+
+    # Chart adat
+    q_chart_labels = [f"Q{q}" for q, _, _ in q_rows] if q_rows else []
+    kg_q = [sa if details["kg_is_home"] else sb for q, sa, sb in q_rows] if q_rows else []
+    opp_q = [sb if details["kg_is_home"] else sa for q, sa, sb in q_rows] if q_rows else []
+
+    venue_html = f'<span> · {details["venue"]}</span>' if details["venue"] else ''
+    match_time_html = f' {details["match_time"]}' if details["match_time"] else ''
+
+    html = f"""<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+<link rel="apple-touch-icon" href="/kozgaz_logo.png">
+<title>{kg_name} — {opp_name} · {md}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {{
+    --bg:#0a0b0e; --card:#151518; --card-hover:#1a1b20; --border:rgba(255,255,255,0.08);
+    --accent:#C41E3A; --accent2:#00cec9; --text:#e8e8f0; --text-dim:#8b8da0;
+    --green:#00b894; --red:#e17055;
+  }}
+  * {{ box-sizing:border-box; margin:0; padding:0; }}
+  body {{ font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:24px; }}
+  .container {{ max-width:1000px; margin:0 auto; }}
+  .back-link {{
+    display:inline-block; color:var(--text-dim); text-decoration:none;
+    font-size:0.82rem; font-weight:600; margin-bottom:16px; opacity:0.7;
+    transition:color 0.2s, opacity 0.2s;
+  }}
+  .back-link:hover {{ color:var(--accent); opacity:1; }}
+  .hero {{
+    background:linear-gradient(135deg,#151518 0%,#2a1218 100%);
+    border:1px solid var(--border); border-radius:20px; padding:28px;
+    margin-bottom:20px; position:relative; overflow:hidden;
+  }}
+  .hero::after {{
+    content:''; position:absolute; top:-50%; right:-10%;
+    width:400px; height:400px;
+    background:radial-gradient(circle,rgba(196,30,58,0.18),transparent 70%);
+    pointer-events:none;
+  }}
+  .hero-content {{ position:relative; z-index:1; text-align:center; }}
+  .teams {{
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    flex-wrap:wrap; font-size:1.1rem; font-weight:700;
+    color:var(--text-dim); margin-bottom:8px;
+  }}
+  .teams .kg {{ color:#fff; font-size:1.25rem; }}
+  .teams .sep {{ font-weight:400; }}
+  .scoreline {{
+    font-size:3.5rem; font-weight:900; letter-spacing:-2px;
+    margin:8px 0; line-height:1;
+  }}
+  .scoreline .kg-score {{ color:#fff; }}
+  .scoreline .opp-score {{ color:var(--text-dim); }}
+  .scoreline .dash {{ color:var(--text-dim); margin:0 12px; }}
+  .result-badge {{
+    display:inline-block; padding:6px 18px; border-radius:8px;
+    font-size:0.85rem; font-weight:800; letter-spacing:1.2px;
+    background:rgba(0,184,148,0.15); color:{result_color};
+    margin:8px 0;
+  }}
+  .meta {{ font-size:0.85rem; color:var(--text-dim); margin-top:8px; }}
+  .meta .diff {{ color:{result_color}; font-weight:700; margin-left:8px; }}
+  .grid-2 {{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }}
+  @media (max-width:800px) {{ .grid-2 {{ grid-template-columns:1fr; }} }}
+  .card {{
+    background:var(--card); border-radius:16px; padding:24px;
+    border:1px solid var(--border);
+  }}
+  .card h3 {{
+    font-size:0.78rem; text-transform:uppercase; letter-spacing:1.3px;
+    color:var(--text-dim); margin-bottom:16px; font-weight:600;
+  }}
+  .q-table {{ width:100%; border-collapse:collapse; font-size:0.92rem; }}
+  .q-table th {{
+    text-align:center; padding:8px 6px; font-size:0.7rem;
+    text-transform:uppercase; letter-spacing:0.6px;
+    color:var(--text-dim); font-weight:600;
+    border-bottom:1px solid var(--border);
+  }}
+  .q-table td {{
+    text-align:center; padding:10px 6px;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+  }}
+  .q-table tr:last-child td {{ border-bottom:none; }}
+  .q-table .team-cell {{ text-align:left; font-weight:600; }}
+  .q-table .total {{ font-weight:800; color:var(--text); }}
+  .q-table .kg-row .team-cell {{ color:#fff; }}
+  .q-table .kg-row .total {{ color:var(--green); }}
+  .q-table .opp-row {{ color:var(--text-dim); }}
+  .game-log-wrap {{ overflow-x:auto; -webkit-overflow-scrolling:touch; }}
+  .box-score {{ width:100%; border-collapse:collapse; font-size:0.85rem; }}
+  .box-score th {{
+    text-align:left; font-size:0.66rem; text-transform:uppercase;
+    letter-spacing:0.8px; color:var(--text-dim);
+    padding:8px 8px; border-bottom:1px solid var(--border); font-weight:600;
+    white-space:nowrap;
+  }}
+  .box-score th:not(:first-child) {{ text-align:center; }}
+  .box-score td {{
+    padding:9px 8px; border-bottom:1px solid rgba(255,255,255,0.04);
+    text-align:center; white-space:nowrap;
+  }}
+  .box-score td.pname {{ text-align:left; font-weight:600; }}
+  .box-score tr:last-child td {{ border-bottom:none; }}
+  .box-score tr:hover {{ background:rgba(196,30,58,0.05); }}
+  .opp-stats {{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;
+    margin-bottom:12px;
+  }}
+  .opp-stat {{
+    background:rgba(255,255,255,0.02); border-radius:10px;
+    padding:14px 10px; text-align:center;
+  }}
+  .opp-stat .lbl {{ font-size:0.65rem; color:var(--text-dim);
+    text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px; }}
+  .opp-stat .val {{ font-size:1.4rem; font-weight:700; }}
+  .opp-top {{
+    background:rgba(255,255,255,0.02); border-radius:10px;
+    padding:12px 14px; font-size:0.88rem;
+    border-left:3px solid var(--text-dim);
+  }}
+  .opp-top .lbl {{ color:var(--text-dim); font-weight:500; }}
+  .opp-top .val {{ color:#fff; font-weight:700; margin-left:6px; }}
+  .opp-top .pts {{ color:var(--text-dim); margin-left:8px; }}
+  .empty-state {{
+    color:var(--text-dim); font-size:0.85rem; font-style:italic;
+    padding:16px 0; text-align:center;
+  }}
+  .chart-wrap {{ position:relative; width:100%; height:200px; margin-top:12px; }}
+  @media (max-width:600px) {{
+    body {{ padding:12px; }}
+    .scoreline {{ font-size:2.4rem; }}
+    .opp-stats {{ grid-template-columns:1fr 1fr; }}
+  }}
+  {NAV_CSS}
+</style>
+</head>
+<body>
+<div class="container">
+{_nav_html(active_key=team_key, depth=2)}
+<a href="../csapat.html" class="back-link">&larr; Csapat dashboard</a>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="teams">
+      <span class="{'kg' if kg_is_home else ''}">{details['team_a_name']}</span>
+      <span class="sep">vs</span>
+      <span class="{'kg' if not kg_is_home else ''}">{details['team_b_name']}</span>
+    </div>
+    <div class="scoreline">
+      <span class="{'kg-score' if kg_is_home else 'opp-score'}">{details['score_a'] or 0}</span>
+      <span class="dash">—</span>
+      <span class="{'kg-score' if not kg_is_home else 'opp-score'}">{details['score_b'] or 0}</span>
+    </div>
+    <div class="result-badge">{result_label}</div>
+    <div class="meta">{date_hu}{match_time_html}{venue_html}<span class="diff">{diff_str}</span></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Negyedenkénti bontás</h3>
+    {q_html}
+    {'<div class="chart-wrap"><canvas id="qChart"></canvas></div>' if q_rows else ''}
+  </div>
+  <div class="card">
+    <h3>Ellenfél összesítő — {opp_name}</h3>
+    {opp_summary}
+  </div>
+</div>
+
+<div class="card">
+  <h3>Közgáz játékosok</h3>
+  {kg_html}
+</div>
+
+</div>
+<script>
+Chart.defaults.color='#8b8da0';
+Chart.defaults.borderColor='rgba(255,255,255,0.06)';
+Chart.defaults.font.family="'Inter',sans-serif";
+{f'''
+const qLabels = {json.dumps(q_chart_labels)};
+const kgQ = {json.dumps(kg_q)};
+const oppQ = {json.dumps(opp_q)};
+new Chart(document.getElementById('qChart').getContext('2d'), {{
+  type:'bar',
+  data:{{
+    labels:qLabels,
+    datasets:[
+      {{label:'Közgáz A', data:kgQ, backgroundColor:'rgba(0,184,148,0.55)', borderColor:'#00b894', borderWidth:2, borderRadius:6}},
+      {{label:'{opp_name}', data:oppQ, backgroundColor:'rgba(139,141,160,0.45)', borderColor:'#8b8da0', borderWidth:2, borderRadius:6}}
+    ]
+  }},
+  options:{{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{{legend:{{position:'top', labels:{{usePointStyle:true, font:{{size:11}}}}}}}},
+    scales:{{y:{{beginAtZero:true, grid:{{color:'rgba(255,255,255,0.04)'}}}}, x:{{grid:{{display:false}}}}}}
+  }}
+}});
+''' if q_rows else ''}
+</script>
+</body>
+</html>"""
+    return html
+
+
 def generate_calendar(matches, cfg, team_key=None):
     """Generate calendar HTML page. matches = list of dicts from scrape or DB."""
     # Parse matches into dict keyed by (year, month, day)
@@ -2632,8 +3048,8 @@ body{{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:va
 
 
 def _nav_html(active_key=None, depth=0):
-    """Generate navigation bar HTML. depth=0 for root, depth=1 for team subdirs."""
-    prefix = "../" if depth == 1 else ""
+    """Generate navigation bar HTML. depth=0 root, 1=team subdir, 2=match subpage."""
+    prefix = "../" * depth
     items = f'<a href="{prefix}index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links">'
     for t in NAV_TEAMS:
         href = f'{prefix}{t["href"]}/index.html'
@@ -3252,8 +3668,39 @@ def generate_team(team_key):
         team_stats = _team_stats_fn(conn, cfg, tp)
         team_stats_home = _team_stats_fn(conn, cfg, tp, hv_filter='H')
         team_stats_away = _team_stats_fn(conn, cfg, tp, hv_filter='V')
+
+        # Match-level pages (proof of concept: csak Közgáz A utolsó meccse)
+        generated_match_files = {}
+        if team_key == "kozgaz-a":
+            _comps = _comp_list(cfg)
+            _cph = ",".join("?" * len(_comps))
+            last_match_row = conn.execute(f"""
+                SELECT m.gamecode FROM matches m
+                WHERE m.comp_code IN ({_cph}) AND m.season = ?
+                  AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
+                  AND m.score_a + m.score_b > 0
+                ORDER BY m.match_date DESC LIMIT 1
+            """, (*_comps, SEASON, tp, tp)).fetchone()
+            if last_match_row:
+                gc = last_match_row[0]
+                details = get_match_details(conn, cfg, tp, gc)
+                if details:
+                    match_html = generate_match_page(details, cfg, team_key)
+                    match_dir = os.path.join(out_dir, "meccs")
+                    # Tisztítsuk a régi meccs-oldalakat, hogy ne maradjanak árva fájlok
+                    if os.path.isdir(match_dir):
+                        for f_name in os.listdir(match_dir):
+                            if f_name.endswith(".html"):
+                                os.remove(os.path.join(match_dir, f_name))
+                    os.makedirs(match_dir, exist_ok=True)
+                    with open(os.path.join(match_dir, f"{gc}.html"), "w", encoding="utf-8") as f:
+                        f.write(match_html)
+                    generated_match_files[gc] = f"meccs/{gc}.html"
+                    print(f"  ✓ meccs/{gc}.html (meccs-oldal)")
+
         team_html = generate_team_dashboard(team_stats, cfg, team_key=team_key, att_data=att_data,
-                                            stats_home=team_stats_home, stats_away=team_stats_away)
+                                            stats_home=team_stats_home, stats_away=team_stats_away,
+                                            match_urls=generated_match_files)
         with open(os.path.join(out_dir, "csapat.html"), "w", encoding="utf-8") as f:
             f.write(team_html)
         print(f"\n  ✓ csapat.html (csapat dashboard)")
