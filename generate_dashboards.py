@@ -2756,12 +2756,15 @@ def generate_match_page(details, cfg, team_key):
     for i, (q_num, q_start) in enumerate(sorted_q):
         q_end = sorted_q[i + 1][1] if i + 1 < len(sorted_q) else max_x
         q_ticks.append({"x": (q_start + q_end) / 2, "label": f"Q{q_num}"})
-    # Quarter-end markerek (negyed vége: x = utolsó esemény az adott quarterben)
+    # Quarter-end markerek (negyed vége: x = utolsó esemény az adott quarterben).
+    # Sorrend mindig: hazai–vendég (azonos a quarter táblázattal és a hero scoreline-nal).
     q_markers = []
     for q_num, (kg_s, opp_s, end_seq) in sorted(quarter_end_scores.items()):
+        home_s = kg_s if details["kg_is_home"] else opp_s
+        away_s = opp_s if details["kg_is_home"] else kg_s
         q_markers.append({
-            "x": end_seq, "q": q_num, "kg": kg_s, "opp": opp_s,
-            "label": f"Q{q_num} vége · {kg_s}–{opp_s}",
+            "x": end_seq, "q": q_num, "home": home_s, "away": away_s,
+            "label": f"Q{q_num} vége · {home_s}–{away_s}",
         })
 
     venue_html = f'<span> · {details["venue"]}</span>' if details["venue"] else ''
@@ -2970,8 +2973,8 @@ const quarterMarkerPlugin = {{
       ctx.lineTo(px, bottom);
       ctx.stroke();
       ctx.setLineDash([]);
-      // Badge tetején: "Q1 vége · 15–15"
-      const text = 'Q'+m.q+' vége · '+m.kg+'–'+m.opp;
+      // Badge tetején: "Q1 vége · 15–15" (hazai–vendég)
+      const text = 'Q'+m.q+' vége · '+m.home+'–'+m.away;
       ctx.font = '600 10px Inter, sans-serif';
       const padX = 6, padY = 3;
       const tw = ctx.measureText(text).width;
@@ -2991,14 +2994,13 @@ const quarterMarkerPlugin = {{
   }}
 }};
 
+const kgDs = {{label:'Közgáz A', data:kgProg, borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}};
+const oppDs = {{label:{json.dumps(shorten_opponent(details["opp_team_name"]))}, data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}};
+// Sorrend: hazai elöl, vendég hátul (egyezzen a quarter táblázat és hero sorrenddel)
+const datasetsOrdered = {'[kgDs, oppDs]' if details["kg_is_home"] else '[oppDs, kgDs]'};
 new Chart(document.getElementById('progressChart').getContext('2d'), {{
   type:'line',
-  data:{{
-    datasets:[
-      {{label:'Közgáz A', data:kgProg, borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}},
-      {{label:'{opp_name}', data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}}
-    ]
-  }},
+  data:{{ datasets: datasetsOrdered }},
   plugins: [quarterMarkerPlugin],
   options:{{
     responsive:true, maintainAspectRatio:false,
