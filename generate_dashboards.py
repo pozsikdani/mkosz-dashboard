@@ -2857,6 +2857,21 @@ def generate_match_page(details, cfg, team_key):
   .q-table .kg-row .team-cell {{ color:#fff; }}
   .q-table .kg-row .total {{ color:var(--green); }}
   .q-table .opp-row {{ color:var(--text-dim); }}
+  .chart-legend {{
+    display:flex; justify-content:center; gap:18px;
+    margin:-4px 0 12px;
+  }}
+  .legend-item {{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:5px 12px; border-radius:8px;
+    background:rgba(255,255,255,0.03);
+    font-size:0.82rem; font-weight:600;
+    color:var(--text);
+  }}
+  .legend-swatch {{
+    display:inline-block; width:14px; height:14px;
+    border-radius:3px;
+  }}
   .game-log-wrap {{ overflow-x:auto; -webkit-overflow-scrolling:touch; }}
   .box-score {{ width:100%; border-collapse:collapse; font-size:0.85rem; }}
   .box-score th {{
@@ -2929,6 +2944,10 @@ def generate_match_page(details, cfg, team_key):
 
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Eredmény alakulása</h3>
+  <div class="chart-legend">
+    <span class="legend-item"><span class="legend-swatch" style="background:{"#00b894" if details["kg_is_home"] else "#8b8da0"}"></span>{shorten_opponent(details["team_a_name"])}</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:{"#8b8da0" if details["kg_is_home"] else "#00b894"}"></span>{shorten_opponent(details["team_b_name"])}</span>
+  </div>
   <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
   <div style="margin-top:14px;">{q_html}</div>
 </div>''' if progression or q_rows else ''}
@@ -3007,7 +3026,7 @@ new Chart(document.getElementById('progressChart').getContext('2d'), {{
     layout: {{padding: {{top: 22}}}},
     interaction:{{mode:'index', intersect:false}},
     plugins:{{
-      legend:{{position:'top', labels:{{usePointStyle:true, font:{{size:11}}}}}},
+      legend:{{display:false}},
       tooltip:{{
         callbacks:{{
           title: ctx => {{
