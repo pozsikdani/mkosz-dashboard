@@ -2867,7 +2867,11 @@ def generate_match_page(details, cfg, team_key):
     background:rgba(255,255,255,0.03);
     font-size:0.82rem; font-weight:600;
     color:var(--text);
+    cursor:pointer; user-select:none;
+    transition:opacity 0.18s, background 0.18s;
   }}
+  .legend-item:hover {{ background:rgba(255,255,255,0.06); }}
+  .legend-item.hidden {{ opacity:0.4; text-decoration:line-through; }}
   .legend-swatch {{
     display:inline-block; width:14px; height:14px;
     border-radius:3px;
@@ -2944,9 +2948,9 @@ def generate_match_page(details, cfg, team_key):
 
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Eredmény alakulása</h3>
-  <div class="chart-legend">
-    <span class="legend-item"><span class="legend-swatch" style="background:{"#00b894" if details["kg_is_home"] else "#8b8da0"}"></span>{shorten_opponent(details["team_a_name"])}</span>
-    <span class="legend-item"><span class="legend-swatch" style="background:{"#8b8da0" if details["kg_is_home"] else "#00b894"}"></span>{shorten_opponent(details["team_b_name"])}</span>
+  <div class="chart-legend" id="chartLegend">
+    <span class="legend-item" data-idx="0" title="Kattintással be/ki"><span class="legend-swatch" style="background:{"#00b894" if details["kg_is_home"] else "#8b8da0"}"></span>{shorten_opponent(details["team_a_name"])}</span>
+    <span class="legend-item" data-idx="1" title="Kattintással be/ki"><span class="legend-swatch" style="background:{"#8b8da0" if details["kg_is_home"] else "#00b894"}"></span>{shorten_opponent(details["team_b_name"])}</span>
   </div>
   <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
   <div style="margin-top:14px;">{q_html}</div>
@@ -3017,7 +3021,7 @@ const kgDs = {{label:'Közgáz A', data:kgProg, borderColor:'#00b894', backgroun
 const oppDs = {{label:{json.dumps(shorten_opponent(details["opp_team_name"]))}, data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}};
 // Sorrend: hazai elöl, vendég hátul (egyezzen a quarter táblázat és hero sorrenddel)
 const datasetsOrdered = {'[kgDs, oppDs]' if details["kg_is_home"] else '[oppDs, kgDs]'};
-new Chart(document.getElementById('progressChart').getContext('2d'), {{
+const progressChart = new Chart(document.getElementById('progressChart').getContext('2d'), {{
   type:'line',
   data:{{ datasets: datasetsOrdered }},
   plugins: [quarterMarkerPlugin],
@@ -3052,6 +3056,17 @@ new Chart(document.getElementById('progressChart').getContext('2d'), {{
       }}
     }}
   }}
+}});
+
+// Custom legend kattintás: csapat toggle (Chart.js default legend kikapcsolva)
+document.querySelectorAll('#chartLegend .legend-item').forEach(el => {{
+  el.addEventListener('click', () => {{
+    const idx = parseInt(el.dataset.idx, 10);
+    const meta = progressChart.getDatasetMeta(idx);
+    meta.hidden = meta.hidden === null ? !progressChart.data.datasets[idx].hidden : !meta.hidden;
+    el.classList.toggle('hidden', meta.hidden);
+    progressChart.update();
+  }});
 }});
 ''' if progression else ''}
 </script>

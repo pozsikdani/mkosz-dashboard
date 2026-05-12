@@ -95,7 +95,11 @@
     background:rgba(255,255,255,0.03);
     font-size:0.82rem; font-weight:600;
     color:var(--text);
+    cursor:pointer; user-select:none;
+    transition:opacity 0.18s, background 0.18s;
   }
+  .legend-item:hover { background:rgba(255,255,255,0.06); }
+  .legend-item.hidden { opacity:0.4; text-decoration:line-through; }
   .legend-swatch {
     display:inline-block; width:14px; height:14px;
     border-radius:3px;
@@ -197,9 +201,9 @@
 
 <div class="card" style="margin-bottom:20px;">
   <h3>Eredmény alakulása</h3>
-  <div class="chart-legend">
-    <span class="legend-item"><span class="legend-swatch" style="background:#8b8da0"></span>Bkg Dse</span>
-    <span class="legend-item"><span class="legend-swatch" style="background:#00b894"></span>Közgáz A</span>
+  <div class="chart-legend" id="chartLegend">
+    <span class="legend-item" data-idx="0" title="Kattintással be/ki"><span class="legend-swatch" style="background:#8b8da0"></span>Bkg Dse</span>
+    <span class="legend-item" data-idx="1" title="Kattintással be/ki"><span class="legend-swatch" style="background:#00b894"></span>Közgáz A</span>
   </div>
   <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
   <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="opp-row"><td class="team-cell">Bkg Dse</td><td>15</td><td>25</td><td>21</td><td>11</td><td class="total">72</td></tr><tr class="kg-row"><td class="team-cell">Közgáz A</td><td>15</td><td>17</td><td>21</td><td>26</td><td class="total">79</td></tr></tbody></table></div>
@@ -352,7 +356,7 @@ const kgDs = {label:'Közgáz A', data:kgProg, borderColor:'#00b894', background
 const oppDs = {label:"Bkg Dse", data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false};
 // Sorrend: hazai elöl, vendég hátul (egyezzen a quarter táblázat és hero sorrenddel)
 const datasetsOrdered = [oppDs, kgDs];
-new Chart(document.getElementById('progressChart').getContext('2d'), {
+const progressChart = new Chart(document.getElementById('progressChart').getContext('2d'), {
   type:'line',
   data:{ datasets: datasetsOrdered },
   plugins: [quarterMarkerPlugin],
@@ -387,6 +391,17 @@ new Chart(document.getElementById('progressChart').getContext('2d'), {
       }
     }
   }
+});
+
+// Custom legend kattintás: csapat toggle (Chart.js default legend kikapcsolva)
+document.querySelectorAll('#chartLegend .legend-item').forEach(el => {
+  el.addEventListener('click', () => {
+    const idx = parseInt(el.dataset.idx, 10);
+    const meta = progressChart.getDatasetMeta(idx);
+    meta.hidden = meta.hidden === null ? !progressChart.data.datasets[idx].hidden : !meta.hidden;
+    el.classList.toggle('hidden', meta.hidden);
+    progressChart.update();
+  });
 });
 
 </script>
