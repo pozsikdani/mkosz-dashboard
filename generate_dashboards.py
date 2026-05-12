@@ -2984,9 +2984,13 @@ def generate_match_page(details, cfg, team_key):
     run_a = _longest_run("A")
     run_b = _longest_run("B")
 
-    # Kezdő vs pad pontok (csak Közgáz oldalon)
-    kg_starter_pts = sum(p["points"] for p in details["kg_players"] if p.get("starter"))
-    kg_bench_pts = sum(p["points"] for p in details["kg_players"] if not p.get("starter"))
+    # Kezdő vs pad pontok mindkét csapatra
+    def _starter_bench(players):
+        s = sum(p["points"] for p in players if p.get("starter"))
+        b = sum(p["points"] for p in players if not p.get("starter"))
+        return s, b
+    kg_starter_pts, kg_bench_pts = _starter_bench(details["kg_players"])
+    opp_starter_pts, opp_bench_pts = _starter_bench(details["opp_players"])
 
     # Kipontozott (5+ személyes hiba) és hibázatlan játékosok (0 PF)
     def _team_fouled_out(players):
@@ -2997,6 +3001,14 @@ def generate_match_page(details, cfg, team_key):
         return [p for p in played if p["pf"] == 0]
     kg_fouled_out = _team_fouled_out(details["kg_players"])
     kg_clean = _team_clean(details["kg_players"])
+    opp_fouled_out = _team_fouled_out(details["opp_players"])
+    opp_clean = _team_clean(details["opp_players"])
+
+    # Csapatonkénti tempó (kosár / negyed)
+    home_baskets = sum(1 for ev in progression if ev["team"] == "A" and ev["points"] >= 2)
+    away_baskets = sum(1 for ev in progression if ev["team"] == "B" and ev["points"] >= 2)
+    home_pace = round(home_baskets / 4, 1)
+    away_pace = round(away_baskets / 4, 1)
 
     # Csapat-fault összesítés
     kg_total_fouls = sum(p["pf"] for p in details["kg_players"])
@@ -3082,6 +3094,25 @@ def generate_match_page(details, cfg, team_key):
         vs_items.append(("Záró 5 perc", clutch_a, clutch_b, _fmt_p, "utolsó 5 percben"))
     if drought_a or drought_b:
         vs_items.append(("Leghosszabb pont-szárazság", drought_a, drought_b, _fmt_p, "becslés"))
+    # Új vs-csempék (korábban single fact-itemek voltak)
+    home_starter = kg_starter_pts if details["kg_is_home"] else opp_starter_pts
+    away_starter = opp_starter_pts if details["kg_is_home"] else kg_starter_pts
+    home_bench = kg_bench_pts if details["kg_is_home"] else opp_bench_pts
+    away_bench = opp_bench_pts if details["kg_is_home"] else kg_bench_pts
+    vs_items.append(("Kezdő pontok", home_starter, away_starter, _fmt_p, None))
+    vs_items.append(("Pad pontok", home_bench, away_bench, _fmt_p, None))
+
+    home_fo = len(kg_fouled_out) if details["kg_is_home"] else len(opp_fouled_out)
+    away_fo = len(opp_fouled_out) if details["kg_is_home"] else len(kg_fouled_out)
+    if home_fo or away_fo:
+        vs_items.append(("Kipontozott", home_fo, away_fo, _fmt_int, None))
+
+    home_clean = len(kg_clean) if details["kg_is_home"] else len(opp_clean)
+    away_clean = len(opp_clean) if details["kg_is_home"] else len(kg_clean)
+    if home_clean or away_clean:
+        vs_items.append(("Hibázatlan játékos", home_clean, away_clean, _fmt_int, None))
+
+    vs_items.append(("Csapat tempó", home_pace, away_pace, lambda v: f"{v}", "kosár / negyed"))
 
     # KG fókuszú: melyik szín lesz a "winner" — ha Közgáz van pluszban, zöld; ha az ellenfél, szürke
     def _vs_card(label, hv, av, fmt, note):
@@ -3131,11 +3162,6 @@ def generate_match_page(details, cfg, team_key):
     # Szöveges (egy értékű) facts — fact-item stílus megmarad
     text_facts = []
     text_facts.append(f'Vezetés-váltás: <b>{lead_changes}</b> alkalommal fordult át a meccs')
-    text_facts.append(f'Közgáz pontok eloszlása: kezdőktől <b>{kg_starter_pts}p</b>, padról <b>{kg_bench_pts}p</b>')
-    fo_str = f'<b>{len(kg_fouled_out)}</b> kipontozott' if kg_fouled_out else 'senki sem pontozódott ki'
-    cl_str = f', <b style="color:var(--green)">{len(kg_clean)}</b> hibázatlan játékos' if kg_clean else ''
-    text_facts.append(f'Fault-helyzet (Közgáz): {fo_str}{cl_str}')
-    text_facts.append(f'Meccs tempó: <b>{pace}</b> kosár / negyed')
 
     facts_text_html = ""
     for f in text_facts:
