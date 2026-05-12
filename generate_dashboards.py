@@ -1703,6 +1703,15 @@ def get_match_details(conn, cfg, tp, gamecode):
     """, (gamecode,)).fetchall()
     quarters = [(int(q[0]), q[1] or 0, q[2] or 0) for q in q_rows]
 
+    # Eredmény alakulása (score progression) — scoring_events alapján
+    progression_rows = conn.execute("""
+        SELECT event_seq, quarter, score_a, score_b
+        FROM scoring_events
+        WHERE gamecode = ? AND made = 1
+        ORDER BY event_seq
+    """, (gamecode,)).fetchall()
+    progression = [(r[0], r[1], r[2], r[3]) for r in progression_rows]
+
     # Player game stats — mindkét csapat
     pgs_rows = conn.execute("""
         SELECT team, COALESCE(license_number, player_name) as lic,
@@ -1760,6 +1769,7 @@ def get_match_details(conn, cfg, tp, gamecode):
         "kg_score": kg_score,
         "opp_score": opp_score,
         "quarters": quarters,
+        "progression": progression,
         "kg_players": kg_players,
         "opp_players": opp_players,
         "opp_total": opp_total,
@@ -2689,6 +2699,28 @@ def generate_match_page(details, cfg, team_key):
     kg_q = [sa if details["kg_is_home"] else sb for q, sa, sb in q_rows] if q_rows else []
     opp_q = [sb if details["kg_is_home"] else sa for q, sa, sb in q_rows] if q_rows else []
 
+    # Eredmény alakulása (score progression) — Chart.js step lines adatai
+    progression = details.get("progression", [])
+    kg_prog_pts = [{"x": 0, "y": 0}]
+    opp_prog_pts = [{"x": 0, "y": 0}]
+    quarter_boundaries = {}  # quarter -> x value where it starts
+    prev_q = None
+    for seq, q, sa, sb in progression:
+        kg_s = sa if details["kg_is_home"] else sb
+        opp_s = sb if details["kg_is_home"] else sa
+        kg_prog_pts.append({"x": seq, "y": kg_s})
+        opp_prog_pts.append({"x": seq, "y": opp_s})
+        if q != prev_q:
+            quarter_boundaries[q] = seq
+            prev_q = q
+    max_x = progression[-1][0] if progression else 0
+    # Q-tickek: a quarter közepénél jelenjenek meg (Q1 az 1. határtól a 2. határig középre)
+    q_ticks = []
+    sorted_q = sorted(quarter_boundaries.items())
+    for i, (q_num, q_start) in enumerate(sorted_q):
+        q_end = sorted_q[i + 1][1] if i + 1 < len(sorted_q) else max_x
+        q_ticks.append({"x": (q_start + q_end) / 2, "label": f"Q{q_num}"})
+
     venue_html = f'<span> · {details["venue"]}</span>' if details["venue"] else ''
     match_time_html = f' {details["match_time"]}' if details["match_time"] else ''
 
@@ -2861,6 +2893,11 @@ def generate_match_page(details, cfg, team_key):
   </div>
 </div>
 
+{f'''<div class="card" style="margin-bottom:20px;">
+  <h3>Eredmény alakulása</h3>
+  <div class="chart-wrap" style="height:320px;"><canvas id="progressChart"></canvas></div>
+</div>''' if progression else ''}
+
 <div class="card">
   <h3>Közgáz játékosok</h3>
   {kg_html}
@@ -2891,6 +2928,45 @@ new Chart(document.getElementById('qChart').getContext('2d'), {{
   }}
 }});
 ''' if q_rows else ''}
+
+{f'''
+const kgProg = {json.dumps(kg_prog_pts)};
+const oppProg = {json.dumps(opp_prog_pts)};
+const qTicks = {json.dumps(q_ticks)};
+const qTickValues = qTicks.map(t => t.x);
+const qTickLabels = {{}};
+qTicks.forEach(t => {{ qTickLabels[t.x] = t.label; }});
+new Chart(document.getElementById('progressChart').getContext('2d'), {{
+  type:'line',
+  data:{{
+    datasets:[
+      {{label:'Közgáz A', data:kgProg, borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}},
+      {{label:'{opp_name}', data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}}
+    ]
+  }},
+  options:{{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{{mode:'index', intersect:false}},
+    plugins:{{
+      legend:{{position:'top', labels:{{usePointStyle:true, font:{{size:11}}}}}},
+      tooltip:{{callbacks:{{title: ctx => 'Esemény #'+ctx[0].parsed.x}}}}
+    }},
+    scales:{{
+      y:{{beginAtZero:true, grid:{{color:'rgba(255,255,255,0.04)'}}}},
+      x:{{
+        type:'linear', beginAtZero:true, max:{max_x},
+        grid:{{color:'rgba(255,255,255,0.04)'}},
+        ticks:{{
+          autoSkip:false,
+          callback: function(val) {{ return qTickLabels[val] || ''; }},
+          font:{{size:11, weight:'600'}}
+        }},
+        afterBuildTicks: scale => {{ scale.ticks = qTickValues.map(v => ({{value:v}})); }}
+      }}
+    }}
+  }}
+}});
+''' if progression else ''}
 </script>
 </body>
 </html>"""

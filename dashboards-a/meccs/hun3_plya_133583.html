@@ -199,6 +199,11 @@
   </div>
 </div>
 
+<div class="card" style="margin-bottom:20px;">
+  <h3>Eredmény alakulása</h3>
+  <div class="chart-wrap" style="height:320px;"><canvas id="progressChart"></canvas></div>
+</div>
+
 <div class="card">
   <h3>Közgáz játékosok</h3>
   <div class="game-log-wrap">
@@ -308,6 +313,45 @@ new Chart(document.getElementById('qChart').getContext('2d'), {
     responsive:true, maintainAspectRatio:false,
     plugins:{legend:{position:'top', labels:{usePointStyle:true, font:{size:11}}}},
     scales:{y:{beginAtZero:true, grid:{color:'rgba(255,255,255,0.04)'}}, x:{grid:{display:false}}}
+  }
+});
+
+
+
+const kgProg = [{"x": 0, "y": 0}, {"x": 1, "y": 2}, {"x": 2, "y": 4}, {"x": 3, "y": 5}, {"x": 4, "y": 7}, {"x": 5, "y": 7}, {"x": 6, "y": 10}, {"x": 7, "y": 10}, {"x": 8, "y": 10}, {"x": 9, "y": 10}, {"x": 11, "y": 10}, {"x": 12, "y": 12}, {"x": 14, "y": 13}, {"x": 15, "y": 13}, {"x": 16, "y": 13}, {"x": 17, "y": 15}, {"x": 18, "y": 15}, {"x": 19, "y": 15}, {"x": 20, "y": 17}, {"x": 21, "y": 20}, {"x": 22, "y": 20}, {"x": 23, "y": 22}, {"x": 24, "y": 23}, {"x": 27, "y": 23}, {"x": 28, "y": 25}, {"x": 30, "y": 26}, {"x": 31, "y": 26}, {"x": 32, "y": 26}, {"x": 33, "y": 26}, {"x": 34, "y": 26}, {"x": 35, "y": 26}, {"x": 36, "y": 29}, {"x": 37, "y": 29}, {"x": 39, "y": 32}, {"x": 40, "y": 32}, {"x": 41, "y": 32}, {"x": 42, "y": 34}, {"x": 43, "y": 36}, {"x": 44, "y": 36}, {"x": 45, "y": 39}, {"x": 46, "y": 39}, {"x": 47, "y": 41}, {"x": 48, "y": 43}, {"x": 49, "y": 43}, {"x": 50, "y": 45}, {"x": 52, "y": 47}, {"x": 53, "y": 47}, {"x": 54, "y": 49}, {"x": 55, "y": 51}, {"x": 56, "y": 51}, {"x": 58, "y": 51}, {"x": 59, "y": 51}, {"x": 60, "y": 51}, {"x": 61, "y": 51}, {"x": 62, "y": 51}, {"x": 63, "y": 51}, {"x": 64, "y": 53}, {"x": 65, "y": 53}, {"x": 66, "y": 53}, {"x": 67, "y": 55}, {"x": 68, "y": 55}, {"x": 69, "y": 57}, {"x": 70, "y": 60}, {"x": 71, "y": 61}, {"x": 73, "y": 63}, {"x": 74, "y": 64}, {"x": 75, "y": 67}, {"x": 76, "y": 67}, {"x": 77, "y": 67}, {"x": 78, "y": 67}, {"x": 82, "y": 70}, {"x": 83, "y": 72}, {"x": 84, "y": 72}, {"x": 85, "y": 74}, {"x": 86, "y": 75}, {"x": 87, "y": 76}, {"x": 89, "y": 77}, {"x": 90, "y": 77}, {"x": 92, "y": 79}];
+const oppProg = [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0}, {"x": 3, "y": 0}, {"x": 4, "y": 0}, {"x": 5, "y": 3}, {"x": 6, "y": 3}, {"x": 7, "y": 5}, {"x": 8, "y": 7}, {"x": 9, "y": 8}, {"x": 11, "y": 10}, {"x": 12, "y": 10}, {"x": 14, "y": 10}, {"x": 15, "y": 11}, {"x": 16, "y": 12}, {"x": 17, "y": 12}, {"x": 18, "y": 15}, {"x": 19, "y": 17}, {"x": 20, "y": 17}, {"x": 21, "y": 17}, {"x": 22, "y": 19}, {"x": 23, "y": 19}, {"x": 24, "y": 19}, {"x": 27, "y": 22}, {"x": 28, "y": 22}, {"x": 30, "y": 22}, {"x": 31, "y": 25}, {"x": 32, "y": 27}, {"x": 33, "y": 29}, {"x": 34, "y": 32}, {"x": 35, "y": 34}, {"x": 36, "y": 34}, {"x": 37, "y": 35}, {"x": 39, "y": 35}, {"x": 40, "y": 38}, {"x": 41, "y": 40}, {"x": 42, "y": 40}, {"x": 43, "y": 40}, {"x": 44, "y": 42}, {"x": 45, "y": 42}, {"x": 46, "y": 44}, {"x": 47, "y": 44}, {"x": 48, "y": 44}, {"x": 49, "y": 46}, {"x": 50, "y": 46}, {"x": 52, "y": 46}, {"x": 53, "y": 48}, {"x": 54, "y": 48}, {"x": 55, "y": 48}, {"x": 56, "y": 49}, {"x": 58, "y": 50}, {"x": 59, "y": 51}, {"x": 60, "y": 53}, {"x": 61, "y": 55}, {"x": 62, "y": 57}, {"x": 63, "y": 59}, {"x": 64, "y": 59}, {"x": 65, "y": 61}, {"x": 66, "y": 63}, {"x": 67, "y": 63}, {"x": 68, "y": 65}, {"x": 69, "y": 65}, {"x": 70, "y": 65}, {"x": 71, "y": 65}, {"x": 73, "y": 65}, {"x": 74, "y": 65}, {"x": 75, "y": 65}, {"x": 76, "y": 67}, {"x": 77, "y": 68}, {"x": 78, "y": 69}, {"x": 82, "y": 69}, {"x": 83, "y": 69}, {"x": 84, "y": 71}, {"x": 85, "y": 71}, {"x": 86, "y": 71}, {"x": 87, "y": 71}, {"x": 89, "y": 71}, {"x": 90, "y": 72}, {"x": 92, "y": 72}];
+const qTicks = [{"x": 10.0, "label": "Q1"}, {"x": 30.5, "label": "Q2"}, {"x": 54.0, "label": "Q3"}, {"x": 79.0, "label": "Q4"}];
+const qTickValues = qTicks.map(t => t.x);
+const qTickLabels = {};
+qTicks.forEach(t => { qTickLabels[t.x] = t.label; });
+new Chart(document.getElementById('progressChart').getContext('2d'), {
+  type:'line',
+  data:{
+    datasets:[
+      {label:'Közgáz A', data:kgProg, borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false},
+      {label:'BKG DSE', data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index', intersect:false},
+    plugins:{
+      legend:{position:'top', labels:{usePointStyle:true, font:{size:11}}},
+      tooltip:{callbacks:{title: ctx => 'Esemény #'+ctx[0].parsed.x}}
+    },
+    scales:{
+      y:{beginAtZero:true, grid:{color:'rgba(255,255,255,0.04)'}},
+      x:{
+        type:'linear', beginAtZero:true, max:92,
+        grid:{color:'rgba(255,255,255,0.04)'},
+        ticks:{
+          autoSkip:false,
+          callback: function(val) { return qTickLabels[val] || ''; },
+          font:{size:11, weight:'600'}
+        },
+        afterBuildTicks: scale => { scale.ticks = qTickValues.map(v => ({value:v})); }
+      }
+    }
   }
 });
 
