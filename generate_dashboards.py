@@ -2672,7 +2672,9 @@ def generate_match_page(details, cfg, team_key):
             if p["points"] == top_pts and top_pts > 0:
                 pts_style = ' style="color:var(--green);font-weight:800;"'
             ft = f'{p["ft_made"]}/{p["ft_att"]}' if p["ft_att"] else "–"
+            starter_mark = '<span class="starter-mark" title="Kezdőötös">×</span>' if p.get("starter") else ''
             kg_body += f'''<tr>
+                <td class="starter-cell">{starter_mark}</td>
                 <td class="pname">{p["name"]}</td>
                 <td{pts_style}>{p["points"]}</td>
                 <td>{p["fg2_made"]}</td>
@@ -2682,7 +2684,7 @@ def generate_match_page(details, cfg, team_key):
             </tr>'''
         kg_html = f'''<div class="game-log-wrap">
         <table class="box-score">
-          <thead><tr><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th></tr></thead>
+          <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th></tr></thead>
           <tbody>{kg_body}</tbody>
         </table>
         </div>'''
@@ -2890,6 +2892,11 @@ def generate_match_page(details, cfg, team_key):
     text-align:center; white-space:nowrap;
   }}
   .box-score td.pname {{ text-align:left; font-weight:600; }}
+  .box-score td.starter-cell {{ width:20px; padding-right:0; }}
+  .box-score .starter-mark {{
+    display:inline-block; width:14px; height:14px; line-height:14px;
+    font-weight:800; font-size:0.85rem; color:var(--green);
+  }}
   .box-score tr:last-child td {{ border-bottom:none; }}
   .box-score tr:hover {{ background:rgba(196,30,58,0.05); }}
   .opp-stats {{
