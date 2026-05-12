@@ -158,6 +158,11 @@
     font-size:0.68rem; color:var(--text-dim); font-style:italic;
     margin-top:6px;
   }
+  .single-val {
+    font-size:1.85rem; font-weight:800; color:var(--text);
+    text-align:center; line-height:1; margin:4px 0;
+  }
+  .vs-card.single-stat .vs-note { text-align:center; }
   /* Negyed MVP grid */
   .qmvp-grid {
     display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
@@ -564,7 +569,11 @@
             <div class="vs-bar-fill" style="width:53%;background:#00b894;"></div>
           </div>
           <div class="vs-note">kosár / negyed</div>
-        </div></div><div class="fact-item">Vezetés-váltás: <b>10</b> alkalommal fordult át a meccs</div>
+        </div><div class="vs-card single-stat">
+          <div class="vs-label">Vezetés-váltás</div>
+          <div class="single-val">10</div>
+          <div class="vs-note">alkalommal fordult át a meccs</div>
+        </div></div>
 </div>
 
 <div class="card" style="margin-bottom:20px;">

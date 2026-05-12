@@ -3154,20 +3154,24 @@ def generate_match_page(details, cfg, team_key):
           {note_html}
         </div>'''
 
+    # Egy-értékű csempe (single-stat): meccs-szintű adat, nincs ellenfél-érték
+    def _single_card(label, value, note=None):
+        note_html = f'<div class="vs-note">{note}</div>' if note else ''
+        return f'''<div class="vs-card single-stat">
+          <div class="vs-label">{label}</div>
+          <div class="single-val">{value}</div>
+          {note_html}
+        </div>'''
+
     vs_cards_html = '<div class="vs-grid">'
     for item in vs_items:
         vs_cards_html += _vs_card(*item)
+    # Single-stat csempék (mátxszintű, nincs csapat-bontás)
+    vs_cards_html += _single_card("Vezetés-váltás", lead_changes, "alkalommal fordult át a meccs")
     vs_cards_html += '</div>'
 
-    # Szöveges (egy értékű) facts — fact-item stílus megmarad
-    text_facts = []
-    text_facts.append(f'Vezetés-váltás: <b>{lead_changes}</b> alkalommal fordult át a meccs')
-
-    facts_text_html = ""
-    for f in text_facts:
-        facts_text_html += f'<div class="fact-item">{f}</div>'
-
-    facts_html = vs_cards_html + facts_text_html
+    text_facts = []  # most már nincs szöveges fact
+    facts_html = vs_cards_html
 
     # ─────────────────────────────────────────────────────────────
     # Quarter MVP — legtöbb pontot dobó játékos negyedenként mindkét csapatban
@@ -3421,6 +3425,11 @@ def generate_match_page(details, cfg, team_key):
     font-size:0.68rem; color:var(--text-dim); font-style:italic;
     margin-top:6px;
   }}
+  .single-val {{
+    font-size:1.85rem; font-weight:800; color:var(--text);
+    text-align:center; line-height:1; margin:4px 0;
+  }}
+  .vs-card.single-stat .vs-note {{ text-align:center; }}
   /* Negyed MVP grid */
   .qmvp-grid {{
     display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
@@ -3616,7 +3625,7 @@ def generate_match_page(details, cfg, team_key):
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Érdekességek & Fun facts</h3>
   {facts_html}
-</div>''' if (vs_items or text_facts) else ''}
+</div>''' if vs_items else ''}
 
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Negyed MVP-k</h3>
