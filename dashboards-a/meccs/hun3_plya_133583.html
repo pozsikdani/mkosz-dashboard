@@ -180,15 +180,15 @@
   </div>
 </div>
 
-<div class="grid-2">
-  <div class="card">
-    <h3>Negyedenkénti bontás</h3>
-    <table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="opp-row"><td class="team-cell">Bkg Dse</td><td>15</td><td>25</td><td>21</td><td>11</td><td class="total">72</td></tr><tr class="kg-row"><td class="team-cell">Közgáz A</td><td>15</td><td>17</td><td>21</td><td>26</td><td class="total">79</td></tr></tbody></table>
-    <div class="chart-wrap"><canvas id="qChart"></canvas></div>
-  </div>
-  <div class="card">
-    <h3>Ellenfél összesítő — BKG DSE</h3>
-    
+<div class="card" style="margin-bottom:20px;">
+  <h3>Eredmény alakulása</h3>
+  <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
+  <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="opp-row"><td class="team-cell">Bkg Dse</td><td>15</td><td>25</td><td>21</td><td>11</td><td class="total">72</td></tr><tr class="kg-row"><td class="team-cell">Közgáz A</td><td>15</td><td>17</td><td>21</td><td>26</td><td class="total">79</td></tr></tbody></table></div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Ellenfél összesítő — BKG DSE</h3>
+  
       <div class="opp-stats">
         <div class="opp-stat"><div class="lbl">Pont</div><div class="val">72</div></div>
         <div class="opp-stat"><div class="lbl">2FG</div><div class="val">22</div></div>
@@ -196,12 +196,6 @@
         <div class="opp-stat"><div class="lbl">FT</div><div class="val">10/17 (59%)</div></div>
       </div>
       <div class="opp-top"><span class="lbl">Top scorer:</span> <span class="val">IGNÁCZ DÁVID</span> <span class="pts">19 pt</span></div>
-  </div>
-</div>
-
-<div class="card" style="margin-bottom:20px;">
-  <h3>Eredmény alakulása</h3>
-  <div class="chart-wrap" style="height:320px;"><canvas id="progressChart"></canvas></div>
 </div>
 
 <div class="card">
@@ -297,34 +291,56 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const qLabels = ["Q1", "Q2", "Q3", "Q4"];
-const kgQ = [15, 17, 21, 26];
-const oppQ = [15, 25, 21, 11];
-new Chart(document.getElementById('qChart').getContext('2d'), {
-  type:'bar',
-  data:{
-    labels:qLabels,
-    datasets:[
-      {label:'Közgáz A', data:kgQ, backgroundColor:'rgba(0,184,148,0.55)', borderColor:'#00b894', borderWidth:2, borderRadius:6},
-      {label:'BKG DSE', data:oppQ, backgroundColor:'rgba(139,141,160,0.45)', borderColor:'#8b8da0', borderWidth:2, borderRadius:6}
-    ]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:false,
-    plugins:{legend:{position:'top', labels:{usePointStyle:true, font:{size:11}}}},
-    scales:{y:{beginAtZero:true, grid:{color:'rgba(255,255,255,0.04)'}}, x:{grid:{display:false}}}
-  }
-});
-
-
-
 const kgProg = [{"x": 0, "y": 0}, {"x": 1, "y": 2}, {"x": 2, "y": 4}, {"x": 3, "y": 5}, {"x": 4, "y": 7}, {"x": 5, "y": 7}, {"x": 6, "y": 10}, {"x": 7, "y": 10}, {"x": 8, "y": 10}, {"x": 9, "y": 10}, {"x": 11, "y": 10}, {"x": 12, "y": 12}, {"x": 14, "y": 13}, {"x": 15, "y": 13}, {"x": 16, "y": 13}, {"x": 17, "y": 15}, {"x": 18, "y": 15}, {"x": 19, "y": 15}, {"x": 20, "y": 17}, {"x": 21, "y": 20}, {"x": 22, "y": 20}, {"x": 23, "y": 22}, {"x": 24, "y": 23}, {"x": 27, "y": 23}, {"x": 28, "y": 25}, {"x": 30, "y": 26}, {"x": 31, "y": 26}, {"x": 32, "y": 26}, {"x": 33, "y": 26}, {"x": 34, "y": 26}, {"x": 35, "y": 26}, {"x": 36, "y": 29}, {"x": 37, "y": 29}, {"x": 39, "y": 32}, {"x": 40, "y": 32}, {"x": 41, "y": 32}, {"x": 42, "y": 34}, {"x": 43, "y": 36}, {"x": 44, "y": 36}, {"x": 45, "y": 39}, {"x": 46, "y": 39}, {"x": 47, "y": 41}, {"x": 48, "y": 43}, {"x": 49, "y": 43}, {"x": 50, "y": 45}, {"x": 52, "y": 47}, {"x": 53, "y": 47}, {"x": 54, "y": 49}, {"x": 55, "y": 51}, {"x": 56, "y": 51}, {"x": 58, "y": 51}, {"x": 59, "y": 51}, {"x": 60, "y": 51}, {"x": 61, "y": 51}, {"x": 62, "y": 51}, {"x": 63, "y": 51}, {"x": 64, "y": 53}, {"x": 65, "y": 53}, {"x": 66, "y": 53}, {"x": 67, "y": 55}, {"x": 68, "y": 55}, {"x": 69, "y": 57}, {"x": 70, "y": 60}, {"x": 71, "y": 61}, {"x": 73, "y": 63}, {"x": 74, "y": 64}, {"x": 75, "y": 67}, {"x": 76, "y": 67}, {"x": 77, "y": 67}, {"x": 78, "y": 67}, {"x": 82, "y": 70}, {"x": 83, "y": 72}, {"x": 84, "y": 72}, {"x": 85, "y": 74}, {"x": 86, "y": 75}, {"x": 87, "y": 76}, {"x": 89, "y": 77}, {"x": 90, "y": 77}, {"x": 92, "y": 79}];
 const oppProg = [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0}, {"x": 3, "y": 0}, {"x": 4, "y": 0}, {"x": 5, "y": 3}, {"x": 6, "y": 3}, {"x": 7, "y": 5}, {"x": 8, "y": 7}, {"x": 9, "y": 8}, {"x": 11, "y": 10}, {"x": 12, "y": 10}, {"x": 14, "y": 10}, {"x": 15, "y": 11}, {"x": 16, "y": 12}, {"x": 17, "y": 12}, {"x": 18, "y": 15}, {"x": 19, "y": 17}, {"x": 20, "y": 17}, {"x": 21, "y": 17}, {"x": 22, "y": 19}, {"x": 23, "y": 19}, {"x": 24, "y": 19}, {"x": 27, "y": 22}, {"x": 28, "y": 22}, {"x": 30, "y": 22}, {"x": 31, "y": 25}, {"x": 32, "y": 27}, {"x": 33, "y": 29}, {"x": 34, "y": 32}, {"x": 35, "y": 34}, {"x": 36, "y": 34}, {"x": 37, "y": 35}, {"x": 39, "y": 35}, {"x": 40, "y": 38}, {"x": 41, "y": 40}, {"x": 42, "y": 40}, {"x": 43, "y": 40}, {"x": 44, "y": 42}, {"x": 45, "y": 42}, {"x": 46, "y": 44}, {"x": 47, "y": 44}, {"x": 48, "y": 44}, {"x": 49, "y": 46}, {"x": 50, "y": 46}, {"x": 52, "y": 46}, {"x": 53, "y": 48}, {"x": 54, "y": 48}, {"x": 55, "y": 48}, {"x": 56, "y": 49}, {"x": 58, "y": 50}, {"x": 59, "y": 51}, {"x": 60, "y": 53}, {"x": 61, "y": 55}, {"x": 62, "y": 57}, {"x": 63, "y": 59}, {"x": 64, "y": 59}, {"x": 65, "y": 61}, {"x": 66, "y": 63}, {"x": 67, "y": 63}, {"x": 68, "y": 65}, {"x": 69, "y": 65}, {"x": 70, "y": 65}, {"x": 71, "y": 65}, {"x": 73, "y": 65}, {"x": 74, "y": 65}, {"x": 75, "y": 65}, {"x": 76, "y": 67}, {"x": 77, "y": 68}, {"x": 78, "y": 69}, {"x": 82, "y": 69}, {"x": 83, "y": 69}, {"x": 84, "y": 71}, {"x": 85, "y": 71}, {"x": 86, "y": 71}, {"x": 87, "y": 71}, {"x": 89, "y": 71}, {"x": 90, "y": 72}, {"x": 92, "y": 72}];
 const qTicks = [{"x": 10.0, "label": "Q1"}, {"x": 30.5, "label": "Q2"}, {"x": 54.0, "label": "Q3"}, {"x": 79.0, "label": "Q4"}];
+const qMarkers = [{"x": 18, "q": 1, "kg": 15, "opp": 15, "label": "Q1 v\u00e9ge \u00b7 15\u201315"}, {"x": 41, "q": 2, "kg": 32, "opp": 40, "label": "Q2 v\u00e9ge \u00b7 32\u201340"}, {"x": 65, "q": 3, "kg": 53, "opp": 61, "label": "Q3 v\u00e9ge \u00b7 53\u201361"}, {"x": 92, "q": 4, "kg": 79, "opp": 72, "label": "Q4 v\u00e9ge \u00b7 79\u201372"}];
 const eventInfo = {"1": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "2": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "3": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 1}, "4": {"team": "K\u00f6zg\u00e1z A", "player": "POZSIK D\u00c1NIEL M\u00c1RTON", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "5": {"team": "Bkg Dse", "player": "KISS LEVENTE B\u00c1NK", "pts": 3, "shot": "tripla", "q": 1}, "6": {"team": "K\u00f6zg\u00e1z A", "player": "MIH\u00c1LY TAM\u00c1S BENCE", "pts": 3, "shot": "tripla", "q": 1}, "7": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "8": {"team": "Bkg Dse", "player": "CZAK\u00d3 TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "9": {"team": "Bkg Dse", "player": "KISS LEVENTE B\u00c1NK", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 1}, "11": {"team": "Bkg Dse", "player": "PILLER B\u00c1LINT N\u00c1NDOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "12": {"team": "K\u00f6zg\u00e1z A", "player": "POZSIK D\u00c1NIEL M\u00c1RTON", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "14": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 1}, "15": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 1}, "16": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 1}, "17": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "18": {"team": "Bkg Dse", "player": "PILLER B\u00c1LINT N\u00c1NDOR", "pts": 3, "shot": "tripla", "q": 1}, "19": {"team": "Bkg Dse", "player": "CZAK\u00d3 TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "20": {"team": "K\u00f6zg\u00e1z A", "player": "CSEPREGI \u00c1D\u00c1M ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "21": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 3, "shot": "tripla", "q": 2}, "22": {"team": "Bkg Dse", "player": "PILLER B\u00c1LINT N\u00c1NDOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "23": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "24": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 2}, "27": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 3, "shot": "tripla", "q": 2}, "28": {"team": "K\u00f6zg\u00e1z A", "player": "B\u00c9RES M\u00c1RTON", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "30": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 2}, "31": {"team": "Bkg Dse", "player": "IGN\u00c1CZ KRIST\u00d3F", "pts": 3, "shot": "tripla", "q": 2}, "32": {"team": "Bkg Dse", "player": "KISS LEVENTE B\u00c1NK", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "33": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "34": {"team": "Bkg Dse", "player": "PILLER B\u00c1LINT N\u00c1NDOR", "pts": 3, "shot": "tripla", "q": 2}, "35": {"team": "Bkg Dse", "player": "IGN\u00c1CZ KRIST\u00d3F", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "36": {"team": "K\u00f6zg\u00e1z A", "player": "PAPP DOMINIK", "pts": 3, "shot": "tripla", "q": 2}, "37": {"team": "Bkg Dse", "player": "KISS LEVENTE B\u00c1NK", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 2}, "39": {"team": "K\u00f6zg\u00e1z A", "player": "HAJD\u00da BOTOND", "pts": 3, "shot": "tripla", "q": 2}, "40": {"team": "Bkg Dse", "player": "KISS LEVENTE B\u00c1NK", "pts": 3, "shot": "tripla", "q": 2}, "41": {"team": "Bkg Dse", "player": "KISS LEVENTE B\u00c1NK", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "42": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "43": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "44": {"team": "Bkg Dse", "player": "BEGELA BAL\u00c1ZS", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "45": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 3, "shot": "tripla", "q": 3}, "46": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "47": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "48": {"team": "K\u00f6zg\u00e1z A", "player": "CSEPREGI \u00c1D\u00c1M ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "49": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "50": {"team": "K\u00f6zg\u00e1z A", "player": "CSEPREGI \u00c1D\u00c1M ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "52": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "53": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "54": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "55": {"team": "K\u00f6zg\u00e1z A", "player": "CSEPREGI \u00c1D\u00c1M ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "56": {"team": "Bkg Dse", "player": "PILLER B\u00c1LINT N\u00c1NDOR", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 3}, "58": {"team": "Bkg Dse", "player": "CZAK\u00d3 TAM\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 3}, "59": {"team": "Bkg Dse", "player": "CZAK\u00d3 TAM\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 3}, "60": {"team": "Bkg Dse", "player": "IGN\u00c1CZ KRIST\u00d3F", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "61": {"team": "Bkg Dse", "player": "KISS LEVENTE B\u00c1NK", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "62": {"team": "Bkg Dse", "player": "IGN\u00c1CZ KRIST\u00d3F", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "63": {"team": "Bkg Dse", "player": "CZAK\u00d3 TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "64": {"team": "K\u00f6zg\u00e1z A", "player": "B\u00c9RES M\u00c1RTON", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "65": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "66": {"team": "Bkg Dse", "player": "CZAK\u00d3 TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "67": {"team": "K\u00f6zg\u00e1z A", "player": "B\u00c9RES M\u00c1RTON", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "68": {"team": "Bkg Dse", "player": "IGN\u00c1CZ KRIST\u00d3F", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "69": {"team": "K\u00f6zg\u00e1z A", "player": "B\u00c9RES M\u00c1RTON", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "70": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 3, "shot": "tripla", "q": 4}, "71": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "73": {"team": "K\u00f6zg\u00e1z A", "player": "B\u00c9RES M\u00c1RTON", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "74": {"team": "K\u00f6zg\u00e1z A", "player": "B\u00c9RES M\u00c1RTON", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "75": {"team": "K\u00f6zg\u00e1z A", "player": "CSEPREGI \u00c1D\u00c1M ISTV\u00c1N", "pts": 3, "shot": "tripla", "q": 4}, "76": {"team": "Bkg Dse", "player": "IGN\u00c1CZ D\u00c1VID", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "77": {"team": "Bkg Dse", "player": "PILLER B\u00c1LINT N\u00c1NDOR", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "78": {"team": "Bkg Dse", "player": "PILLER B\u00c1LINT N\u00c1NDOR", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "82": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 3, "shot": "tripla", "q": 4}, "83": {"team": "K\u00f6zg\u00e1z A", "player": "JENEI KOPP\u00c1NY TAM\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "84": {"team": "Bkg Dse", "player": "PILLER B\u00c1LINT N\u00c1NDOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "85": {"team": "K\u00f6zg\u00e1z A", "player": "POZSIK D\u00c1NIEL M\u00c1RTON", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "86": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "87": {"team": "K\u00f6zg\u00e1z A", "player": "SCHWARCZENBERGER G\u00c1BOR", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "89": {"team": "K\u00f6zg\u00e1z A", "player": "PAPP DOMINIK", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "90": {"team": "Bkg Dse", "player": "KISS LEVENTE B\u00c1NK", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "92": {"team": "K\u00f6zg\u00e1z A", "player": "PAPP DOMINIK", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}};
 const qTickValues = qTicks.map(t => t.x);
 const qTickLabels = {};
 qTicks.forEach(t => { qTickLabels[t.x] = t.label; });
+
+// Custom plugin: negyed-vég jelölők (függőleges szaggatott vonal + eredmény badge)
+const quarterMarkerPlugin = {
+  id: 'quarterMarker',
+  afterDatasetsDraw(chart) {
+    const {ctx, chartArea: {top, bottom}, scales: {x, y}} = chart;
+    if (!qMarkers || !qMarkers.length) return;
+    ctx.save();
+    qMarkers.forEach((m, idx) => {
+      // Skip the last quarter end (it's just the final score, shown in hero)
+      if (idx === qMarkers.length - 1) return;
+      const px = x.getPixelForValue(m.x);
+      // Függőleges szaggatott vonal
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(px, top);
+      ctx.lineTo(px, bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Badge tetején: "Q1 vége · 15–15"
+      const text = 'Q'+m.q+' vége · '+m.kg+'–'+m.opp;
+      ctx.font = '600 10px Inter, sans-serif';
+      const padX = 6, padY = 3;
+      const tw = ctx.measureText(text).width;
+      const bx = px - tw/2 - padX;
+      const by = top + 4;
+      // Háttér
+      ctx.fillStyle = 'rgba(196,30,58,0.85)';
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(bx, by, tw + padX*2, 18, 6) : ctx.rect(bx, by, tw + padX*2, 18);
+      ctx.fill();
+      // Szöveg
+      ctx.fillStyle = '#fff';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, px - tw/2, by + 9);
+    });
+    ctx.restore();
+  }
+};
+
 new Chart(document.getElementById('progressChart').getContext('2d'), {
   type:'line',
   data:{
@@ -333,8 +349,10 @@ new Chart(document.getElementById('progressChart').getContext('2d'), {
       {label:'BKG DSE', data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}
     ]
   },
+  plugins: [quarterMarkerPlugin],
   options:{
     responsive:true, maintainAspectRatio:false,
+    layout: {padding: {top: 22}},
     interaction:{mode:'index', intersect:false},
     plugins:{
       legend:{position:'top', labels:{usePointStyle:true, font:{size:11}}},

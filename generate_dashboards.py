@@ -2716,7 +2716,8 @@ def generate_match_page(details, cfg, team_key):
     opp_prog_pts = [{"x": 0, "y": 0}]
     # Eseményinfó tooltip-hez (seq → leíró string)
     event_info = {}
-    quarter_boundaries = {}
+    quarter_boundaries = {}        # quarter -> first event_seq
+    quarter_end_scores = {}        # quarter -> (kg_score, opp_score, end_seq)
     prev_q = None
     kg_side = details["kg_side"]
     for ev in progression:
@@ -2728,6 +2729,8 @@ def generate_match_page(details, cfg, team_key):
         if q != prev_q:
             quarter_boundaries[q] = seq
             prev_q = q
+        # Az utolsó score az adott quarterben — a quarter végén marad
+        quarter_end_scores[q] = (kg_s, opp_s, seq)
         # Eseményleírás
         scorer = ev["player"] or "?"
         # Csapat-fókuszú prefix
@@ -2753,6 +2756,13 @@ def generate_match_page(details, cfg, team_key):
     for i, (q_num, q_start) in enumerate(sorted_q):
         q_end = sorted_q[i + 1][1] if i + 1 < len(sorted_q) else max_x
         q_ticks.append({"x": (q_start + q_end) / 2, "label": f"Q{q_num}"})
+    # Quarter-end markerek (negyed vége: x = utolsó esemény az adott quarterben)
+    q_markers = []
+    for q_num, (kg_s, opp_s, end_seq) in sorted(quarter_end_scores.items()):
+        q_markers.append({
+            "x": end_seq, "q": q_num, "kg": kg_s, "opp": opp_s,
+            "label": f"Q{q_num} vége · {kg_s}–{opp_s}",
+        })
 
     venue_html = f'<span> · {details["venue"]}</span>' if details["venue"] else ''
     match_time_html = f' {details["match_time"]}' if details["match_time"] else ''
@@ -2914,22 +2924,16 @@ def generate_match_page(details, cfg, team_key):
   </div>
 </div>
 
-<div class="grid-2">
-  <div class="card">
-    <h3>Negyedenkénti bontás</h3>
-    {q_html}
-    {'<div class="chart-wrap"><canvas id="qChart"></canvas></div>' if q_rows else ''}
-  </div>
-  <div class="card">
-    <h3>Ellenfél összesítő — {opp_name}</h3>
-    {opp_summary}
-  </div>
-</div>
-
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Eredmény alakulása</h3>
-  <div class="chart-wrap" style="height:320px;"><canvas id="progressChart"></canvas></div>
-</div>''' if progression else ''}
+  <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
+  <div style="margin-top:14px;">{q_html}</div>
+</div>''' if progression or q_rows else ''}
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Ellenfél összesítő — {opp_name}</h3>
+  {opp_summary}
+</div>
 
 <div class="card">
   <h3>Közgáz játékosok</h3>
@@ -2942,34 +2946,56 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 {f'''
-const qLabels = {json.dumps(q_chart_labels)};
-const kgQ = {json.dumps(kg_q)};
-const oppQ = {json.dumps(opp_q)};
-new Chart(document.getElementById('qChart').getContext('2d'), {{
-  type:'bar',
-  data:{{
-    labels:qLabels,
-    datasets:[
-      {{label:'Közgáz A', data:kgQ, backgroundColor:'rgba(0,184,148,0.55)', borderColor:'#00b894', borderWidth:2, borderRadius:6}},
-      {{label:'{opp_name}', data:oppQ, backgroundColor:'rgba(139,141,160,0.45)', borderColor:'#8b8da0', borderWidth:2, borderRadius:6}}
-    ]
-  }},
-  options:{{
-    responsive:true, maintainAspectRatio:false,
-    plugins:{{legend:{{position:'top', labels:{{usePointStyle:true, font:{{size:11}}}}}}}},
-    scales:{{y:{{beginAtZero:true, grid:{{color:'rgba(255,255,255,0.04)'}}}}, x:{{grid:{{display:false}}}}}}
-  }}
-}});
-''' if q_rows else ''}
-
-{f'''
 const kgProg = {json.dumps(kg_prog_pts)};
 const oppProg = {json.dumps(opp_prog_pts)};
 const qTicks = {json.dumps(q_ticks)};
+const qMarkers = {json.dumps(q_markers)};
 const eventInfo = {json.dumps(event_info)};
 const qTickValues = qTicks.map(t => t.x);
 const qTickLabels = {{}};
 qTicks.forEach(t => {{ qTickLabels[t.x] = t.label; }});
+
+// Custom plugin: negyed-vég jelölők (függőleges szaggatott vonal + eredmény badge)
+const quarterMarkerPlugin = {{
+  id: 'quarterMarker',
+  afterDatasetsDraw(chart) {{
+    const {{ctx, chartArea: {{top, bottom}}, scales: {{x, y}}}} = chart;
+    if (!qMarkers || !qMarkers.length) return;
+    ctx.save();
+    qMarkers.forEach((m, idx) => {{
+      // Skip the last quarter end (it's just the final score, shown in hero)
+      if (idx === qMarkers.length - 1) return;
+      const px = x.getPixelForValue(m.x);
+      // Függőleges szaggatott vonal
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(px, top);
+      ctx.lineTo(px, bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Badge tetején: "Q1 vége · 15–15"
+      const text = 'Q'+m.q+' vége · '+m.kg+'–'+m.opp;
+      ctx.font = '600 10px Inter, sans-serif';
+      const padX = 6, padY = 3;
+      const tw = ctx.measureText(text).width;
+      const bx = px - tw/2 - padX;
+      const by = top + 4;
+      // Háttér
+      ctx.fillStyle = 'rgba(196,30,58,0.85)';
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(bx, by, tw + padX*2, 18, 6) : ctx.rect(bx, by, tw + padX*2, 18);
+      ctx.fill();
+      // Szöveg
+      ctx.fillStyle = '#fff';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, px - tw/2, by + 9);
+    }});
+    ctx.restore();
+  }}
+}};
+
 new Chart(document.getElementById('progressChart').getContext('2d'), {{
   type:'line',
   data:{{
@@ -2978,8 +3004,10 @@ new Chart(document.getElementById('progressChart').getContext('2d'), {{
       {{label:'{opp_name}', data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}}
     ]
   }},
+  plugins: [quarterMarkerPlugin],
   options:{{
     responsive:true, maintainAspectRatio:false,
+    layout: {{padding: {{top: 22}}}},
     interaction:{{mode:'index', intersect:false}},
     plugins:{{
       legend:{{position:'top', labels:{{usePointStyle:true, font:{{size:11}}}}}},
