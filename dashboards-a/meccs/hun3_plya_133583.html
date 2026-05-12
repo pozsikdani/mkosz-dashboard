@@ -118,6 +118,87 @@
     font-size:0.72rem; color:var(--text-dim); margin-top:10px;
     font-style:italic; text-align:center;
   }
+  /* Érdekességek (fun-facts) grid */
+  .facts-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:10px;
+  }
+  .ff-tile {
+    background:rgba(255,255,255,0.025); border-radius:10px;
+    padding:12px 14px;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .ff-lbl {
+    font-size:0.65rem; color:var(--text-dim);
+    text-transform:uppercase; letter-spacing:0.7px; font-weight:600;
+  }
+  .ff-val { font-size:1rem; font-weight:700; color:var(--text); line-height:1.3; }
+  .ff-sub { font-size:0.68rem; color:var(--text-dim); font-style:italic; }
+  /* Negyed MVP grid */
+  .qmvp-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:10px;
+  }
+  .qmvp-card {
+    background:rgba(255,255,255,0.025); border-radius:10px;
+    padding:12px 14px;
+  }
+  .qmvp-q {
+    font-weight:800; color:var(--text-dim);
+    font-size:0.72rem; letter-spacing:1px; margin-bottom:8px;
+  }
+  .qmvp-row {
+    display:grid; grid-template-columns:auto 1fr auto; gap:8px;
+    font-size:0.8rem; padding:2px 0;
+  }
+  .qmvp-team { color:var(--text-dim); font-size:0.72rem; min-width:60px; }
+  .qmvp-player { color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .qmvp-pts { color:var(--green); font-weight:700; }
+  .qmvp-row:nth-child(3) .qmvp-pts { color:var(--text-dim); }
+  /* Foul timeline */
+  .foul-tl-header {
+    display:grid; grid-template-columns:170px 1fr; gap:10px;
+    font-size:0.7rem; color:var(--text-dim); margin-bottom:6px;
+    text-transform:uppercase; letter-spacing:0.6px;
+  }
+  .foul-tl-quarters {
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    text-align:center;
+  }
+  .foul-row {
+    display:grid; grid-template-columns:170px 1fr; gap:10px;
+    align-items:center; padding:6px 0;
+  }
+  .foul-pname {
+    font-size:0.78rem; font-weight:600; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .risk-badge {
+    font-size:0.6rem; padding:1px 6px; border-radius:4px;
+    background:rgba(225,112,85,0.18); color:var(--red);
+    font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
+  }
+  .foul-timeline {
+    position:relative; height:22px; background:rgba(255,255,255,0.03);
+    border-radius:5px;
+  }
+  .foul-dot {
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    width:10px; height:10px; border-radius:50%;
+    box-shadow:0 0 0 2px var(--card);
+  }
+  .foul-q-marker {
+    position:absolute; top:0; bottom:0; width:1px;
+    background:rgba(255,255,255,0.07);
+  }
+  .foul-count {
+    position:absolute; right:-26px; top:50%; transform:translateY(-50%);
+    font-size:0.7rem; color:var(--text-dim); font-weight:600;
+  }
+  @media (max-width:600px) {
+    .foul-tl-header, .foul-row { grid-template-columns:100px 1fr; }
+    .foul-pname { font-size:0.7rem; }
+  }
   .chart-legend {
     display:flex; justify-content:center; gap:18px;
     margin:-4px 0 12px;
@@ -271,6 +352,32 @@
 </div>
 
 <div class="card" style="margin-bottom:20px;">
+  <h3>Érdekességek</h3>
+  <div class="facts-grid"><div class="ff-tile"><div class="ff-lbl">Vezetés-váltás</div><div class="ff-val">10</div><div class="ff-sub">ennyiszer fordult át a meccs</div></div><div class="ff-tile"><div class="ff-lbl">Legnagyobb vezetés</div><div class="ff-val">Bkg Dse: +10<br>Közgáz A: +7</div></div><div class="ff-tile"><div class="ff-lbl">Legnagyobb sorozat</div><div class="ff-val">Bkg Dse: 12p<br>Közgáz A: 12p</div><div class="ff-sub">egymás után, válasz nélkül</div></div><div class="ff-tile"><div class="ff-lbl">Negyedek megnyerve</div><div class="ff-val">Bkg Dse: 1<br>Közgáz A: 1<br>döntetlen: 2</div></div><div class="ff-tile"><div class="ff-lbl">Faultok</div><div class="ff-val">Közgáz: 18<br>Bkg Dse: 13</div><div class="ff-sub">összes személyes</div></div><div class="ff-tile"><div class="ff-lbl">Időkérések</div><div class="ff-val">Bkg Dse: 5<br>Közgáz A: 4</div></div><div class="ff-tile"><div class="ff-lbl">Kezdő/Pad pontok</div><div class="ff-val">Kezdők: 67<br>Padról: 12</div><div class="ff-sub">Közgáz játékosok</div></div><div class="ff-tile"><div class="ff-lbl">Fault-helyzet</div><div class="ff-val">senki sem pontozódott ki<br><span style='color:var(--green)'>1 hibázatlan</span></div><div class="ff-sub">Közgáz játékosok</div></div><div class="ff-tile"><div class="ff-lbl">Záró 5 perc</div><div class="ff-val">Bkg Dse: 3p<br>Közgáz A: 7p</div><div class="ff-sub">pontok az utolsó 5 percben</div></div><div class="ff-tile"><div class="ff-lbl">Leghosszabb pont-szárazság</div><div class="ff-val">Bkg Dse: 11p<br>Közgáz A: 12p</div><div class="ff-sub">becslés</div></div><div class="ff-tile"><div class="ff-lbl">Meccs tempó</div><div class="ff-val">14.8</div><div class="ff-sub">kosár / negyed</div></div></div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Negyed MVP-k</h3>
+  <div class="qmvp-grid"><div class="qmvp-card">
+          <div class="qmvp-q">Q1</div>
+          <div class="qmvp-row"><span class="qmvp-team">Bkg Dse</span><span class="qmvp-player">PILLER BÁLINT NÁNDOR</span><span class="qmvp-pts">5p</span></div>
+          <div class="qmvp-row"><span class="qmvp-team">Közgáz A</span><span class="qmvp-player">SCHWARCZENBERGER GÁBOR</span><span class="qmvp-pts">5p</span></div>
+        </div><div class="qmvp-card">
+          <div class="qmvp-q">Q2</div>
+          <div class="qmvp-row"><span class="qmvp-team">Bkg Dse</span><span class="qmvp-player">KISS LEVENTE BÁNK</span><span class="qmvp-pts">8p</span></div>
+          <div class="qmvp-row"><span class="qmvp-team">Közgáz A</span><span class="qmvp-player">JENEI KOPPÁNY TAMÁS</span><span class="qmvp-pts">4p</span></div>
+        </div><div class="qmvp-card">
+          <div class="qmvp-q">Q3</div>
+          <div class="qmvp-row"><span class="qmvp-team">Bkg Dse</span><span class="qmvp-player">IGNÁCZ DÁVID</span><span class="qmvp-pts">8p</span></div>
+          <div class="qmvp-row"><span class="qmvp-team">Közgáz A</span><span class="qmvp-player">JENEI KOPPÁNY TAMÁS</span><span class="qmvp-pts">8p</span></div>
+        </div><div class="qmvp-card">
+          <div class="qmvp-q">Q4</div>
+          <div class="qmvp-row"><span class="qmvp-team">Bkg Dse</span><span class="qmvp-player">PILLER BÁLINT NÁNDOR</span><span class="qmvp-pts">4p</span></div>
+          <div class="qmvp-row"><span class="qmvp-team">Közgáz A</span><span class="qmvp-player">SCHWARCZENBERGER GÁBOR</span><span class="qmvp-pts">8p</span></div>
+        </div></div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
   <h3>Pontszerzés megoszlása</h3>
   <div class="dist-row">
           <div class="dist-label">Bkg Dse</div>
@@ -302,6 +409,96 @@
           <div class="dist-seg" style="background:#3a3c46;flex-basis:14%;" title="Döntetlen: 7 perc (14%)">döntetlen 14%</div>
         </div>
         <div class="lead-note">A jegyzőkönyv perc-adatainak hiányos kitöltése miatt ez egy becslés (~5-15% pontatlanság).</div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Hibák alakulása <span class="title-note">(Közgáz játékosok)</span></h3>
+  <div class="foul-tl-header">
+          <span></span>
+          <div class="foul-tl-quarters"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>
+        </div>
+        <div class="foul-row">
+          <div class="foul-pname">SCHWARCZENBERGER GÁBOR <span class="risk-badge">veszélyben</span></div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:25.0%;background:var(--red);" title="Q1 10p"></div><div class="foul-dot" style="left:90.0%;background:var(--red);" title="Q2 26p"></div><div class="foul-dot" style="left:80.0%;background:var(--red);" title="Q4 2p"></div><div class="foul-dot" style="left:92.5%;background:var(--red);" title="Q4 7p"></div>
+            <div class="foul-count">4×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">PAPP DOMINIK <span class="risk-badge">veszélyben</span></div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:32.5%;background:var(--red);" title="Q2 3p"></div><div class="foul-dot" style="left:190.0%;background:var(--red);" title="Q2 66p"></div><div class="foul-dot" style="left:75.0%;background:var(--red);" title="Q4 0p"></div><div class="foul-dot" style="left:77.5%;background:var(--red);" title="Q4 1p"></div>
+            <div class="foul-count">4×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">BÉRES MÁRTON</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:52.5%;background:var(--text-dim);" title="Q3 1p"></div><div class="foul-dot" style="left:55.00000000000001%;background:var(--text-dim);" title="Q3 2p"></div><div class="foul-dot" style="left:192.5%;background:var(--text-dim);" title="Q3 57p"></div>
+            <div class="foul-count">3×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">POZSIK DÁNIEL MÁRTON</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:30.0%;background:var(--text-dim);" title="Q2 2p"></div><div class="foul-dot" style="left:245.00000000000003%;background:var(--text-dim);" title="Q2 88p"></div>
+            <div class="foul-count">2×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">SZEGEDI BENCE ÁRON</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:15.0%;background:var(--text-dim);" title="Q1 6p"></div>
+            <div class="foul-count">1×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">MIHÁLY TAMÁS BENCE</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:17.5%;background:var(--text-dim);" title="Q1 7p"></div>
+            <div class="foul-count">1×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">JENEI KOPPÁNY TAMÁS</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:57.49999999999999%;background:var(--text-dim);" title="Q3 3p"></div>
+            <div class="foul-count">1×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">CSEPREGI ÁDÁM ISTVÁN</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:67.5%;background:var(--text-dim);" title="Q3 7p"></div>
+            <div class="foul-count">1×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">KOVÁCS VID LEVENTE</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:90.0%;background:var(--text-dim);" title="Q4 6p"></div>
+            <div class="foul-count">1×</div>
+          </div>
+        </div>
 </div>
 
 <div class="card">

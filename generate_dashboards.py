@@ -1768,6 +1768,26 @@ def get_match_details(conn, cfg, tp, gamecode):
             p["tech"] = su_map[key]["tech"]
             p["unsport"] = su_map[key]["unsport"]
 
+    # Időkérések
+    timeouts = conn.execute("""
+        SELECT team, quarter, minute FROM timeouts
+        WHERE gamecode = ? ORDER BY quarter, minute
+    """, (gamecode,)).fetchall()
+
+    # Csapat-szintű faultok (személyes faultokból aggregálva)
+    team_fouls_by_quarter = conn.execute("""
+        SELECT team, quarter, COUNT(*) as cnt FROM personal_fouls
+        WHERE gamecode = ? AND foul_category NOT IN ('T','U') OR foul_category IS NULL
+        GROUP BY team, quarter
+    """, (gamecode,)).fetchall()
+
+    # Player game log: full per-player fouls list (for foul timeline)
+    foul_events = conn.execute("""
+        SELECT team, jersey_number, quarter, minute FROM personal_fouls
+        WHERE gamecode = ? AND jersey_number IS NOT NULL
+        ORDER BY quarter, CAST(minute AS INTEGER)
+    """, (gamecode,)).fetchall()
+
     # Ellenfél összesítő
     opp_total = {
         "points": opp_score or 0,
@@ -1803,6 +1823,9 @@ def get_match_details(conn, cfg, tp, gamecode):
         "kg_players": kg_players,
         "opp_players": opp_players,
         "opp_total": opp_total,
+        "timeouts": [{"team": t, "quarter": q, "minute": m} for t, q, m in timeouts],
+        "team_fouls": [{"team": t, "quarter": q, "count": c} for t, q, c in team_fouls_by_quarter],
+        "foul_events": [{"team": t, "jersey": j, "quarter": q, "minute": m} for t, j, q, m in foul_events],
     }
 
 
@@ -2921,6 +2944,218 @@ def generate_match_page(details, cfg, team_key):
             "pct_tie": round(100 * tie_min / total),
         }
 
+    # ─────────────────────────────────────────────────────────────
+    # Érdekességek (fun facts) — egész halmaz, kis stat-tile rácsban
+    # ─────────────────────────────────────────────────────────────
+    fun_facts = []
+
+    # Vezetés-váltások + legnagyobb vezetés mindkét félnek
+    lead_changes = 0
+    prev_sign = 0
+    max_a = 0  # team_a (home) legjobb vezetése
+    max_b = 0  # team_b (away) legjobb vezetése
+    for ev in progression:
+        d = ev["score_a"] - ev["score_b"]
+        sign = 1 if d > 0 else (-1 if d < 0 else 0)
+        if sign != 0 and sign != prev_sign and prev_sign != 0:
+            lead_changes += 1
+        if sign != 0:
+            prev_sign = sign
+        if d > max_a: max_a = d
+        if -d > max_b: max_b = -d
+
+    # Negyedek megnyerve
+    q_won_a = q_won_b = q_tied = 0
+    for q, sa, sb in details["quarters"]:
+        if sa > sb: q_won_a += 1
+        elif sb > sa: q_won_b += 1
+        else: q_tied += 1
+
+    # Legnagyobb scoring run mindkét csapatnak
+    def _longest_run(team_id):
+        cur = mx = 0
+        for ev in progression:
+            if ev["team"] == team_id:
+                cur += ev["points"]
+            else:
+                if cur > mx: mx = cur
+                cur = 0
+        return max(mx, cur)
+    run_a = _longest_run("A")
+    run_b = _longest_run("B")
+
+    # Kezdő vs pad pontok (csak Közgáz oldalon)
+    kg_starter_pts = sum(p["points"] for p in details["kg_players"] if p.get("starter"))
+    kg_bench_pts = sum(p["points"] for p in details["kg_players"] if not p.get("starter"))
+
+    # Kipontozott (5+ személyes hiba) és hibázatlan játékosok (0 PF)
+    def _team_fouled_out(players):
+        return [p for p in players if p["pf"] >= 5]
+    def _team_clean(players):
+        # csak akik játszottak (mez van vagy pont)
+        played = [p for p in players if p["points"] > 0 or p["fg2_made"] or p["fg3_made"]]
+        return [p for p in played if p["pf"] == 0]
+    kg_fouled_out = _team_fouled_out(details["kg_players"])
+    kg_clean = _team_clean(details["kg_players"])
+
+    # Csapat-fault összesítés
+    kg_total_fouls = sum(p["pf"] for p in details["kg_players"])
+    opp_total_fouls = sum(p["pf"] for p in details["opp_players"])
+
+    # Időkérések száma
+    home_to_count = sum(1 for t in details["timeouts"] if t["team"] == "A")
+    away_to_count = sum(1 for t in details["timeouts"] if t["team"] == "B")
+
+    # Pont-szárazság (leghosszabb intervallum 2 esemény között, percekben)
+    def _longest_drought():
+        if len(progression) < 2: return 0, 0
+        max_drought_a = max_drought_b = 0
+        prev_t = 0
+        prev_team = None
+        for ev in progression:
+            cur_t = (ev["quarter"] - 1) * 10 + int(ev.get("minute") or 0)
+            dt = cur_t - prev_t
+            # In the gap between events, the opposing team was scoring? Or neither?
+            # Drought for team X = time since X's last score.
+            if prev_team is not None and dt > 0:
+                # Both teams have a drought stretching from their respective last score
+                pass
+            prev_t = cur_t
+            prev_team = ev["team"]
+        # Egyszerűbb: max idő két "A" esemény között, illetve két "B" esemény között
+        def _gap(team_id):
+            last_t = 0
+            mx = 0
+            for ev in progression:
+                if ev["team"] == team_id:
+                    cur_t = (ev["quarter"] - 1) * 10 + int(ev.get("minute") or 0)
+                    gap = cur_t - last_t
+                    if gap > mx: mx = gap
+                    last_t = cur_t
+            # Hozzá a meccsvég utáni
+            gap = 40 - last_t
+            return mx
+        return _gap("A"), _gap("B")
+    drought_a, drought_b = _longest_drought()
+
+    # Záró 5 perc pontok (clutch) — utolsó 5 perc = q4, minute >= 5
+    clutch_a = clutch_b = 0
+    for ev in progression:
+        if ev["quarter"] == 4 and int(ev.get("minute") or 0) >= 5:
+            if ev["team"] == "A": clutch_a += ev["points"]
+            else: clutch_b += ev["points"]
+
+    # eFG% csapatonként
+    def _efg_pct(players):
+        fg2 = sum(p["fg2_made"] for p in players)
+        fg3 = sum(p["fg3_made"] for p in players)
+        # FGA közelítés: a pgs táblában nincs FGA, csak made → eFG% nem számolható pontosan
+        # Helyette egyszerű FG% becsléssel hagyjuk
+        total_fg_made = fg2 + fg3
+        return total_fg_made
+    # FGA nem elérhető, így ezt kihagyjuk az érdekességekből
+
+    # Meccs tempó (pace) — kosár / negyed
+    total_baskets = sum(1 for ev in progression if ev["points"] >= 2)
+    pace = round(total_baskets / 4, 1)
+
+    # Building tiles
+    home_label = shorten_opponent(details["team_a_name"])
+    away_label = shorten_opponent(details["team_b_name"])
+
+    fun_facts.append(("Vezetés-váltás", f"{lead_changes}", "ennyiszer fordult át a meccs"))
+    fun_facts.append(("Legnagyobb vezetés", f"{home_label}: +{max_a}<br>{away_label}: +{max_b}", ""))
+    fun_facts.append(("Legnagyobb sorozat", f"{home_label}: {run_a}p<br>{away_label}: {run_b}p", "egymás után, válasz nélkül"))
+    fun_facts.append(("Negyedek megnyerve", f"{home_label}: {q_won_a}<br>{away_label}: {q_won_b}" + (f"<br>döntetlen: {q_tied}" if q_tied else ""), ""))
+    fun_facts.append(("Faultok",
+                      f"Közgáz: {kg_total_fouls}<br>{away_label if details['kg_is_home'] else home_label}: {opp_total_fouls}",
+                      "összes személyes"))
+    fun_facts.append(("Időkérések", f"{home_label}: {home_to_count}<br>{away_label}: {away_to_count}", ""))
+    fun_facts.append(("Kezdő/Pad pontok", f"Kezdők: {kg_starter_pts}<br>Padról: {kg_bench_pts}", "Közgáz játékosok"))
+    fo_text = f"{len(kg_fouled_out)} kipontozott" if kg_fouled_out else "senki sem pontozódott ki"
+    cl_text = f"{len(kg_clean)} hibázatlan" if kg_clean else ""
+    extra = "" if not cl_text else f"<br><span style='color:var(--green)'>{cl_text}</span>"
+    fun_facts.append(("Fault-helyzet", f"{fo_text}{extra}", "Közgáz játékosok"))
+    fun_facts.append(("Záró 5 perc", f"{home_label}: {clutch_a}p<br>{away_label}: {clutch_b}p", "pontok az utolsó 5 percben"))
+    drought_text = ""
+    if drought_a or drought_b:
+        drought_text = f"{home_label}: {drought_a}p<br>{away_label}: {drought_b}p"
+        fun_facts.append(("Leghosszabb pont-szárazság", drought_text, "becslés"))
+    fun_facts.append(("Meccs tempó", f"{pace}", "kosár / negyed"))
+
+    facts_html = '<div class="facts-grid">'
+    for label, val, sub in fun_facts:
+        sub_html = f'<div class="ff-sub">{sub}</div>' if sub else ''
+        facts_html += f'<div class="ff-tile"><div class="ff-lbl">{label}</div><div class="ff-val">{val}</div>{sub_html}</div>'
+    facts_html += '</div>'
+
+    # ─────────────────────────────────────────────────────────────
+    # Quarter MVP — legtöbb pontot dobó játékos negyedenként mindkét csapatban
+    # ─────────────────────────────────────────────────────────────
+    qmvp = {1: {}, 2: {}, 3: {}, 4: {}}  # quarter -> team -> {player, points}
+    for ev in progression:
+        q = ev["quarter"]
+        t = ev["team"]
+        p = ev["player"] or "?"
+        qmvp[q].setdefault(t, {}).setdefault(p, 0)
+        qmvp[q][t][p] += ev["points"]
+    qmvp_cards = ""
+    for q in [1, 2, 3, 4]:
+        a_team = qmvp[q].get("A", {})
+        b_team = qmvp[q].get("B", {})
+        a_top = max(a_team.items(), key=lambda x: x[1]) if a_team else ("—", 0)
+        b_top = max(b_team.items(), key=lambda x: x[1]) if b_team else ("—", 0)
+        qmvp_cards += f'''<div class="qmvp-card">
+          <div class="qmvp-q">Q{q}</div>
+          <div class="qmvp-row"><span class="qmvp-team">{home_label}</span><span class="qmvp-player">{a_top[0]}</span><span class="qmvp-pts">{a_top[1]}p</span></div>
+          <div class="qmvp-row"><span class="qmvp-team">{away_label}</span><span class="qmvp-player">{b_top[0]}</span><span class="qmvp-pts">{b_top[1]}p</span></div>
+        </div>'''
+
+    # ─────────────────────────────────────────────────────────────
+    # Foul trouble timeline — Közgáz játékosok faultjai időtengelyen
+    # ─────────────────────────────────────────────────────────────
+    # Map jersey → name for Közgáz
+    kg_jersey_name = {p["jersey"]: p["name"] for p in details["kg_players"] if p["jersey"]}
+    kg_fouls_by_player = {}
+    for fe in details["foul_events"]:
+        if fe["team"] != kg_side:
+            continue
+        kg_fouls_by_player.setdefault(fe["jersey"], []).append(fe)
+    # Sort players by total fouls desc
+    foul_rows = ""
+    for jersey, faults in sorted(kg_fouls_by_player.items(), key=lambda x: -len(x[1])):
+        name = kg_jersey_name.get(jersey, f"#{jersey}")
+        markers = ""
+        for f in faults:
+            try:
+                m = int(f["minute"]) if f["minute"] else 0
+            except (ValueError, TypeError):
+                m = 0
+            t = (f["quarter"] - 1) * 10 + m
+            left_pct = (t / 40) * 100
+            color = "var(--red)" if len(faults) >= 4 else "var(--text-dim)"
+            markers += f'<div class="foul-dot" style="left:{left_pct}%;background:{color};" title="Q{f["quarter"]} {m}p"></div>'
+        risk_label = ""
+        if len(faults) >= 4:
+            risk_label = ' <span class="risk-badge">veszélyben</span>'
+        foul_rows += f'''<div class="foul-row">
+          <div class="foul-pname">{name}{risk_label}</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            {markers}
+            <div class="foul-count">{len(faults)}×</div>
+          </div>
+        </div>'''
+    foul_timeline_html = ""
+    if foul_rows:
+        foul_timeline_html = f'''<div class="foul-tl-header">
+          <span></span>
+          <div class="foul-tl-quarters"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>
+        </div>
+        {foul_rows}'''
+
     lead = _calc_lead_times(progression)
     if lead:
         home_name = shorten_opponent(details["team_a_name"])
@@ -3065,6 +3300,87 @@ def generate_match_page(details, cfg, team_key):
     font-size:0.72rem; color:var(--text-dim); margin-top:10px;
     font-style:italic; text-align:center;
   }}
+  /* Érdekességek (fun-facts) grid */
+  .facts-grid {{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:10px;
+  }}
+  .ff-tile {{
+    background:rgba(255,255,255,0.025); border-radius:10px;
+    padding:12px 14px;
+    display:flex; flex-direction:column; gap:4px;
+  }}
+  .ff-lbl {{
+    font-size:0.65rem; color:var(--text-dim);
+    text-transform:uppercase; letter-spacing:0.7px; font-weight:600;
+  }}
+  .ff-val {{ font-size:1rem; font-weight:700; color:var(--text); line-height:1.3; }}
+  .ff-sub {{ font-size:0.68rem; color:var(--text-dim); font-style:italic; }}
+  /* Negyed MVP grid */
+  .qmvp-grid {{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:10px;
+  }}
+  .qmvp-card {{
+    background:rgba(255,255,255,0.025); border-radius:10px;
+    padding:12px 14px;
+  }}
+  .qmvp-q {{
+    font-weight:800; color:var(--text-dim);
+    font-size:0.72rem; letter-spacing:1px; margin-bottom:8px;
+  }}
+  .qmvp-row {{
+    display:grid; grid-template-columns:auto 1fr auto; gap:8px;
+    font-size:0.8rem; padding:2px 0;
+  }}
+  .qmvp-team {{ color:var(--text-dim); font-size:0.72rem; min-width:60px; }}
+  .qmvp-player {{ color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }}
+  .qmvp-pts {{ color:var(--green); font-weight:700; }}
+  .qmvp-row:nth-child(3) .qmvp-pts {{ color:var(--text-dim); }}
+  /* Foul timeline */
+  .foul-tl-header {{
+    display:grid; grid-template-columns:170px 1fr; gap:10px;
+    font-size:0.7rem; color:var(--text-dim); margin-bottom:6px;
+    text-transform:uppercase; letter-spacing:0.6px;
+  }}
+  .foul-tl-quarters {{
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    text-align:center;
+  }}
+  .foul-row {{
+    display:grid; grid-template-columns:170px 1fr; gap:10px;
+    align-items:center; padding:6px 0;
+  }}
+  .foul-pname {{
+    font-size:0.78rem; font-weight:600; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }}
+  .risk-badge {{
+    font-size:0.6rem; padding:1px 6px; border-radius:4px;
+    background:rgba(225,112,85,0.18); color:var(--red);
+    font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
+  }}
+  .foul-timeline {{
+    position:relative; height:22px; background:rgba(255,255,255,0.03);
+    border-radius:5px;
+  }}
+  .foul-dot {{
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    width:10px; height:10px; border-radius:50%;
+    box-shadow:0 0 0 2px var(--card);
+  }}
+  .foul-q-marker {{
+    position:absolute; top:0; bottom:0; width:1px;
+    background:rgba(255,255,255,0.07);
+  }}
+  .foul-count {{
+    position:absolute; right:-26px; top:50%; transform:translateY(-50%);
+    font-size:0.7rem; color:var(--text-dim); font-weight:600;
+  }}
+  @media (max-width:600px) {{
+    .foul-tl-header, .foul-row {{ grid-template-columns:100px 1fr; }}
+    .foul-pname {{ font-size:0.7rem; }}
+  }}
   .chart-legend {{
     display:flex; justify-content:center; gap:18px;
     margin:-4px 0 12px;
@@ -3193,6 +3509,16 @@ def generate_match_page(details, cfg, team_key):
 </div>''' if progression or q_rows else ''}
 
 {f'''<div class="card" style="margin-bottom:20px;">
+  <h3>Érdekességek</h3>
+  {facts_html}
+</div>''' if fun_facts else ''}
+
+{f'''<div class="card" style="margin-bottom:20px;">
+  <h3>Negyed MVP-k</h3>
+  <div class="qmvp-grid">{qmvp_cards}</div>
+</div>''' if qmvp_cards else ''}
+
+{f'''<div class="card" style="margin-bottom:20px;">
   <h3>Pontszerzés megoszlása</h3>
   {dist_html}
   <div class="dist-legend">
@@ -3206,6 +3532,11 @@ def generate_match_page(details, cfg, team_key):
   <h3>Vezetési idő <span class="title-note">(becslés)</span></h3>
   {lead_html}
 </div>''' if lead_html else ''}
+
+{f'''<div class="card" style="margin-bottom:20px;">
+  <h3>Hibák alakulása <span class="title-note">(Közgáz játékosok)</span></h3>
+  {foul_timeline_html}
+</div>''' if foul_timeline_html else ''}
 
 <div class="card">
   <h3>Közgáz játékosok</h3>
