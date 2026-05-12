@@ -1705,12 +1705,23 @@ def get_match_details(conn, cfg, tp, gamecode):
 
     # Eredmény alakulása (score progression) — scoring_events alapján
     progression_rows = conn.execute("""
-        SELECT event_seq, quarter, score_a, score_b
-        FROM scoring_events
-        WHERE gamecode = ? AND made = 1
-        ORDER BY event_seq
+        SELECT se.event_seq, se.quarter, se.score_a, se.score_b,
+               se.team, se.points, se.shot_type, pgs.player_name
+        FROM scoring_events se
+        LEFT JOIN player_game_stats pgs
+            ON pgs.gamecode = se.gamecode
+           AND pgs.team = se.team
+           AND pgs.license_number = se.license_number
+        WHERE se.gamecode = ? AND se.made = 1
+        ORDER BY se.event_seq
     """, (gamecode,)).fetchall()
-    progression = [(r[0], r[1], r[2], r[3]) for r in progression_rows]
+    progression = [
+        {
+            "seq": r[0], "quarter": r[1], "score_a": r[2], "score_b": r[3],
+            "team": r[4], "points": r[5], "shot": r[6], "player": r[7],
+        }
+        for r in progression_rows
+    ]
 
     # Player game stats — mindkét csapat
     pgs_rows = conn.execute("""
@@ -2703,9 +2714,13 @@ def generate_match_page(details, cfg, team_key):
     progression = details.get("progression", [])
     kg_prog_pts = [{"x": 0, "y": 0}]
     opp_prog_pts = [{"x": 0, "y": 0}]
-    quarter_boundaries = {}  # quarter -> x value where it starts
+    # Eseményinfó tooltip-hez (seq → leíró string)
+    event_info = {}
+    quarter_boundaries = {}
     prev_q = None
-    for seq, q, sa, sb in progression:
+    kg_side = details["kg_side"]
+    for ev in progression:
+        seq, q, sa, sb = ev["seq"], ev["quarter"], ev["score_a"], ev["score_b"]
         kg_s = sa if details["kg_is_home"] else sb
         opp_s = sb if details["kg_is_home"] else sa
         kg_prog_pts.append({"x": seq, "y": kg_s})
@@ -2713,8 +2728,26 @@ def generate_match_page(details, cfg, team_key):
         if q != prev_q:
             quarter_boundaries[q] = seq
             prev_q = q
-    max_x = progression[-1][0] if progression else 0
-    # Q-tickek: a quarter közepénél jelenjenek meg (Q1 az 1. határtól a 2. határig középre)
+        # Eseményleírás
+        scorer = ev["player"] or "?"
+        # Csapat-fókuszú prefix
+        team_lbl = "Közgáz A" if ev["team"] == kg_side else shorten_opponent(details["opp_team_name"])
+        # Lövéstípus
+        pts = ev["points"]
+        shot = ev["shot"]
+        if shot == "FT":
+            shot_lbl = "büntető"
+        elif pts == 3:
+            shot_lbl = "tripla"
+        elif pts == 2:
+            shot_lbl = "kétpontos"
+        elif pts == 1:
+            shot_lbl = "büntető"
+        else:
+            shot_lbl = f"{pts}pt"
+        event_info[seq] = {"team": team_lbl, "player": scorer, "pts": pts, "shot": shot_lbl, "q": q}
+    max_x = progression[-1]["seq"] if progression else 0
+    # Q-tickek: a quarter közepénél jelenjenek meg
     q_ticks = []
     sorted_q = sorted(quarter_boundaries.items())
     for i, (q_num, q_start) in enumerate(sorted_q):
@@ -2933,6 +2966,7 @@ new Chart(document.getElementById('qChart').getContext('2d'), {{
 const kgProg = {json.dumps(kg_prog_pts)};
 const oppProg = {json.dumps(opp_prog_pts)};
 const qTicks = {json.dumps(q_ticks)};
+const eventInfo = {json.dumps(event_info)};
 const qTickValues = qTicks.map(t => t.x);
 const qTickLabels = {{}};
 qTicks.forEach(t => {{ qTickLabels[t.x] = t.label; }});
@@ -2949,7 +2983,16 @@ new Chart(document.getElementById('progressChart').getContext('2d'), {{
     interaction:{{mode:'index', intersect:false}},
     plugins:{{
       legend:{{position:'top', labels:{{usePointStyle:true, font:{{size:11}}}}}},
-      tooltip:{{callbacks:{{title: ctx => 'Esemény #'+ctx[0].parsed.x}}}}
+      tooltip:{{
+        callbacks:{{
+          title: ctx => {{
+            const seq = ctx[0].parsed.x;
+            const ev = eventInfo[seq];
+            if (ev) return 'Q'+ev.q+' · '+ev.team+' · '+ev.player+' ('+ev.pts+'p '+ev.shot+')';
+            return 'Esemény #'+seq;
+          }}
+        }}
+      }}
     }},
     scales:{{
       y:{{beginAtZero:true, grid:{{color:'rgba(255,255,255,0.04)'}}}},
