@@ -123,6 +123,18 @@
     display:inline-block; width:14px; height:14px; line-height:14px;
     font-weight:800; font-size:0.85rem; color:var(--green);
   }
+  .box-score td.special-cell { text-align:left; }
+  .box-score .foul-badge {
+    display:inline-block; padding:2px 6px; border-radius:5px;
+    font-size:0.65rem; font-weight:800; letter-spacing:0.5px;
+    margin-right:4px;
+  }
+  .box-score .foul-badge.tech {
+    background:rgba(225,112,85,0.18); color:var(--red);
+  }
+  .box-score .foul-badge.unsport {
+    background:rgba(225,112,85,0.32); color:#fff;
+  }
   .box-score tr:last-child td { border-bottom:none; }
   .box-score tr:hover { background:rgba(196,30,58,0.05); }
   .opp-stats {
@@ -218,7 +230,7 @@
   <h3>Közgáz játékosok</h3>
   <div class="game-log-wrap">
         <table class="box-score">
-          <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th></tr></thead>
+          <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
           <tbody><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">SCHWARCZENBERGER GÁBOR</td>
@@ -227,6 +239,7 @@
                 <td>4</td>
                 <td>3/4</td>
                 <td>4</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">JENEI KOPPÁNY TAMÁS</td>
@@ -235,6 +248,7 @@
                 <td>0</td>
                 <td>4/6</td>
                 <td>1</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">BÉRES MÁRTON</td>
@@ -243,6 +257,7 @@
                 <td>0</td>
                 <td>1/1</td>
                 <td>3</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">CSEPREGI ÁDÁM ISTVÁN</td>
@@ -251,6 +266,7 @@
                 <td>1</td>
                 <td>0/3</td>
                 <td>1</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">PAPP DOMINIK</td>
@@ -259,6 +275,7 @@
                 <td>1</td>
                 <td>1/2</td>
                 <td>4</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
                 <td class="pname">POZSIK DÁNIEL MÁRTON</td>
@@ -267,6 +284,7 @@
                 <td>0</td>
                 <td>–</td>
                 <td>2</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
                 <td class="pname">HAJDÚ BOTOND</td>
@@ -275,6 +293,7 @@
                 <td>1</td>
                 <td>–</td>
                 <td>0</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
                 <td class="pname">MIHÁLY TAMÁS BENCE</td>
@@ -283,6 +302,7 @@
                 <td>1</td>
                 <td>–</td>
                 <td>1</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
                 <td class="pname">BÁTASZÉKI BALÁZS</td>
@@ -291,6 +311,7 @@
                 <td>0</td>
                 <td>–</td>
                 <td>0</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
                 <td class="pname">KOVÁCS VID LEVENTE</td>
@@ -299,6 +320,7 @@
                 <td>0</td>
                 <td>–</td>
                 <td>1</td>
+                <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
                 <td class="pname">SZEGEDI BENCE ÁRON</td>
@@ -307,6 +329,7 @@
                 <td>0</td>
                 <td>–</td>
                 <td>1</td>
+                <td class="special-cell"></td>
             </tr></tbody>
         </table>
         </div>

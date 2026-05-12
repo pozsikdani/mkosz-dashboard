@@ -1743,11 +1743,29 @@ def get_match_details(conn, cfg, tp, gamecode):
             "points": pts or 0, "fg2_made": fg2 or 0, "fg3_made": fg3 or 0,
             "ft_made": ftm or 0, "ft_att": fta or 0,
             "pf": pf or 0, "starter": bool(starter),
+            "tech": 0, "unsport": 0,
         }
         if team == kg_side:
             kg_players.append(p)
         else:
             opp_players.append(p)
+
+    # Technikai (T) és sportszerűtlen (U) faultok játékosonként (jersey_number alapján)
+    su_rows = conn.execute("""
+        SELECT team, jersey_number,
+               SUM(CASE WHEN foul_category='T' THEN 1 ELSE 0 END) as tech,
+               SUM(CASE WHEN foul_category='U' THEN 1 ELSE 0 END) as unsport
+        FROM personal_fouls
+        WHERE gamecode = ? AND foul_category IN ('T','U')
+        GROUP BY team, jersey_number
+    """, (gamecode,)).fetchall()
+    su_map = {(r[0], r[1]): {"tech": r[2] or 0, "unsport": r[3] or 0} for r in su_rows}
+    for p in kg_players + opp_players:
+        t_team = kg_side if p in kg_players else ("A" if kg_side == "B" else "B")
+        key = (t_team, p["jersey"] if p["jersey"] != "" else None)
+        if key in su_map:
+            p["tech"] = su_map[key]["tech"]
+            p["unsport"] = su_map[key]["unsport"]
 
     # Ellenfél összesítő
     opp_total = {
@@ -2673,6 +2691,13 @@ def generate_match_page(details, cfg, team_key):
                 pts_style = ' style="color:var(--green);font-weight:800;"'
             ft = f'{p["ft_made"]}/{p["ft_att"]}' if p["ft_att"] else "–"
             starter_mark = '<span class="starter-mark" title="Kezdőötös">×</span>' if p.get("starter") else ''
+            tech_n = p.get("tech", 0)
+            unsport_n = p.get("unsport", 0)
+            special_badges = ''
+            if tech_n:
+                special_badges += f'<span class="foul-badge tech" title="Technikai hiba">T{("×" + str(tech_n)) if tech_n > 1 else ""}</span>'
+            if unsport_n:
+                special_badges += f'<span class="foul-badge unsport" title="Sportszerűtlen hiba">U{("×" + str(unsport_n)) if unsport_n > 1 else ""}</span>'
             kg_body += f'''<tr>
                 <td class="starter-cell">{starter_mark}</td>
                 <td class="pname">{p["name"]}</td>
@@ -2681,10 +2706,11 @@ def generate_match_page(details, cfg, team_key):
                 <td>{p["fg3_made"]}</td>
                 <td>{ft}</td>
                 <td>{p["pf"]}</td>
+                <td class="special-cell">{special_badges}</td>
             </tr>'''
         kg_html = f'''<div class="game-log-wrap">
         <table class="box-score">
-          <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th></tr></thead>
+          <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
           <tbody>{kg_body}</tbody>
         </table>
         </div>'''
@@ -2896,6 +2922,18 @@ def generate_match_page(details, cfg, team_key):
   .box-score .starter-mark {{
     display:inline-block; width:14px; height:14px; line-height:14px;
     font-weight:800; font-size:0.85rem; color:var(--green);
+  }}
+  .box-score td.special-cell {{ text-align:left; }}
+  .box-score .foul-badge {{
+    display:inline-block; padding:2px 6px; border-radius:5px;
+    font-size:0.65rem; font-weight:800; letter-spacing:0.5px;
+    margin-right:4px;
+  }}
+  .box-score .foul-badge.tech {{
+    background:rgba(225,112,85,0.18); color:var(--red);
+  }}
+  .box-score .foul-badge.unsport {{
+    background:rgba(225,112,85,0.32); color:#fff;
   }}
   .box-score tr:last-child td {{ border-bottom:none; }}
   .box-score tr:hover {{ background:rgba(196,30,58,0.05); }}
