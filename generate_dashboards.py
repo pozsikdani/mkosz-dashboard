@@ -2820,6 +2820,48 @@ def generate_match_page(details, cfg, team_key):
             "label": f"Q{q_num} vége · {home_s}–{away_s}",
         })
 
+    # Pontszerzés megoszlása (stacked bar per team)
+    def _calc_dist(fg2_made, fg3_made, ft_made):
+        p2 = fg2_made * 2
+        p3 = fg3_made * 3
+        pft = ft_made
+        total = p2 + p3 + pft
+        if total <= 0:
+            return None
+        return {
+            "p2": p2, "p3": p3, "pft": pft, "total": total,
+            "pct2": round(100 * p2 / total),
+            "pct3": round(100 * p3 / total),
+            "pctft": round(100 * pft / total),
+        }
+
+    kg_fg2 = sum(p["fg2_made"] for p in details["kg_players"])
+    kg_fg3 = sum(p["fg3_made"] for p in details["kg_players"])
+    kg_ftm = sum(p["ft_made"] for p in details["kg_players"])
+    kg_dist = _calc_dist(kg_fg2, kg_fg3, kg_ftm)
+    opp_dist = _calc_dist(details["opp_total"]["fg2_made"], details["opp_total"]["fg3_made"], details["opp_total"]["ft_made"])
+
+    def _dist_row(label, d):
+        if not d:
+            return f'<div class="dist-row"><div class="dist-label">{label}</div><div class="empty-state" style="padding:6px 0;">nincs adat</div></div>'
+        # Csak akkor írunk feliratot, ha elég széles (>= 10%)
+        l2 = f'2PT {d["pct2"]}%' if d["pct2"] >= 10 else ''
+        l3 = f'3PT {d["pct3"]}%' if d["pct3"] >= 10 else ''
+        lft = f'FT {d["pctft"]}%' if d["pctft"] >= 10 else ''
+        return f'''<div class="dist-row">
+          <div class="dist-label">{label}</div>
+          <div class="dist-bar">
+            <div class="dist-seg seg-2pt" style="flex-basis:{d["pct2"]}%;" title="2 pontos: {d["p2"]} pt ({d["pct2"]}%)">{l2}</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:{d["pct3"]}%;" title="3 pontos: {d["p3"]} pt ({d["pct3"]}%)">{l3}</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:{d["pctft"]}%;" title="Büntető: {d["pft"]} pt ({d["pctft"]}%)">{lft}</div>
+          </div>
+        </div>'''
+
+    if details["kg_is_home"]:
+        dist_html = _dist_row("Közgáz A", kg_dist) + _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist)
+    else:
+        dist_html = _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist) + _dist_row("Közgáz A", kg_dist)
+
     venue_html = f'<span> · {details["venue"]}</span>' if details["venue"] else ''
     match_time_html = f' {details["match_time"]}' if details["match_time"] else ''
 
@@ -2910,6 +2952,31 @@ def generate_match_page(details, cfg, team_key):
   .q-table .kg-row .team-cell {{ color:#fff; }}
   .q-table .kg-row .total {{ color:var(--green); }}
   .q-table .opp-row {{ color:var(--text-dim); }}
+  .dist-row {{
+    display:grid; grid-template-columns:110px 1fr; gap:14px;
+    align-items:center; margin-bottom:10px;
+  }}
+  @media (max-width:600px) {{ .dist-row {{ grid-template-columns:80px 1fr; gap:8px; }} }}
+  .dist-label {{ color:var(--text-dim); font-weight:600; font-size:0.85rem; }}
+  .dist-bar {{
+    display:flex; height:34px; border-radius:8px; overflow:hidden;
+    background:rgba(255,255,255,0.02);
+  }}
+  .dist-seg {{
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.74rem; font-weight:700; color:#fff;
+    white-space:nowrap; transition:flex-basis 0.3s;
+  }}
+  .dist-seg.seg-2pt {{ background:#7e6fa8; }}
+  .dist-seg.seg-3pt {{ background:#c08560; }}
+  .dist-seg.seg-ft  {{ background:#6b8395; }}
+  .dist-legend {{
+    display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
+    margin-top:14px;
+  }}
+  .dist-legend .legend-swatch.seg-2pt {{ background:#7e6fa8; }}
+  .dist-legend .legend-swatch.seg-3pt {{ background:#c08560; }}
+  .dist-legend .legend-swatch.seg-ft  {{ background:#6b8395; }}
   .chart-legend {{
     display:flex; justify-content:center; gap:18px;
     margin:-4px 0 12px;
@@ -3036,6 +3103,16 @@ def generate_match_page(details, cfg, team_key):
   <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
   <div style="margin-top:14px;">{q_html}</div>
 </div>''' if progression or q_rows else ''}
+
+{f'''<div class="card" style="margin-bottom:20px;">
+  <h3>Pontszerzés megoszlása</h3>
+  {dist_html}
+  <div class="dist-legend">
+    <span class="legend-item"><span class="legend-swatch seg-2pt"></span>2 pontos</span>
+    <span class="legend-item"><span class="legend-swatch seg-3pt"></span>3 pontos</span>
+    <span class="legend-item"><span class="legend-swatch seg-ft"></span>Büntető</span>
+  </div>
+</div>''' if (kg_dist or opp_dist) else ''}
 
 <div class="card">
   <h3>Közgáz játékosok</h3>

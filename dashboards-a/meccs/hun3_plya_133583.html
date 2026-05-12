@@ -85,6 +85,31 @@
   .q-table .kg-row .team-cell { color:#fff; }
   .q-table .kg-row .total { color:var(--green); }
   .q-table .opp-row { color:var(--text-dim); }
+  .dist-row {
+    display:grid; grid-template-columns:110px 1fr; gap:14px;
+    align-items:center; margin-bottom:10px;
+  }
+  @media (max-width:600px) { .dist-row { grid-template-columns:80px 1fr; gap:8px; } }
+  .dist-label { color:var(--text-dim); font-weight:600; font-size:0.85rem; }
+  .dist-bar {
+    display:flex; height:34px; border-radius:8px; overflow:hidden;
+    background:rgba(255,255,255,0.02);
+  }
+  .dist-seg {
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.74rem; font-weight:700; color:#fff;
+    white-space:nowrap; transition:flex-basis 0.3s;
+  }
+  .dist-seg.seg-2pt { background:#7e6fa8; }
+  .dist-seg.seg-3pt { background:#c08560; }
+  .dist-seg.seg-ft  { background:#6b8395; }
+  .dist-legend {
+    display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
+    margin-top:14px;
+  }
+  .dist-legend .legend-swatch.seg-2pt { background:#7e6fa8; }
+  .dist-legend .legend-swatch.seg-3pt { background:#c08560; }
+  .dist-legend .legend-swatch.seg-ft  { background:#6b8395; }
   .chart-legend {
     display:flex; justify-content:center; gap:18px;
     margin:-4px 0 12px;
@@ -235,6 +260,30 @@
   </div>
   <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
   <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="opp-row"><td class="team-cell">Bkg Dse</td><td>15</td><td>25</td><td>21</td><td>11</td><td class="total">72</td></tr><tr class="kg-row"><td class="team-cell">Közgáz A</td><td>15</td><td>17</td><td>21</td><td>26</td><td class="total">79</td></tr></tbody></table></div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Pontszerzés megoszlása</h3>
+  <div class="dist-row">
+          <div class="dist-label">Bkg Dse</div>
+          <div class="dist-bar">
+            <div class="dist-seg seg-2pt" style="flex-basis:61%;" title="2 pontos: 44 pt (61%)">2PT 61%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:25%;" title="3 pontos: 18 pt (25%)">3PT 25%</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:14%;" title="Büntető: 10 pt (14%)">FT 14%</div>
+          </div>
+        </div><div class="dist-row">
+          <div class="dist-label">Közgáz A</div>
+          <div class="dist-bar">
+            <div class="dist-seg seg-2pt" style="flex-basis:58%;" title="2 pontos: 46 pt (58%)">2PT 58%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:30%;" title="3 pontos: 24 pt (30%)">3PT 30%</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:11%;" title="Büntető: 9 pt (11%)">FT 11%</div>
+          </div>
+        </div>
+  <div class="dist-legend">
+    <span class="legend-item"><span class="legend-swatch seg-2pt"></span>2 pontos</span>
+    <span class="legend-item"><span class="legend-swatch seg-3pt"></span>3 pontos</span>
+    <span class="legend-item"><span class="legend-swatch seg-ft"></span>Büntető</span>
+  </div>
 </div>
 
 <div class="card">
