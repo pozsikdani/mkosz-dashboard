@@ -2930,11 +2930,6 @@ def generate_match_page(details, cfg, team_key):
   <div style="margin-top:14px;">{q_html}</div>
 </div>''' if progression or q_rows else ''}
 
-<div class="card" style="margin-bottom:20px;">
-  <h3>Ellenfél összesítő — {opp_name}</h3>
-  {opp_summary}
-</div>
-
 <div class="card">
   <h3>Közgáz játékosok</h3>
   {kg_html}
