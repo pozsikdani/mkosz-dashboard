@@ -3063,31 +3063,28 @@ def generate_match_page(details, cfg, team_key):
     home_label = shorten_opponent(details["team_a_name"])
     away_label = shorten_opponent(details["team_b_name"])
 
-    fun_facts.append(("Vezetés-váltás", f"{lead_changes}", "ennyiszer fordult át a meccs"))
-    fun_facts.append(("Legnagyobb vezetés", f"{home_label}: +{max_a}<br>{away_label}: +{max_b}", ""))
-    fun_facts.append(("Legnagyobb sorozat", f"{home_label}: {run_a}p<br>{away_label}: {run_b}p", "egymás után, válasz nélkül"))
-    fun_facts.append(("Negyedek megnyerve", f"{home_label}: {q_won_a}<br>{away_label}: {q_won_b}" + (f"<br>döntetlen: {q_tied}" if q_tied else ""), ""))
-    fun_facts.append(("Faultok",
-                      f"Közgáz: {kg_total_fouls}<br>{away_label if details['kg_is_home'] else home_label}: {opp_total_fouls}",
-                      "összes személyes"))
-    fun_facts.append(("Időkérések", f"{home_label}: {home_to_count}<br>{away_label}: {away_to_count}", ""))
-    fun_facts.append(("Kezdő/Pad pontok", f"Kezdők: {kg_starter_pts}<br>Padról: {kg_bench_pts}", "Közgáz játékosok"))
-    fo_text = f"{len(kg_fouled_out)} kipontozott" if kg_fouled_out else "senki sem pontozódott ki"
-    cl_text = f"{len(kg_clean)} hibázatlan" if kg_clean else ""
-    extra = "" if not cl_text else f"<br><span style='color:var(--green)'>{cl_text}</span>"
-    fun_facts.append(("Fault-helyzet", f"{fo_text}{extra}", "Közgáz játékosok"))
-    fun_facts.append(("Záró 5 perc", f"{home_label}: {clutch_a}p<br>{away_label}: {clutch_b}p", "pontok az utolsó 5 percben"))
-    drought_text = ""
+    fun_facts.append(f'Vezetés-váltás: <b>{lead_changes}</b> alkalommal fordult át a meccs')
+    fun_facts.append(f'Legnagyobb vezetés: <b>{home_label} +{max_a}</b> / <b>{away_label} +{max_b}</b>')
+    fun_facts.append(f'Leghosszabb sorozat (válasz nélkül): <b>{home_label} {run_a}-0</b> / <b>{away_label} {run_b}-0</b>')
+    qw_text = f'<b>{home_label} {q_won_a}</b> / <b>{away_label} {q_won_b}</b>'
+    if q_tied: qw_text += f' / <b>{q_tied} döntetlen</b>'
+    fun_facts.append(f'Negyedek megnyerve: {qw_text}')
+    fun_facts.append(f'Összes személyes fault: <b>Közgáz {kg_total_fouls}</b> / <b>{away_label if details["kg_is_home"] else home_label} {opp_total_fouls}</b>')
+    fun_facts.append(f'Időkérések: <b>{home_label} {home_to_count}</b> / <b>{away_label} {away_to_count}</b>')
+    fun_facts.append(f'Közgáz pontok eloszlása: kezdőktől <b>{kg_starter_pts}p</b>, padról <b>{kg_bench_pts}p</b>')
+    fo_str = f'<b>{len(kg_fouled_out)}</b> kipontozott' if kg_fouled_out else 'senki sem pontozódott ki'
+    cl_str = f', <b style="color:var(--green)">{len(kg_clean)}</b> hibázatlan játékos' if kg_clean else ''
+    fun_facts.append(f'Fault-helyzet (Közgáz): {fo_str}{cl_str}')
+    if clutch_a or clutch_b:
+        clutch_winner = "Közgáz" if (clutch_b if details["kg_is_home"]==False else clutch_a) > (clutch_a if details["kg_is_home"]==False else clutch_b) else home_label
+        fun_facts.append(f'Záró 5 perc: <b>{home_label} {clutch_a}p</b> / <b>{away_label} {clutch_b}p</b>')
     if drought_a or drought_b:
-        drought_text = f"{home_label}: {drought_a}p<br>{away_label}: {drought_b}p"
-        fun_facts.append(("Leghosszabb pont-szárazság", drought_text, "becslés"))
-    fun_facts.append(("Meccs tempó", f"{pace}", "kosár / negyed"))
+        fun_facts.append(f'Leghosszabb pont-szárazság: <b>{home_label} {drought_a}p</b> / <b>{away_label} {drought_b}p</b> <span style="opacity:0.6">(becslés)</span>')
+    fun_facts.append(f'Meccs tempó: <b>{pace}</b> kosár / negyed')
 
-    facts_html = '<div class="facts-grid">'
-    for label, val, sub in fun_facts:
-        sub_html = f'<div class="ff-sub">{sub}</div>' if sub else ''
-        facts_html += f'<div class="ff-tile"><div class="ff-lbl">{label}</div><div class="ff-val">{val}</div>{sub_html}</div>'
-    facts_html += '</div>'
+    facts_html = ""
+    for f in fun_facts:
+        facts_html += f'<div class="fact-item">{f}</div>'
 
     # ─────────────────────────────────────────────────────────────
     # Quarter MVP — legtöbb pontot dobó játékos negyedenként mindkét csapatban
@@ -3300,22 +3297,14 @@ def generate_match_page(details, cfg, team_key):
     font-size:0.72rem; color:var(--text-dim); margin-top:10px;
     font-style:italic; text-align:center;
   }}
-  /* Érdekességek (fun-facts) grid */
-  .facts-grid {{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
-    gap:10px;
+  /* Érdekességek & Fun facts — lista stílus piros bal-szegéllyel (csapat.html-lel egységes) */
+  .fact-item {{
+    padding:10px 14px; margin-bottom:8px;
+    background:rgba(255,255,255,0.02); border-radius:10px;
+    border-left:3px solid var(--accent); font-size:0.85rem;
+    color:var(--text-dim); line-height:1.5;
   }}
-  .ff-tile {{
-    background:rgba(255,255,255,0.025); border-radius:10px;
-    padding:12px 14px;
-    display:flex; flex-direction:column; gap:4px;
-  }}
-  .ff-lbl {{
-    font-size:0.65rem; color:var(--text-dim);
-    text-transform:uppercase; letter-spacing:0.7px; font-weight:600;
-  }}
-  .ff-val {{ font-size:1rem; font-weight:700; color:var(--text); line-height:1.3; }}
-  .ff-sub {{ font-size:0.68rem; color:var(--text-dim); font-style:italic; }}
+  .fact-item b {{ color:#fff; }}
   /* Negyed MVP grid */
   .qmvp-grid {{
     display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
@@ -3509,7 +3498,7 @@ def generate_match_page(details, cfg, team_key):
 </div>''' if progression or q_rows else ''}
 
 {f'''<div class="card" style="margin-bottom:20px;">
-  <h3>Érdekességek</h3>
+  <h3>Érdekességek & Fun facts</h3>
   {facts_html}
 </div>''' if fun_facts else ''}
 
