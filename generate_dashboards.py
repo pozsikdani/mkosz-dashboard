@@ -3125,18 +3125,19 @@ def generate_match_page(details, cfg, team_key):
         markers = ""
         for f in faults:
             try:
-                m = int(f["minute"]) if f["minute"] else 0
+                m_raw = int(f["minute"]) if f["minute"] else 0
             except (ValueError, TypeError):
-                m = 0
+                m_raw = 0
+            # A parser néha duplázza a számjegyeket (pl. 88, 66, 26 helyett valódi 8/6/6).
+            # Bármi >10 érték helyett az utolsó számjegyet vesszük, és [0,10]-re clamp-eljük.
+            m = m_raw % 10 if m_raw > 10 else m_raw
+            m = max(0, min(10, m))
             t = (f["quarter"] - 1) * 10 + m
             left_pct = (t / 40) * 100
             color = "var(--red)" if len(faults) >= 4 else "var(--text-dim)"
             markers += f'<div class="foul-dot" style="left:{left_pct}%;background:{color};" title="Q{f["quarter"]} {m}p"></div>'
-        risk_label = ""
-        if len(faults) >= 4:
-            risk_label = ' <span class="risk-badge">veszélyben</span>'
         foul_rows += f'''<div class="foul-row">
-          <div class="foul-pname">{name}{risk_label}</div>
+          <div class="foul-pname">{name}</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
