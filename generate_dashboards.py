@@ -4558,34 +4558,37 @@ def generate_team(team_key):
         team_stats_home = _team_stats_fn(conn, cfg, tp, hv_filter='H')
         team_stats_away = _team_stats_fn(conn, cfg, tp, hv_filter='V')
 
-        # Match-level pages (proof of concept: csak Közgáz A utolsó meccse)
+        # Match-level pages (NB2 csapatok scoring_events adattal)
         generated_match_files = {}
-        if team_key == "kozgaz-a":
+        if team_key in ("kozgaz-a", "kozgaz-b"):
             _comps = _comp_list(cfg)
             _cph = ",".join("?" * len(_comps))
-            last_match_row = conn.execute(f"""
+            all_match_rows = conn.execute(f"""
                 SELECT m.gamecode FROM matches m
                 WHERE m.comp_code IN ({_cph}) AND m.season = ?
                   AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
                   AND m.score_a + m.score_b > 0
-                ORDER BY m.match_date DESC LIMIT 1
-            """, (*_comps, SEASON, tp, tp)).fetchone()
-            if last_match_row:
-                gc = last_match_row[0]
-                details = get_match_details(conn, cfg, tp, gc)
-                if details:
-                    match_html = generate_match_page(details, cfg, team_key)
-                    match_dir = os.path.join(out_dir, "meccs")
-                    # Tisztítsuk a régi meccs-oldalakat, hogy ne maradjanak árva fájlok
-                    if os.path.isdir(match_dir):
-                        for f_name in os.listdir(match_dir):
-                            if f_name.endswith(".html"):
-                                os.remove(os.path.join(match_dir, f_name))
-                    os.makedirs(match_dir, exist_ok=True)
-                    with open(os.path.join(match_dir, f"{gc}.html"), "w", encoding="utf-8") as f:
-                        f.write(match_html)
-                    generated_match_files[gc] = f"meccs/{gc}.html"
-                    print(f"  ✓ meccs/{gc}.html (meccs-oldal)")
+                ORDER BY m.match_date DESC
+            """, (*_comps, SEASON, tp, tp)).fetchall()
+            if all_match_rows:
+                match_dir = os.path.join(out_dir, "meccs")
+                if os.path.isdir(match_dir):
+                    for f_name in os.listdir(match_dir):
+                        if f_name.endswith(".html"):
+                            os.remove(os.path.join(match_dir, f_name))
+                os.makedirs(match_dir, exist_ok=True)
+                total = len(all_match_rows)
+                print(f"\n  Meccs-oldalak generálása ({total} meccs)...")
+                for i, row in enumerate(all_match_rows, 1):
+                    gc = row[0]
+                    details = get_match_details(conn, cfg, tp, gc)
+                    if details:
+                        match_html = generate_match_page(details, cfg, team_key)
+                        with open(os.path.join(match_dir, f"{gc}.html"), "w", encoding="utf-8") as f:
+                            f.write(match_html)
+                        generated_match_files[gc] = f"meccs/{gc}.html"
+                        print(f"    [{i}/{total}] meccs/{gc}.html")
+                print(f"  ✓ {len(generated_match_files)} meccs-oldal kész")
 
         team_html = generate_team_dashboard(team_stats, cfg, team_key=team_key, att_data=att_data,
                                             stats_home=team_stats_home, stats_away=team_stats_away,

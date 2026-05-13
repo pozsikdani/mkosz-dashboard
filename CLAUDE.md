@@ -72,8 +72,10 @@ python3 update_attendance.py                    # csak edzéslátogatás (no SQL
   csapat.html                  — Csapat dashboard (3 view toggle: All/Home/Away)
   naptar.html                  — Meccsnaptár (havi nézet)
   {player-slug}.html × 18      — Egyéni játékos dashboard
+  meccs/{gamecode}.html × 20   — Meccs-szintű oldalak (teljes szezon)
 /dashboards-a/                 — Közgáz A (Fiatalok NB2)
-  meccs/{gamecode}.html        — Meccs-szintű oldal (proof of concept; csak az utolsó meccsre)
+  (ugyanaz a struktúra mint dashboards/)
+  meccs/{gamecode}.html × 21   — Meccs-szintű oldalak (teljes szezon)
 /dashboards-noi/               — Női A
 /dashboards-mefob/             — MEFOB Női
 /dashboards-mefob-ferfi/       — MEFOB Férfi
@@ -140,10 +142,10 @@ A hazai/vendég badge minden helyen **vs** (hazai) és **@** (vendég), fehér s
 - Fix: a `daily-import.yml`-be VACUUM lépés import után, push előtt
 - Méret most ~56MB, stabil
 
-## Match-level page (proof of concept, 2026-05)
-- **CSAK a Közgáz A LEGUTOLSÓ meccsére** generálódik (jelenleg `hun3_plya_133583`)
-- URL séma: `dashboards-a/meccs/{gamecode}.html`
-- Link: csak a `dashboards-a/csapat.html` MECCSEK táblázat utolsó sora kattintható (az utolsó esemény-sor, JS `onclick`)
+## Match-level page (2026-05)
+- **Közgáz A** (21 meccs) és **Közgáz B** (20 meccs) összes lejátszott meccsére generálódik
+- URL séma: `{out_dir}/meccs/{gamecode}.html` (pl. `dashboards-a/meccs/hun3kob_125843.html`)
+- Link: a `csapat.html` MECCSEK táblázat minden sora kattintható (JS `onclick`, `MATCH_URLS` dict)
 
 ### Új query helper: `get_match_details(conn, cfg, tp, gamecode)`
 Visszaad egy dict-et: match info, quarters, **progression** (scoring_events made=1, minute, player, shot, points), kg_players + opp_players + opp_total, **timeouts**, **team_fouls** (personal_fouls-ból aggregálva), **foul_events** (jersey + quarter + minute).
@@ -179,11 +181,12 @@ Strukúra:
 - `renderGameLog()` JS — ha `MATCH_URLS[g.gamecode]` létezik, `tr.onclick = ...`, `cursor:pointer`, hover-piros háttér
 
 ### Kiterjesztési pontok (a jövőre)
-1. **Minden lejátszott meccsre** Közgáz A-nál — egyszerű loop a `LIMIT 1` lekérdezés helyett
-2. **Másik csapatokra** is — az `if team_key == "kozgaz-a"` őr eltávolítása
+1. ~~Minden lejátszott meccsre Közgáz A-nál~~ ✅ Kész (2026-05-13)
+2. ~~Másik csapatokra is~~ ✅ Közgáz B is kész (2026-05-13)
 3. **Játékos dashboard "Meccsenként részletezve"** szintén linkelhetővé
 4. **Naptár** cellákról is link a meccs-oldalra
 5. **Pace, eFG%, possessions** statok hozzáadása (FGA elérhetőség kérdéses, scoring_events-ből kinyerhető)
+6. **További csapatok** (női, MEFOB, Leftoverz) — scoring_events adat szükséges hozzá
 
 ## generate_dashboards.py architektúra (kb. 4700 sor)
 ```
@@ -233,7 +236,7 @@ shorten_opponent(name)                      — name → rövid forma
 ## Ismert korlátok / TODO
 1. **Web fallback nem fedi az országos képes PDF-eket** (`hun3*`, csak `*_bud_*`)
 2. **Lead time becslés** — `scoring_events.minute` mező csak ~38%-ban kitöltött, forward-fill interpolációval
-3. **Meccs-oldal csak Közgáz A utolsó meccsére** — proof of concept szakasz
+3. ~~Meccs-oldal csak Közgáz A utolsó meccsére~~ ✅ Közgáz A (21) + B (20) összes meccsre kész
 4. **EBH-Salgótarján alias** — szponzor-váltás mid-season, alias map nincs (low priority)
 5. **README.md elavult** — a README csak az alapokat tartalmazza
 
@@ -257,7 +260,7 @@ git push
 ```
 
 ## Aktuális állapot (2026-05-13)
-- ✅ Match-level page proof of concept Közgáz A 2026-05-11-i meccsre
+- ✅ Match-level page: Közgáz A (21 meccs) + Közgáz B (20 meccs) — teljes szezon lefedve
 - ✅ 9 csempés "Érdekességek & Fun facts" szekció
 - ✅ Step chart custom plugin Q-marker badge-ekkel
 - ✅ Player box score: starter ×, T/U, totals
