@@ -163,6 +163,14 @@
     text-align:center; line-height:1; margin:4px 0;
   }
   .vs-card.single-stat .vs-note { text-align:center; }
+  .sb-rows { display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+  .sb-row {
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:6px 8px; background:rgba(255,255,255,0.03); border-radius:6px;
+  }
+  .sb-team { color:var(--text-dim); font-size:0.78rem; font-weight:600; }
+  .sb-cells { color:var(--text-dim); font-size:0.85rem; }
+  .sb-cells b { color:var(--text); font-weight:700; }
   /* Negyed MVP grid */
   .qmvp-grid {
     display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
@@ -400,7 +408,7 @@
           </div>
           
         </div><div class="vs-card">
-          <div class="vs-label">Leghosszabb sorozat</div>
+          <div class="vs-label">Leghosszabb run</div>
           <div class="vs-values">
             <div class="vs-side">
               <div class="vs-team">Bkg Dse</div>
@@ -434,7 +442,7 @@
           </div>
           <div class="vs-note">2 döntetlen</div>
         </div><div class="vs-card">
-          <div class="vs-label">Összes személyes fault</div>
+          <div class="vs-label">Faultok csapatonként</div>
           <div class="vs-values">
             <div class="vs-side">
               <div class="vs-team">Bkg Dse</div>
@@ -449,7 +457,7 @@
             <div class="vs-bar-fill" style="width:42%;background:#8b8da0;"></div>
             <div class="vs-bar-fill" style="width:58%;background:#00b894;"></div>
           </div>
-          <div class="vs-note">összes egyéni</div>
+          <div class="vs-note">összes személyes</div>
         </div><div class="vs-card">
           <div class="vs-label">Időkérések</div>
           <div class="vs-values">
@@ -484,91 +492,18 @@
             <div class="vs-bar-fill" style="width:70%;background:#00b894;"></div>
           </div>
           <div class="vs-note">utolsó 5 percben</div>
-        </div><div class="vs-card">
-          <div class="vs-label">Leghosszabb pont-szárazság</div>
-          <div class="vs-values">
-            <div class="vs-side">
-              <div class="vs-team">Bkg Dse</div>
-              <div class="vs-val" style="color:var(--text-dim)">11p</div>
+        </div><div class="vs-card sb-card">
+          <div class="vs-label">Kezdő / Pad pontok</div>
+          <div class="sb-rows">
+            <div class="sb-row">
+              <span class="sb-team">Bkg Dse</span>
+              <span class="sb-cells">Kezdő <b>55p</b> · Pad <b>17p</b></span>
             </div>
-            <div class="vs-side vs-winner">
-              <div class="vs-val" style="color:#00b894">12p</div>
-              <div class="vs-team">Közgáz A</div>
-            </div>
-          </div>
-          <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:48%;background:#8b8da0;"></div>
-            <div class="vs-bar-fill" style="width:52%;background:#00b894;"></div>
-          </div>
-          <div class="vs-note">becslés</div>
-        </div><div class="vs-card">
-          <div class="vs-label">Kezdő pontok</div>
-          <div class="vs-values">
-            <div class="vs-side">
-              <div class="vs-team">Bkg Dse</div>
-              <div class="vs-val" style="color:var(--text-dim)">55p</div>
-            </div>
-            <div class="vs-side vs-winner">
-              <div class="vs-val" style="color:#00b894">67p</div>
-              <div class="vs-team">Közgáz A</div>
+            <div class="sb-row">
+              <span class="sb-team">Közgáz A</span>
+              <span class="sb-cells">Kezdő <b>67p</b> · Pad <b>12p</b></span>
             </div>
           </div>
-          <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:45%;background:#8b8da0;"></div>
-            <div class="vs-bar-fill" style="width:55%;background:#00b894;"></div>
-          </div>
-          
-        </div><div class="vs-card">
-          <div class="vs-label">Pad pontok</div>
-          <div class="vs-values">
-            <div class="vs-side vs-winner">
-              <div class="vs-team">Bkg Dse</div>
-              <div class="vs-val" style="color:#8b8da0">17p</div>
-            </div>
-            <div class="vs-side">
-              <div class="vs-val" style="color:var(--text-dim)">12p</div>
-              <div class="vs-team">Közgáz A</div>
-            </div>
-          </div>
-          <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:59%;background:#8b8da0;"></div>
-            <div class="vs-bar-fill" style="width:41%;background:#00b894;"></div>
-          </div>
-          
-        </div><div class="vs-card">
-          <div class="vs-label">Hibázatlan játékos</div>
-          <div class="vs-values">
-            <div class="vs-side">
-              <div class="vs-team">Bkg Dse</div>
-              <div class="vs-val" style="color:var(--text-dim)">0</div>
-            </div>
-            <div class="vs-side vs-winner">
-              <div class="vs-val" style="color:#00b894">1</div>
-              <div class="vs-team">Közgáz A</div>
-            </div>
-          </div>
-          <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:0%;background:#8b8da0;"></div>
-            <div class="vs-bar-fill" style="width:100%;background:#00b894;"></div>
-          </div>
-          
-        </div><div class="vs-card">
-          <div class="vs-label">Csapat tempó</div>
-          <div class="vs-values">
-            <div class="vs-side">
-              <div class="vs-team">Bkg Dse</div>
-              <div class="vs-val" style="color:var(--text-dim)">7.0</div>
-            </div>
-            <div class="vs-side vs-winner">
-              <div class="vs-val" style="color:#00b894">7.8</div>
-              <div class="vs-team">Közgáz A</div>
-            </div>
-          </div>
-          <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:47%;background:#8b8da0;"></div>
-            <div class="vs-bar-fill" style="width:53%;background:#00b894;"></div>
-          </div>
-          <div class="vs-note">kosár / negyed</div>
         </div><div class="vs-card single-stat">
           <div class="vs-label">Vezetés-váltás</div>
           <div class="single-val">10</div>

@@ -3084,35 +3084,25 @@ def generate_match_page(details, cfg, team_key):
     def _fmt_run(v): return f"{v}-0"
 
     vs_items.append(("Legnagyobb vezetés", max_a, max_b, _fmt_plus, None))
-    vs_items.append(("Leghosszabb sorozat", run_a, run_b, _fmt_run, "válasz nélküli pont"))
+    vs_items.append(("Leghosszabb run", run_a, run_b, _fmt_run, "válasz nélküli pont"))
     vs_items.append(("Negyedek megnyerve", q_won_a, q_won_b, _fmt_int, (f"{q_tied} döntetlen" if q_tied else None)))
-    # Faultok-nál fontos hogy a kisebb a "jobb", de a fő mutató ugyanaz
-    vs_items.append(("Összes személyes fault", kg_total_fouls if details["kg_is_home"] else opp_total_fouls,
-                     opp_total_fouls if details["kg_is_home"] else kg_total_fouls, _fmt_int, "összes egyéni"))
+    vs_items.append(("Faultok csapatonként", kg_total_fouls if details["kg_is_home"] else opp_total_fouls,
+                     opp_total_fouls if details["kg_is_home"] else kg_total_fouls, _fmt_int, "összes személyes"))
     vs_items.append(("Időkérések", home_to_count, away_to_count, _fmt_int, None))
     if clutch_a or clutch_b:
         vs_items.append(("Záró 5 perc", clutch_a, clutch_b, _fmt_p, "utolsó 5 percben"))
-    if drought_a or drought_b:
-        vs_items.append(("Leghosszabb pont-szárazság", drought_a, drought_b, _fmt_p, "becslés"))
-    # Új vs-csempék (korábban single fact-itemek voltak)
-    home_starter = kg_starter_pts if details["kg_is_home"] else opp_starter_pts
-    away_starter = opp_starter_pts if details["kg_is_home"] else kg_starter_pts
-    home_bench = kg_bench_pts if details["kg_is_home"] else opp_bench_pts
-    away_bench = opp_bench_pts if details["kg_is_home"] else kg_bench_pts
-    vs_items.append(("Kezdő pontok", home_starter, away_starter, _fmt_p, None))
-    vs_items.append(("Pad pontok", home_bench, away_bench, _fmt_p, None))
 
+    # Kipontozott csak akkor csempén ha legalább az egyik csapatnak van
     home_fo = len(kg_fouled_out) if details["kg_is_home"] else len(opp_fouled_out)
     away_fo = len(opp_fouled_out) if details["kg_is_home"] else len(kg_fouled_out)
     if home_fo or away_fo:
         vs_items.append(("Kipontozott", home_fo, away_fo, _fmt_int, None))
 
-    home_clean = len(kg_clean) if details["kg_is_home"] else len(opp_clean)
-    away_clean = len(opp_clean) if details["kg_is_home"] else len(kg_clean)
-    if home_clean or away_clean:
-        vs_items.append(("Hibázatlan játékos", home_clean, away_clean, _fmt_int, None))
-
-    vs_items.append(("Csapat tempó", home_pace, away_pace, lambda v: f"{v}", "kosár / negyed"))
+    # Kezdő/Pad pontok — kombinált csempe (custom layout)
+    home_starter = kg_starter_pts if details["kg_is_home"] else opp_starter_pts
+    away_starter = opp_starter_pts if details["kg_is_home"] else kg_starter_pts
+    home_bench = kg_bench_pts if details["kg_is_home"] else opp_bench_pts
+    away_bench = opp_bench_pts if details["kg_is_home"] else kg_bench_pts
 
     # KG fókuszú: melyik szín lesz a "winner" — ha Közgáz van pluszban, zöld; ha az ellenfél, szürke
     def _vs_card(label, hv, av, fmt, note):
@@ -3163,9 +3153,26 @@ def generate_match_page(details, cfg, team_key):
           {note_html}
         </div>'''
 
+    # Kezdő/Pad pontok kombinált csempe (4 érték egy kártyán)
+    def _starter_bench_card(label):
+        return f'''<div class="vs-card sb-card">
+          <div class="vs-label">{label}</div>
+          <div class="sb-rows">
+            <div class="sb-row">
+              <span class="sb-team">{home_label}</span>
+              <span class="sb-cells">Kezdő <b>{home_starter}p</b> · Pad <b>{home_bench}p</b></span>
+            </div>
+            <div class="sb-row">
+              <span class="sb-team">{away_label}</span>
+              <span class="sb-cells">Kezdő <b>{away_starter}p</b> · Pad <b>{away_bench}p</b></span>
+            </div>
+          </div>
+        </div>'''
+
     vs_cards_html = '<div class="vs-grid">'
     for item in vs_items:
         vs_cards_html += _vs_card(*item)
+    vs_cards_html += _starter_bench_card("Kezdő / Pad pontok")
     # Single-stat csempék (mátxszintű, nincs csapat-bontás)
     vs_cards_html += _single_card("Vezetés-váltás", lead_changes, "alkalommal fordult át a meccs")
     vs_cards_html += '</div>'
@@ -3430,6 +3437,14 @@ def generate_match_page(details, cfg, team_key):
     text-align:center; line-height:1; margin:4px 0;
   }}
   .vs-card.single-stat .vs-note {{ text-align:center; }}
+  .sb-rows {{ display:flex; flex-direction:column; gap:6px; margin-top:4px; }}
+  .sb-row {{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:6px 8px; background:rgba(255,255,255,0.03); border-radius:6px;
+  }}
+  .sb-team {{ color:var(--text-dim); font-size:0.78rem; font-weight:600; }}
+  .sb-cells {{ color:var(--text-dim); font-size:0.85rem; }}
+  .sb-cells b {{ color:var(--text); font-weight:700; }}
   /* Negyed MVP grid */
   .qmvp-grid {{
     display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
