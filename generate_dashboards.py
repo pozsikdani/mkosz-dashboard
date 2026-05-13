@@ -1797,13 +1797,34 @@ def get_match_details(conn, cfg, tp, gamecode):
             if jer and p.get("jersey") == jer:
                 return p
         return None
+    # Helper: a hiányzó játékos nevét megpróbáljuk lookup-olni a többi meccsen
+    # ugyanannak a csapatnak ugyanannál a mezszámnál szereplő rögzített nevéből.
+    def _lookup_name_by_jersey(team_a_or_b, jersey):
+        if not jersey:
+            return None
+        team_name = team_a if team_a_or_b == "A" else team_b
+        r = conn.execute("""
+            SELECT pgs.player_name, COUNT(*) AS cnt
+            FROM player_game_stats pgs
+            JOIN matches m2 ON m2.gamecode = pgs.gamecode
+            WHERE pgs.jersey_number = ?
+              AND pgs.player_name IS NOT NULL
+              AND pgs.gamecode != ?
+              AND ((m2.team_a_name = ? AND pgs.team = 'A')
+                OR (m2.team_b_name = ? AND pgs.team = 'B'))
+            GROUP BY pgs.player_name
+            ORDER BY cnt DESC
+            LIMIT 1
+        """, (jersey, gamecode, team_name, team_name)).fetchone()
+        return r[0] if r else None
     for row in se_aggr:
         t, lic, jer, fg2, fg3, ftm, fta, pts = row
         plist = kg_players if t == kg_side else opp_players
         if _find_player(plist, lic, jer):
             continue  # already in box score
-        # Új sor — a parser kihagyta. Jersey-vel jelöljük.
-        name_disp = f"#{jer}" if jer else "?"
+        # Új sor — a parser kihagyta. Megpróbáljuk a nevet más meccsekről felidézni.
+        looked_up = _lookup_name_by_jersey(t, jer)
+        name_disp = looked_up if looked_up else (f"#{jer}" if jer else "?")
         plist.append({
             "license": lic, "name": name_disp, "jersey": jer or "",
             "points": pts or 0, "fg2_made": fg2 or 0, "fg3_made": fg3 or 0,
