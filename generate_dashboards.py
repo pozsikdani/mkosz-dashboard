@@ -1775,6 +1775,44 @@ def get_match_details(conn, cfg, tp, gamecode):
         else:
             opp_players.append(p)
 
+    # Kiegészítés scoring_events-ből: a megyei jegyzőkönyv-parser néha kihagy
+    # játékosokat a box score-ból, miközben az event-stream tartalmazza őket
+    # (pl. hun_bud_rkfb_75 #5-ös jersey 7 pontja). Pótoljuk őket itt jersey alapján.
+    se_aggr = conn.execute("""
+        SELECT team, license_number, jersey_number,
+               SUM(CASE WHEN shot_type='2FG' AND made=1 THEN 1 ELSE 0 END) AS fg2,
+               SUM(CASE WHEN shot_type='3FG' AND made=1 THEN 1 ELSE 0 END) AS fg3,
+               SUM(CASE WHEN shot_type='FT'  AND made=1 THEN 1 ELSE 0 END) AS ftm,
+               SUM(CASE WHEN shot_type='FT'             THEN 1 ELSE 0 END) AS fta,
+               SUM(CASE WHEN made=1 THEN points ELSE 0 END) AS pts
+        FROM scoring_events
+        WHERE gamecode = ?
+        GROUP BY team, license_number, jersey_number
+    """, (gamecode,)).fetchall()
+    # Index: ki van már a kg/opp playersben (license vagy jersey alapján)
+    def _find_player(plist, lic, jer):
+        for p in plist:
+            if lic and p.get("license") == lic:
+                return p
+            if jer and p.get("jersey") == jer:
+                return p
+        return None
+    for row in se_aggr:
+        t, lic, jer, fg2, fg3, ftm, fta, pts = row
+        plist = kg_players if t == kg_side else opp_players
+        if _find_player(plist, lic, jer):
+            continue  # already in box score
+        # Új sor — a parser kihagyta. Jersey-vel jelöljük.
+        name_disp = f"#{jer}" if jer else "?"
+        plist.append({
+            "license": lic, "name": name_disp, "jersey": jer or "",
+            "points": pts or 0, "fg2_made": fg2 or 0, "fg3_made": fg3 or 0,
+            "ft_made": ftm or 0, "ft_att": fta or 0,
+            "pf": 0, "starter": False,
+            "tech": 0, "unsport": 0,
+            "_reconstructed": True,
+        })
+
     # Technikai (T) és sportszerűtlen (U) faultok játékosonként (jersey_number alapján)
     su_rows = conn.execute("""
         SELECT team, jersey_number,
