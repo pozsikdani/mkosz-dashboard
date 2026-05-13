@@ -3223,20 +3223,26 @@ def generate_match_page(details, cfg, team_key):
           {note_html}
         </div>'''
 
-    # Kezdő/Pad pontok kombinált csempe (4 érték egy kártyán)
+    # Kezdő/Pad pontok kombinált csempe (4 érték egy kártyán).
+    # Ha a játékos-attribúció hiányos (starter+bench < hivatalos score), jelezzük.
+    home_unaccounted = max(0, (details["score_a"] or 0) - home_starter - home_bench)
+    away_unaccounted = max(0, (details["score_b"] or 0) - away_starter - away_bench)
+    def _sb_unacc(v):
+        return f' · <span style="color:var(--red);">+{v}p ?</span>' if v else ''
     def _starter_bench_card(label):
         return f'''<div class="vs-card sb-card">
           <div class="vs-label">{label}</div>
           <div class="sb-rows">
             <div class="sb-row">
               <span class="sb-team">{home_label}</span>
-              <span class="sb-cells">Kezdő <b>{home_starter}p</b> · Pad <b>{home_bench}p</b></span>
+              <span class="sb-cells">Kezdő <b>{home_starter}p</b> · Pad <b>{home_bench}p</b>{_sb_unacc(home_unaccounted)}</span>
             </div>
             <div class="sb-row">
               <span class="sb-team">{away_label}</span>
-              <span class="sb-cells">Kezdő <b>{away_starter}p</b> · Pad <b>{away_bench}p</b></span>
+              <span class="sb-cells">Kezdő <b>{away_starter}p</b> · Pad <b>{away_bench}p</b>{_sb_unacc(away_unaccounted)}</span>
             </div>
           </div>
+          {'<div class="vs-note">? = a forrásban nem azonosított pont</div>' if (home_unaccounted or away_unaccounted) else ''}
         </div>'''
 
     vs_cards_html = '<div class="vs-grid">'
