@@ -802,15 +802,56 @@ const quarterMarkerPlugin = {
   }
 };
 
-const kgDs = {label:"K\u00d6ZG\u00c1Z B", data:kgProg, borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false};
-const oppDs = {label:"BKG-Veresegyh.", data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false};
-// Sorrend: hazai elöl, vendég hátul (egyezzen a quarter táblázat és hero sorrenddel)
+const kgDs = {label:"K\u00d6ZG\u00c1Z B", data:[], borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false};
+const oppDs = {label:"BKG-Veresegyh.", data:[], borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false};
 const datasetsOrdered = [oppDs, kgDs];
+
+// Animáció: negyed-határok seq értékei (pause pontok)
+const qBoundarySeqs = qMarkers.filter((_,i) => i < qMarkers.length - 1).map(m => m.x);
+let animVisibleMarkers = 0;
+
+const quarterMarkerAnimPlugin = {
+  id: 'quarterMarkerAnim',
+  afterDatasetsDraw(chart) {
+    const {ctx, chartArea: {top, bottom}, scales: {x, y}} = chart;
+    if (!qMarkers || !qMarkers.length) return;
+    ctx.save();
+    const visibleCount = Math.min(animVisibleMarkers, qMarkers.length - 1);
+    for (let idx = 0; idx < visibleCount; idx++) {
+      const m = qMarkers[idx];
+      const px = x.getPixelForValue(m.x);
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(px, top);
+      ctx.lineTo(px, bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const text = 'Q'+m.q+' vége · '+m.home+'–'+m.away;
+      ctx.font = '600 10px Inter, sans-serif';
+      const padX = 6;
+      const tw = ctx.measureText(text).width;
+      const bx = px - tw/2 - padX;
+      const by = top + 4;
+      ctx.fillStyle = 'rgba(45,47,56,0.95)';
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(bx, by, tw + padX*2, 18, 6) : ctx.rect(bx, by, tw + padX*2, 18);
+      ctx.fill();
+      ctx.fillStyle = '#e8e8f0';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, px - tw/2, by + 9);
+    }
+    ctx.restore();
+  }
+};
+
 const progressChart = new Chart(document.getElementById('progressChart').getContext('2d'), {
   type:'line',
   data:{ datasets: datasetsOrdered },
-  plugins: [quarterMarkerPlugin],
+  plugins: [quarterMarkerAnimPlugin],
   options:{
+    animation: false,
     responsive:true, maintainAspectRatio:false,
     layout: {padding: {top: 22}},
     interaction:{mode:'index', intersect:false},
@@ -828,7 +869,7 @@ const progressChart = new Chart(document.getElementById('progressChart').getCont
       }
     },
     scales:{
-      y:{beginAtZero:true, grid:{color:'rgba(255,255,255,0.04)'}},
+      y:{beginAtZero:true, suggestedMax:103, grid:{color:'rgba(255,255,255,0.04)'}},
       x:{
         type:'linear', beginAtZero:true, max:129,
         grid:{color:'rgba(255,255,255,0.04)'},
@@ -842,6 +883,45 @@ const progressChart = new Chart(document.getElementById('progressChart').getCont
     }
   }
 });
+
+// Progresszív animáció: adatpontok megjelenítése negyed-szünetekkel
+(function animateChart() {
+  const SPEED = 35;
+  const Q_PAUSE = 1500;
+  const kgHome = false;
+  const ds0 = kgHome ? kgProg : oppProg;
+  const ds1 = kgHome ? oppProg : kgProg;
+  let i = 0;
+  let qIdx = 0;
+
+  function addNext() {
+    if (i >= ds0.length) return;
+    datasetsOrdered[0].data.push(ds0[i]);
+    if (i < ds1.length) datasetsOrdered[1].data.push(ds1[i]);
+    progressChart.update('none');
+    i++;
+    const curSeq = ds0[i-1] ? ds0[i-1].x : 0;
+    if (qIdx < qBoundarySeqs.length && curSeq >= qBoundarySeqs[qIdx]) {
+      animVisibleMarkers = qIdx + 1;
+      progressChart.update('none');
+      qIdx++;
+      setTimeout(addNext, Q_PAUSE);
+    } else {
+      setTimeout(addNext, SPEED);
+    }
+  }
+  // IntersectionObserver: animáció indul amint a chart bármennyire is látható
+  const el = document.getElementById('progressChart');
+  let started = false;
+  function startOnce() { if (!started) { started = true; addNext(); } }
+  if (el && 'IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) { obs.disconnect(); startOnce(); }
+    }, {threshold: 0});
+    obs.observe(el.closest('.card') || el);
+  }
+  setTimeout(startOnce, 2000);
+})();
 
 // Custom legend kattintás: csapat toggle (Chart.js default legend kikapcsolva)
 document.querySelectorAll('#chartLegend .legend-item').forEach(el => {
