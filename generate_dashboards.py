@@ -3051,14 +3051,20 @@ def generate_match_page(details, cfg, team_key):
         return _gap("A"), _gap("B")
     drought_a, drought_b = _longest_drought()
 
-    # Záró 5 perc pontok (clutch) — Q4 eventjei közül az utolsó ~50% (seq alapján)
-    # A minute mező csak ~37%-ban kitöltött, ezért seq-alapú becslés megbízhatóbb
-    q4_events = [ev for ev in progression if ev["quarter"] == 4]
-    half = len(q4_events) // 2
+    # Záró 5 perc pontok (clutch) — forward-fill a minute mezővel
+    # A scoresheet-ben csak az új percnél van időjelzés, a köztesek None-nal jönnek
     clutch_a = clutch_b = 0
-    for ev in q4_events[half:]:
-        if ev["team"] == "A": clutch_a += ev["points"]
-        else: clutch_b += ev["points"]
+    last_min = 0
+    for ev in progression:
+        m = ev.get("minute")
+        if m is not None and m != "":
+            last_min = int(m)
+        if ev["quarter"] != 4:
+            last_min = 0
+            continue
+        if last_min >= 5:
+            if ev["team"] == "A": clutch_a += ev["points"]
+            else: clutch_b += ev["points"]
 
     # eFG% csapatonként
     def _efg_pct(players):
