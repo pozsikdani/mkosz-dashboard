@@ -1724,21 +1724,44 @@ def get_match_details(conn, cfg, tp, gamecode):
         for r in progression_rows
     ]
 
-    # Player game stats — mindkét csapat
+    # Player game stats — mindkét csapat.
+    # FONTOS source ORDER: 'merged' > 'scoresheet' > 'pbp' — mert a merged-ben van
+    # mezszám és helyes formátum, a PBP-ben gyakran upper+title duplikálódás.
     pgs_rows = conn.execute("""
         SELECT team, COALESCE(license_number, player_name) as lic,
                player_name, jersey_number, points,
                fg2_made, fg3_made, ft_made, ft_attempted,
-               personal_fouls, is_starter
+               personal_fouls, is_starter,
+               license_number, source
         FROM player_game_stats
         WHERE gamecode = ?
-        ORDER BY points DESC, player_name
+        ORDER BY
+          CASE source WHEN 'merged' THEN 0 WHEN 'scoresheet' THEN 1 ELSE 2 END,
+          points DESC, player_name
     """, (gamecode,)).fetchall()
 
+    # Dedup: a MEFOB PBP forrás duplikálja a játékosokat (UPPERCASE + Title Case,
+    # vagy rövid + hosszú név variánsok). A license_number a stabil azonosító — ha az
+    # egyezik, ugyanaz a játékos. Ha license_number üres, esik vissza lower(name)-re.
+    # Title Case nevet preferáljuk display-re.
     kg_players = []
     opp_players = []
+    seen = {}  # (team, dedup_key) -> player dict
     for r in pgs_rows:
-        team, lic, name, jersey, pts, fg2, fg3, ftm, fta, pf, starter = r
+        team, lic, name, jersey, pts, fg2, fg3, ftm, fta, pf, starter, license_num, source = r
+        if license_num:
+            dedup_key = (team, "lic:" + str(license_num))
+        else:
+            dedup_key = (team, "n:" + (name or "").strip().lower())
+        if dedup_key in seen:
+            existing = seen[dedup_key]
+            # Preferáljuk a nem-uppercase display nevet
+            if name and name != name.upper() and existing["name"] == existing["name"].upper():
+                existing["name"] = name
+            # Ha az új sor van jersey-vel és a régiben nincs, vegyük át
+            if jersey and not existing["jersey"]:
+                existing["jersey"] = jersey
+            continue
         p = {
             "license": lic, "name": name, "jersey": jersey or "",
             "points": pts or 0, "fg2_made": fg2 or 0, "fg3_made": fg3 or 0,
@@ -1746,6 +1769,7 @@ def get_match_details(conn, cfg, tp, gamecode):
             "pf": pf or 0, "starter": bool(starter),
             "tech": 0, "unsport": 0,
         }
+        seen[dedup_key] = p
         if team == kg_side:
             kg_players.append(p)
         else:
@@ -2685,7 +2709,25 @@ def generate_match_page(details, cfg, team_key):
     diff_str = f"+{diff}" if diff > 0 else str(diff)
 
     # Negyedek táblázat
-    q_rows = details["quarters"]
+    # FONTOS: ha van scoring_events (progression), a Q-bontást ABBÓL deriváljuk,
+    # nem a quarter_scores táblából — mert a forrásban (mkosz-scoresheet) néhány
+    # megyei meccsen a Q-bontás off-by-one (pl. Q1 sor valójában Q2 adat) és Q4 NULL,
+    # míg a scoring_events kumulatív végértéke mindig stimmel a matches.score_a/b-vel.
+    _progression_raw = details.get("progression") or []
+    if _progression_raw:
+        # Negyed-végi kumulatív érték → diff = adott negyed pontja
+        _q_end = {}  # quarter -> (cum_a, cum_b)
+        for _ev in _progression_raw:
+            _q_end[_ev["quarter"]] = (_ev["score_a"], _ev["score_b"])
+        _qs = sorted(_q_end.keys())
+        q_rows = []
+        prev_a = prev_b = 0
+        for _q in _qs:
+            _ea, _eb = _q_end[_q]
+            q_rows.append((_q, _ea - prev_a, _eb - prev_b))
+            prev_a, prev_b = _ea, _eb
+    else:
+        q_rows = details["quarters"]
     if q_rows:
         q_html = '<table class="q-table"><thead><tr><th></th>'
         for q, _, _ in q_rows:
@@ -2758,12 +2800,25 @@ def generate_match_page(details, cfg, team_key):
             <td>{t_pf}</td>
             <td class="special-cell">{t_special}</td>
         </tr>'''
+        # Forrás-ellentmondás figyelmeztetés: ha a box score játékos-pontok
+        # összege nem egyezik a hivatalos eredménnyel
+        _kg_official = details.get("kg_score") or 0
+        _kg_box_total = t_pts
+        _kg_diff = _kg_official - _kg_box_total
+        _warn_html = ''
+        if _kg_box_total > 0 and _kg_diff != 0:
+            _warn_html = (
+                f'<div class="box-warn">'
+                f'⚠ A jegyzőkönyv-adatok hiányosak: a box score-ban {_kg_box_total} pont van rendelve '
+                f'játékosokhoz, a hivatalos végeredmény {_kg_official} pont ({_kg_diff:+d} eltérés).'
+                f'</div>'
+            )
         kg_html = f'''<div class="game-log-wrap">
         <table class="box-score">
           <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
           <tbody>{kg_body}</tbody>
         </table>
-        </div>'''
+        </div>{_warn_html}'''
     else:
         kg_html = '<div class="empty-state">Nincs játékos-adat (vsz. képes PDF).</div>'
 
@@ -2966,9 +3021,9 @@ def generate_match_page(details, cfg, team_key):
         if d > max_a: max_a = d
         if -d > max_b: max_b = -d
 
-    # Negyedek megnyerve
+    # Negyedek megnyerve — a derivált q_rows-ra (progression-konzisztens)
     q_won_a = q_won_b = q_tied = 0
-    for q, sa, sb in details["quarters"]:
+    for q, sa, sb in q_rows:
         if sa > sb: q_won_a += 1
         elif sb > sa: q_won_b += 1
         else: q_tied += 1
@@ -3097,7 +3152,7 @@ def generate_match_page(details, cfg, team_key):
     if has_progression:
         vs_items.append(("Legnagyobb vezetés", max_a, max_b, _fmt_plus, None))
         vs_items.append(("Leghosszabb run", run_a, run_b, _fmt_run, "válasz nélküli pont"))
-    if details["quarters"]:
+    if q_rows:
         vs_items.append(("Negyedek megnyerve", q_won_a, q_won_b, _fmt_int, (f"{q_tied} döntetlen" if q_tied else None)))
     if kg_total_fouls or opp_total_fouls:
         vs_items.append(("Faultok csapatonként", kg_total_fouls if details["kg_is_home"] else opp_total_fouls,
@@ -3620,6 +3675,11 @@ def generate_match_page(details, cfg, team_key):
   .empty-state {{
     color:var(--text-dim); font-size:0.85rem; font-style:italic;
     padding:16px 0; text-align:center;
+  }}
+  .box-warn {{
+    margin-top:12px; padding:10px 14px; border-radius:8px;
+    background:rgba(225,112,85,0.08); border-left:3px solid var(--red);
+    color:var(--text-dim); font-size:0.78rem; line-height:1.5;
   }}
   .chart-wrap {{ position:relative; width:100%; height:200px; margin-top:12px; }}
   @media (max-width:600px) {{

@@ -322,6 +322,11 @@
     color:var(--text-dim); font-size:0.85rem; font-style:italic;
     padding:16px 0; text-align:center;
   }
+  .box-warn {
+    margin-top:12px; padding:10px 14px; border-radius:8px;
+    background:rgba(225,112,85,0.08); border-left:3px solid var(--red);
+    color:var(--text-dim); font-size:0.78rem; line-height:1.5;
+  }
   .chart-wrap { position:relative; width:100%; height:200px; margin-top:12px; }
   @media (max-width:600px) {
     body { padding:12px; }
@@ -444,18 +449,18 @@
         </div><div class="vs-card">
           <div class="vs-label">Faultok csapatonként</div>
           <div class="vs-values">
-            <div class="vs-side vs-winner">
+            <div class="vs-side">
               <div class="vs-team">Közgáz Sc És Dsk</div>
-              <div class="vs-val" style="color:#00b894">11</div>
+              <div class="vs-val" style="color:var(--text-dim)">8</div>
             </div>
             <div class="vs-side">
-              <div class="vs-val" style="color:var(--text-dim)">10</div>
+              <div class="vs-val" style="color:var(--text-dim)">8</div>
               <div class="vs-team">Pte-Peac</div>
             </div>
           </div>
           <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:52%;background:#00b894;"></div>
-            <div class="vs-bar-fill" style="width:48%;background:#8b8da0;"></div>
+            <div class="vs-bar-fill" style="width:50%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:50%;background:#8b8da0;"></div>
           </div>
           <div class="vs-note">összes személyes</div>
         </div><div class="vs-card">
@@ -480,11 +485,11 @@
           <div class="sb-rows">
             <div class="sb-row">
               <span class="sb-team">Közgáz Sc És Dsk</span>
-              <span class="sb-cells">Kezdő <b>107p</b> · Pad <b>48p</b></span>
+              <span class="sb-cells">Kezdő <b>107p</b> · Pad <b>40p</b></span>
             </div>
             <div class="sb-row">
               <span class="sb-team">Pte-Peac</span>
-              <span class="sb-cells">Kezdő <b>90p</b> · Pad <b>9p</b></span>
+              <span class="sb-cells">Kezdő <b>62p</b> · Pad <b>9p</b></span>
             </div>
           </div>
         </div><div class="vs-card single-stat">
@@ -520,16 +525,16 @@
   <div class="dist-row">
           <div class="dist-label">MEFOB Férfi</div>
           <div class="dist-bar">
-            <div class="dist-seg seg-2pt" style="flex-basis:68%;" title="2 pontos: 106 pt (68%)">2PT 68%</div>
-            <div class="dist-seg seg-3pt" style="flex-basis:29%;" title="3 pontos: 45 pt (29%)">3PT 29%</div>
+            <div class="dist-seg seg-2pt" style="flex-basis:67%;" title="2 pontos: 98 pt (67%)">2PT 67%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:31%;" title="3 pontos: 45 pt (31%)">3PT 31%</div>
             <div class="dist-seg seg-ft"  style="flex-basis:3%;" title="Büntető: 4 pt (3%)"></div>
           </div>
         </div><div class="dist-row">
           <div class="dist-label">Pte-Peac</div>
           <div class="dist-bar">
-            <div class="dist-seg seg-2pt" style="flex-basis:42%;" title="2 pontos: 42 pt (42%)">2PT 42%</div>
-            <div class="dist-seg seg-3pt" style="flex-basis:52%;" title="3 pontos: 51 pt (52%)">3PT 52%</div>
-            <div class="dist-seg seg-ft"  style="flex-basis:6%;" title="Büntető: 6 pt (6%)"></div>
+            <div class="dist-seg seg-2pt" style="flex-basis:42%;" title="2 pontos: 30 pt (42%)">2PT 42%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:51%;" title="3 pontos: 36 pt (51%)">3PT 51%</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:7%;" title="Büntető: 5 pt (7%)"></div>
           </div>
         </div>
   <div class="dist-legend">
@@ -663,15 +668,6 @@
                 <td>0</td>
                 <td class="special-cell"></td>
             </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">JENEI KOPPÁNY TAMÁS</td>
-                <td>8</td>
-                <td>2</td>
-                <td>1</td>
-                <td>1/2</td>
-                <td>1</td>
-                <td class="special-cell"></td>
-            </tr><tr>
                 <td class="starter-cell"></td>
                 <td class="pname">SCHWARCZENBERGER GÁBOR</td>
                 <td>8</td>
@@ -681,13 +677,13 @@
                 <td>3</td>
                 <td class="special-cell"></td>
             </tr><tr>
-                <td class="starter-cell"></td>
-                <td class="pname">SCHWARCZENBERGER GÁBOR MÁRK</td>
+                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
+                <td class="pname">JENEI KOPPÁNY TAMÁS</td>
                 <td>8</td>
-                <td>4</td>
-                <td>0</td>
-                <td>–</td>
-                <td>3</td>
+                <td>2</td>
+                <td>1</td>
+                <td>1/2</td>
+                <td>1</td>
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
@@ -701,11 +697,11 @@
             </tr><tr class="totals">
             <td class="starter-cell"></td>
             <td class="pname">Összesen</td>
-            <td>155</td>
-            <td>53</td>
+            <td>147</td>
+            <td>49</td>
             <td>15</td>
             <td>4/6 (67%)</td>
-            <td>11</td>
+            <td>8</td>
             <td class="special-cell"></td>
         </tr></tbody>
         </table>

@@ -322,6 +322,11 @@
     color:var(--text-dim); font-size:0.85rem; font-style:italic;
     padding:16px 0; text-align:center;
   }
+  .box-warn {
+    margin-top:12px; padding:10px 14px; border-radius:8px;
+    background:rgba(225,112,85,0.08); border-left:3px solid var(--red);
+    color:var(--text-dim); font-size:0.78rem; line-height:1.5;
+  }
   .chart-wrap { position:relative; width:100%; height:200px; margin-top:12px; }
   @media (max-width:600px) {
     body { padding:12px; }
@@ -446,16 +451,16 @@
           <div class="vs-values">
             <div class="vs-side">
               <div class="vs-team">Közgáz Sc És Dsk</div>
-              <div class="vs-val" style="color:var(--text-dim)">15</div>
+              <div class="vs-val" style="color:var(--text-dim)">8</div>
             </div>
             <div class="vs-side vs-winner">
-              <div class="vs-val" style="color:#8b8da0">26</div>
+              <div class="vs-val" style="color:#8b8da0">19</div>
               <div class="vs-team">Smafc 1860 Soproni.</div>
             </div>
           </div>
           <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:37%;background:#00b894;"></div>
-            <div class="vs-bar-fill" style="width:63%;background:#8b8da0;"></div>
+            <div class="vs-bar-fill" style="width:30%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:70%;background:#8b8da0;"></div>
           </div>
           <div class="vs-note">összes személyes</div>
         </div><div class="vs-card">
@@ -497,11 +502,11 @@
           <div class="sb-rows">
             <div class="sb-row">
               <span class="sb-team">Közgáz Sc És Dsk</span>
-              <span class="sb-cells">Kezdő <b>154p</b> · Pad <b>88p</b></span>
+              <span class="sb-cells">Kezdő <b>73p</b> · Pad <b>51p</b></span>
             </div>
             <div class="sb-row">
               <span class="sb-team">Smafc 1860 Soproni.</span>
-              <span class="sb-cells">Kezdő <b>58p</b> · Pad <b>14p</b></span>
+              <span class="sb-cells">Kezdő <b>47p</b> · Pad <b>9p</b></span>
             </div>
           </div>
         </div><div class="vs-card single-stat">
@@ -537,16 +542,16 @@
   <div class="dist-row">
           <div class="dist-label">MEFOB Férfi</div>
           <div class="dist-bar">
-            <div class="dist-seg seg-2pt" style="flex-basis:63%;" title="2 pontos: 152 pt (63%)">2PT 63%</div>
-            <div class="dist-seg seg-3pt" style="flex-basis:27%;" title="3 pontos: 66 pt (27%)">3PT 27%</div>
-            <div class="dist-seg seg-ft"  style="flex-basis:10%;" title="Büntető: 24 pt (10%)">FT 10%</div>
+            <div class="dist-seg seg-2pt" style="flex-basis:63%;" title="2 pontos: 78 pt (63%)">2PT 63%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:27%;" title="3 pontos: 33 pt (27%)">3PT 27%</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:10%;" title="Büntető: 13 pt (10%)">FT 10%</div>
           </div>
         </div><div class="dist-row">
           <div class="dist-label">Smafc 1860 Soproni.</div>
           <div class="dist-bar">
-            <div class="dist-seg seg-2pt" style="flex-basis:89%;" title="2 pontos: 64 pt (89%)">2PT 89%</div>
-            <div class="dist-seg seg-3pt" style="flex-basis:8%;" title="3 pontos: 6 pt (8%)"></div>
-            <div class="dist-seg seg-ft"  style="flex-basis:3%;" title="Büntető: 2 pt (3%)"></div>
+            <div class="dist-seg seg-2pt" style="flex-basis:93%;" title="2 pontos: 52 pt (93%)">2PT 93%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:5%;" title="3 pontos: 3 pt (5%)"></div>
+            <div class="dist-seg seg-ft"  style="flex-basis:2%;" title="Büntető: 1 pt (2%)"></div>
           </div>
         </div>
   <div class="dist-legend">
@@ -573,7 +578,7 @@
           <div class="foul-tl-quarters"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>
         </div>
         <div class="foul-row">
-          <div class="foul-pname">SCHWARCZENBERGER GÁBOR</div>
+          <div class="foul-pname">Schwarczenberger Gábor Márk</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -591,7 +596,7 @@
             <div class="foul-count">2×</div>
           </div>
         </div><div class="foul-row">
-          <div class="foul-pname">SZILÁGYI MIHÁLY</div>
+          <div class="foul-pname">Szilágyi Mihály</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -609,30 +614,12 @@
           <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
           <tbody><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">GYIMES ÁRON</td>
-                <td style="color:var(--green);font-weight:800;">24</td>
-                <td>3</td>
-                <td>5</td>
-                <td>3/3</td>
-                <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">Gyimes Áron</td>
                 <td style="color:var(--green);font-weight:800;">24</td>
                 <td>3</td>
                 <td>5</td>
                 <td>3/3</td>
                 <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">SZILÁGYI MIHÁLY</td>
-                <td>23</td>
-                <td>6</td>
-                <td>3</td>
-                <td>2/2</td>
-                <td>1</td>
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
@@ -645,29 +632,11 @@
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
-                <td class="pname">DÓSA PÉTER GYÖRGY</td>
-                <td>21</td>
-                <td>8</td>
-                <td>1</td>
-                <td>2/4</td>
-                <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"></td>
                 <td class="pname">Dósa Péter György</td>
                 <td>21</td>
                 <td>8</td>
                 <td>1</td>
                 <td>2/4</td>
-                <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"></td>
-                <td class="pname">BÉRES MÁRTON</td>
-                <td>13</td>
-                <td>5</td>
-                <td>1</td>
-                <td>–</td>
                 <td>0</td>
                 <td class="special-cell"></td>
             </tr><tr>
@@ -681,39 +650,12 @@
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">KOVÁCS VID LEVENTE</td>
-                <td>12</td>
-                <td>5</td>
-                <td>0</td>
-                <td>2/2</td>
-                <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">Kovács Vid Levente</td>
                 <td>12</td>
                 <td>5</td>
                 <td>0</td>
                 <td>2/2</td>
                 <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">SCHWARCZENBERGER GÁBOR</td>
-                <td>8</td>
-                <td>4</td>
-                <td>0</td>
-                <td>0/1</td>
-                <td>3</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">SCHWARCZENBERGER GÁBOR MÁRK</td>
-                <td>8</td>
-                <td>4</td>
-                <td>0</td>
-                <td>0/1</td>
-                <td>3</td>
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
@@ -744,29 +686,11 @@
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">MIHÁLY TAMÁS BENCE</td>
-                <td>6</td>
-                <td>2</td>
-                <td>0</td>
-                <td>2/6</td>
-                <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">Mihály Tamás Bence</td>
                 <td>6</td>
                 <td>2</td>
                 <td>0</td>
                 <td>2/6</td>
-                <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"></td>
-                <td class="pname">SZEGEDI BENCE ÁRON</td>
-                <td>3</td>
-                <td>0</td>
-                <td>1</td>
-                <td>–</td>
                 <td>0</td>
                 <td class="special-cell"></td>
             </tr><tr>
@@ -781,15 +705,15 @@
             </tr><tr class="totals">
             <td class="starter-cell"></td>
             <td class="pname">Összesen</td>
-            <td>242</td>
-            <td>76</td>
-            <td>22</td>
-            <td>24/41 (59%)</td>
-            <td>15</td>
+            <td>124</td>
+            <td>39</td>
+            <td>11</td>
+            <td>13/22 (59%)</td>
+            <td>8</td>
             <td class="special-cell"></td>
         </tr></tbody>
         </table>
-        </div>
+        </div><div class="box-warn">⚠ A jegyzőkönyv-adatok hiányosak: a box score-ban 124 pont van rendelve játékosokhoz, a hivatalos végeredmény 117 pont (-7 eltérés).</div>
 </div>
 
 </div>

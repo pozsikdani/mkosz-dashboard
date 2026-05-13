@@ -322,6 +322,11 @@
     color:var(--text-dim); font-size:0.85rem; font-style:italic;
     padding:16px 0; text-align:center;
   }
+  .box-warn {
+    margin-top:12px; padding:10px 14px; border-radius:8px;
+    background:rgba(225,112,85,0.08); border-left:3px solid var(--red);
+    color:var(--text-dim); font-size:0.78rem; line-height:1.5;
+  }
   .chart-wrap { position:relative; width:100%; height:200px; margin-top:12px; }
   @media (max-width:600px) {
     body { padding:12px; }
@@ -385,7 +390,7 @@
     <span class="legend-item" data-idx="1" title="Kattintással be/ki"><span class="legend-swatch" style="background:#8b8da0"></span>Vashódok</span>
   </div>
   <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
-  <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="kg-row"><td class="team-cell">Leftoverz</td><td>20</td><td>18</td><td>27</td><td>0</td><td class="total">86</td></tr><tr class="opp-row"><td class="team-cell">Vashódok</td><td>11</td><td>19</td><td>4</td><td>0</td><td class="total">52</td></tr></tbody></table></div>
+  <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="kg-row"><td class="team-cell">Leftoverz</td><td>21</td><td>18</td><td>20</td><td>25</td><td class="total">86</td></tr><tr class="opp-row"><td class="team-cell">Vashódok</td><td>18</td><td>11</td><td>19</td><td>4</td><td class="total">52</td></tr></tbody></table></div>
 </div>
 
 <div class="card" style="margin-bottom:20px;">
@@ -429,18 +434,18 @@
           <div class="vs-values">
             <div class="vs-side vs-winner">
               <div class="vs-team">Közgáz Leftoverz</div>
-              <div class="vs-val" style="color:#00b894">2</div>
+              <div class="vs-val" style="color:#00b894">4</div>
             </div>
             <div class="vs-side">
-              <div class="vs-val" style="color:var(--text-dim)">1</div>
+              <div class="vs-val" style="color:var(--text-dim)">0</div>
               <div class="vs-team">Vashódok</div>
             </div>
           </div>
           <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:67%;background:#00b894;"></div>
-            <div class="vs-bar-fill" style="width:33%;background:#8b8da0;"></div>
+            <div class="vs-bar-fill" style="width:100%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:0%;background:#8b8da0;"></div>
           </div>
-          <div class="vs-note">1 döntetlen</div>
+          
         </div><div class="vs-card">
           <div class="vs-label">Faultok csapatonként</div>
           <div class="vs-values">
@@ -698,7 +703,7 @@
             <td class="special-cell"></td>
         </tr></tbody>
         </table>
-        </div>
+        </div><div class="box-warn">⚠ A jegyzőkönyv-adatok hiányosak: a box score-ban 80 pont van rendelve játékosokhoz, a hivatalos végeredmény 86 pont (+6 eltérés).</div>
 </div>
 
 </div>

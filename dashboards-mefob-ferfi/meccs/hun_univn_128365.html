@@ -322,6 +322,11 @@
     color:var(--text-dim); font-size:0.85rem; font-style:italic;
     padding:16px 0; text-align:center;
   }
+  .box-warn {
+    margin-top:12px; padding:10px 14px; border-radius:8px;
+    background:rgba(225,112,85,0.08); border-left:3px solid var(--red);
+    color:var(--text-dim); font-size:0.78rem; line-height:1.5;
+  }
   .chart-wrap { position:relative; width:100%; height:200px; margin-top:12px; }
   @media (max-width:600px) {
     body { padding:12px; }
@@ -385,7 +390,7 @@
     <span class="legend-item" data-idx="1" title="Kattintással be/ki"><span class="legend-swatch" style="background:#8b8da0"></span>Mosonmagyaróvár Un.</span>
   </div>
   <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
-  <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="kg-row"><td class="team-cell">MEFOB Férfi</td><td>20</td><td>11</td><td>28</td><td>26</td><td class="total">103</td></tr><tr class="opp-row"><td class="team-cell">Mosonmagyaróvár Un.</td><td>24</td><td>24</td><td>25</td><td>12</td><td class="total">96</td></tr></tbody></table></div>
+  <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="kg-row"><td class="team-cell">MEFOB Férfi</td><td>20</td><td>11</td><td>28</td><td>44</td><td class="total">103</td></tr><tr class="opp-row"><td class="team-cell">Mosonmagyaróvár Un.</td><td>24</td><td>24</td><td>25</td><td>23</td><td class="total">96</td></tr></tbody></table></div>
 </div>
 
 <div class="card" style="margin-bottom:20px;">
@@ -444,18 +449,18 @@
         </div><div class="vs-card">
           <div class="vs-label">Faultok csapatonként</div>
           <div class="vs-values">
-            <div class="vs-side vs-winner">
+            <div class="vs-side">
               <div class="vs-team">Közgáz Sc És Dsk</div>
-              <div class="vs-val" style="color:#00b894">43</div>
+              <div class="vs-val" style="color:var(--text-dim)">20</div>
             </div>
             <div class="vs-side">
-              <div class="vs-val" style="color:var(--text-dim)">41</div>
+              <div class="vs-val" style="color:var(--text-dim)">20</div>
               <div class="vs-team">Mosonmagyaróvár Un.</div>
             </div>
           </div>
           <div class="vs-bar">
-            <div class="vs-bar-fill" style="width:51%;background:#00b894;"></div>
-            <div class="vs-bar-fill" style="width:49%;background:#8b8da0;"></div>
+            <div class="vs-bar-fill" style="width:50%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:50%;background:#8b8da0;"></div>
           </div>
           <div class="vs-note">összes személyes</div>
         </div><div class="vs-card">
@@ -500,7 +505,7 @@
               <div class="vs-val" style="color:var(--text-dim)">0</div>
             </div>
             <div class="vs-side vs-winner">
-              <div class="vs-val" style="color:#8b8da0">2</div>
+              <div class="vs-val" style="color:#8b8da0">1</div>
               <div class="vs-team">Mosonmagyaróvár Un.</div>
             </div>
           </div>
@@ -514,11 +519,11 @@
           <div class="sb-rows">
             <div class="sb-row">
               <span class="sb-team">Közgáz Sc És Dsk</span>
-              <span class="sb-cells">Kezdő <b>185p</b> · Pad <b>34p</b></span>
+              <span class="sb-cells">Kezdő <b>86p</b> · Pad <b>17p</b></span>
             </div>
             <div class="sb-row">
               <span class="sb-team">Mosonmagyaróvár Un.</span>
-              <span class="sb-cells">Kezdő <b>146p</b> · Pad <b>46p</b></span>
+              <span class="sb-cells">Kezdő <b>77p</b> · Pad <b>23p</b></span>
             </div>
           </div>
         </div><div class="vs-card single-stat">
@@ -554,16 +559,16 @@
   <div class="dist-row">
           <div class="dist-label">MEFOB Férfi</div>
           <div class="dist-bar">
-            <div class="dist-seg seg-2pt" style="flex-basis:55%;" title="2 pontos: 120 pt (55%)">2PT 55%</div>
-            <div class="dist-seg seg-3pt" style="flex-basis:26%;" title="3 pontos: 57 pt (26%)">3PT 26%</div>
-            <div class="dist-seg seg-ft"  style="flex-basis:19%;" title="Büntető: 42 pt (19%)">FT 19%</div>
+            <div class="dist-seg seg-2pt" style="flex-basis:58%;" title="2 pontos: 60 pt (58%)">2PT 58%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:23%;" title="3 pontos: 24 pt (23%)">3PT 23%</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:18%;" title="Büntető: 19 pt (18%)">FT 18%</div>
           </div>
         </div><div class="dist-row">
           <div class="dist-label">Mosonmagyaróvár Un.</div>
           <div class="dist-bar">
-            <div class="dist-seg seg-2pt" style="flex-basis:42%;" title="2 pontos: 80 pt (42%)">2PT 42%</div>
-            <div class="dist-seg seg-3pt" style="flex-basis:47%;" title="3 pontos: 90 pt (47%)">3PT 47%</div>
-            <div class="dist-seg seg-ft"  style="flex-basis:11%;" title="Büntető: 22 pt (11%)">FT 11%</div>
+            <div class="dist-seg seg-2pt" style="flex-basis:40%;" title="2 pontos: 40 pt (40%)">2PT 40%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:48%;" title="3 pontos: 48 pt (48%)">3PT 48%</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:12%;" title="Büntető: 12 pt (12%)">FT 12%</div>
           </div>
         </div>
   <div class="dist-legend">
@@ -590,7 +595,7 @@
           <div class="foul-tl-quarters"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>
         </div>
         <div class="foul-row">
-          <div class="foul-pname">JENEI KOPPÁNY TAMÁS</div>
+          <div class="foul-pname">Jenei Koppány Tamás</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -599,7 +604,7 @@
             <div class="foul-count">4×</div>
           </div>
         </div><div class="foul-row">
-          <div class="foul-pname">GYÜRK ZSIGMOND</div>
+          <div class="foul-pname">Gyürk Zsigmond</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -608,7 +613,7 @@
             <div class="foul-count">4×</div>
           </div>
         </div><div class="foul-row">
-          <div class="foul-pname">SCHWARCZENBERGER GÁBOR</div>
+          <div class="foul-pname">Schwarczenberger Gábor Márk</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -617,7 +622,7 @@
             <div class="foul-count">3×</div>
           </div>
         </div><div class="foul-row">
-          <div class="foul-pname">KOVÁCS LEVENTE HETÉNY</div>
+          <div class="foul-pname">Kovács Levente Hetény</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -626,7 +631,7 @@
             <div class="foul-count">3×</div>
           </div>
         </div><div class="foul-row">
-          <div class="foul-pname">HORVAT OLIVÉR MÁRK</div>
+          <div class="foul-pname">Horvat Olivér Márk</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -635,7 +640,7 @@
             <div class="foul-count">3×</div>
           </div>
         </div><div class="foul-row">
-          <div class="foul-pname">SZILÁGYI MIHÁLY</div>
+          <div class="foul-pname">Szilágyi Mihály</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -644,7 +649,7 @@
             <div class="foul-count">2×</div>
           </div>
         </div><div class="foul-row">
-          <div class="foul-pname">BÉRES MÁRTON</div>
+          <div class="foul-pname">Béres Márton</div>
           <div class="foul-timeline">
             <div class="foul-q-marker" style="left:25%;"></div>
             <div class="foul-q-marker" style="left:50%;"></div>
@@ -662,29 +667,11 @@
           <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
           <tbody><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">KOVÁCS LEVENTE HETÉNY</td>
-                <td style="color:var(--green);font-weight:800;">33</td>
-                <td>10</td>
-                <td>2</td>
-                <td>7/8</td>
-                <td>3</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">Kovács Levente Hetény</td>
                 <td style="color:var(--green);font-weight:800;">33</td>
                 <td>10</td>
                 <td>2</td>
                 <td>7/8</td>
-                <td>3</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">HORVAT OLIVÉR MÁRK</td>
-                <td>20</td>
-                <td>5</td>
-                <td>1</td>
-                <td>7/11</td>
                 <td>3</td>
                 <td class="special-cell"></td>
             </tr><tr>
@@ -698,24 +685,6 @@
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">SCHWARCZENBERGER GÁBOR</td>
-                <td>13</td>
-                <td>0</td>
-                <td>3</td>
-                <td>4/6</td>
-                <td>3</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">SCHWARCZENBERGER GÁBOR MÁRK</td>
-                <td>13</td>
-                <td>0</td>
-                <td>3</td>
-                <td>4/6</td>
-                <td>3</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">Schwarczenberger Gábor Márk</td>
                 <td>13</td>
                 <td>0</td>
@@ -725,29 +694,11 @@
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
-                <td class="pname">GYÜRK ZSIGMOND</td>
-                <td>12</td>
-                <td>6</td>
-                <td>0</td>
-                <td>0/2</td>
-                <td>4</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"></td>
                 <td class="pname">Gyürk Zsigmond</td>
                 <td>12</td>
                 <td>6</td>
                 <td>0</td>
                 <td>0/2</td>
-                <td>4</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">JENEI KOPPÁNY TAMÁS</td>
-                <td>10</td>
-                <td>5</td>
-                <td>0</td>
-                <td>–</td>
                 <td>4</td>
                 <td class="special-cell"></td>
             </tr><tr>
@@ -761,30 +712,12 @@
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
-                <td class="pname">SZILÁGYI MIHÁLY</td>
-                <td>10</td>
-                <td>3</td>
-                <td>1</td>
-                <td>1/2</td>
-                <td>2</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
                 <td class="pname">Szilágyi Mihály</td>
                 <td>10</td>
                 <td>3</td>
                 <td>1</td>
                 <td>1/2</td>
                 <td>2</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"></td>
-                <td class="pname">BORBÉLY BÁLINT</td>
-                <td>3</td>
-                <td>0</td>
-                <td>1</td>
-                <td>–</td>
-                <td>0</td>
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
@@ -797,15 +730,6 @@
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
-                <td class="pname">BÉRES MÁRTON</td>
-                <td>2</td>
-                <td>1</td>
-                <td>0</td>
-                <td>–</td>
-                <td>1</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"></td>
                 <td class="pname">Béres Márton</td>
                 <td>2</td>
                 <td>1</td>
@@ -815,25 +739,7 @@
                 <td class="special-cell"></td>
             </tr><tr>
                 <td class="starter-cell"></td>
-                <td class="pname">BÁTASZÉKI BALÁZS</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>–</td>
-                <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"></td>
                 <td class="pname">Bátaszéki Balázs</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>–</td>
-                <td>0</td>
-                <td class="special-cell"></td>
-            </tr><tr>
-                <td class="starter-cell"></td>
-                <td class="pname">KOVÁCS VID LEVENTE</td>
                 <td>0</td>
                 <td>0</td>
                 <td>0</td>
@@ -852,11 +758,11 @@
             </tr><tr class="totals">
             <td class="starter-cell"></td>
             <td class="pname">Összesen</td>
-            <td>219</td>
-            <td>60</td>
-            <td>19</td>
-            <td>42/64 (66%)</td>
-            <td>43</td>
+            <td>103</td>
+            <td>30</td>
+            <td>8</td>
+            <td>19/29 (66%)</td>
+            <td>20</td>
             <td class="special-cell"></td>
         </tr></tbody>
         </table>
