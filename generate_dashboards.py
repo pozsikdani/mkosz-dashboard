@@ -3093,13 +3093,18 @@ def generate_match_page(details, cfg, team_key):
     def _fmt_p(v): return f"{v}p"
     def _fmt_run(v): return f"{v}-0"
 
-    vs_items.append(("Legnagyobb vezetés", max_a, max_b, _fmt_plus, None))
-    vs_items.append(("Leghosszabb run", run_a, run_b, _fmt_run, "válasz nélküli pont"))
-    vs_items.append(("Negyedek megnyerve", q_won_a, q_won_b, _fmt_int, (f"{q_tied} döntetlen" if q_tied else None)))
-    vs_items.append(("Faultok csapatonként", kg_total_fouls if details["kg_is_home"] else opp_total_fouls,
-                     opp_total_fouls if details["kg_is_home"] else kg_total_fouls, _fmt_int, "összes személyes"))
-    vs_items.append(("Időkérések", home_to_count, away_to_count, _fmt_int, None))
-    if clutch_a or clutch_b:
+    has_progression = bool(progression)
+    if has_progression:
+        vs_items.append(("Legnagyobb vezetés", max_a, max_b, _fmt_plus, None))
+        vs_items.append(("Leghosszabb run", run_a, run_b, _fmt_run, "válasz nélküli pont"))
+    if details["quarters"]:
+        vs_items.append(("Negyedek megnyerve", q_won_a, q_won_b, _fmt_int, (f"{q_tied} döntetlen" if q_tied else None)))
+    if kg_total_fouls or opp_total_fouls:
+        vs_items.append(("Faultok csapatonként", kg_total_fouls if details["kg_is_home"] else opp_total_fouls,
+                         opp_total_fouls if details["kg_is_home"] else kg_total_fouls, _fmt_int, "összes személyes"))
+    if home_to_count or away_to_count:
+        vs_items.append(("Időkérések", home_to_count, away_to_count, _fmt_int, None))
+    if has_progression and (clutch_a or clutch_b):
         vs_items.append(("Záró 5 perc", clutch_a, clutch_b, _fmt_p, "utolsó 5 percben"))
 
     # Kipontozott csak akkor csempén ha legalább az egyik csapatnak van
@@ -3180,15 +3185,24 @@ def generate_match_page(details, cfg, team_key):
         </div>'''
 
     vs_cards_html = '<div class="vs-grid">'
+    fact_card_count = 0
     for item in vs_items:
         vs_cards_html += _vs_card(*item)
-    vs_cards_html += _starter_bench_card("Kezdő / Pad pontok")
-    # Single-stat csempék (mátxszintű, nincs csapat-bontás)
-    vs_cards_html += _single_card("Vezetés-váltás", lead_changes, "alkalommal fordult át a meccs")
+        fact_card_count += 1
+    # Kezdő/Pad pontok csak akkor, ha van starter info és pont
+    has_starter_info = any(p.get("starter") for p in details["kg_players"] + details["opp_players"])
+    if has_starter_info and (kg_starter_pts or kg_bench_pts or opp_starter_pts or opp_bench_pts):
+        vs_cards_html += _starter_bench_card("Kezdő / Pad pontok")
+        fact_card_count += 1
+    # Vezetés-váltás csak ha van progression
+    if has_progression:
+        vs_cards_html += _single_card("Vezetés-váltás", lead_changes, "alkalommal fordult át a meccs")
+        fact_card_count += 1
     vs_cards_html += '</div>'
 
     text_facts = []  # most már nincs szöveges fact
     facts_html = vs_cards_html
+    has_facts = fact_card_count > 0
 
     # ─────────────────────────────────────────────────────────────
     # Quarter MVP — legtöbb pontot dobó játékos negyedenként mindkét csapatban
@@ -3201,16 +3215,17 @@ def generate_match_page(details, cfg, team_key):
         qmvp[q].setdefault(t, {}).setdefault(p, 0)
         qmvp[q][t][p] += ev["points"]
     qmvp_cards = ""
-    for q in [1, 2, 3, 4]:
-        a_team = qmvp[q].get("A", {})
-        b_team = qmvp[q].get("B", {})
-        a_top = max(a_team.items(), key=lambda x: x[1]) if a_team else ("—", 0)
-        b_top = max(b_team.items(), key=lambda x: x[1]) if b_team else ("—", 0)
-        qmvp_cards += f'''<div class="qmvp-card">
-          <div class="qmvp-q">Q{q}</div>
-          <div class="qmvp-row"><span class="qmvp-team">{home_label}</span><span class="qmvp-player">{a_top[0]}</span><span class="qmvp-pts">{a_top[1]}p</span></div>
-          <div class="qmvp-row"><span class="qmvp-team">{away_label}</span><span class="qmvp-player">{b_top[0]}</span><span class="qmvp-pts">{b_top[1]}p</span></div>
-        </div>'''
+    if progression:
+        for q in [1, 2, 3, 4]:
+            a_team = qmvp[q].get("A", {})
+            b_team = qmvp[q].get("B", {})
+            a_top = max(a_team.items(), key=lambda x: x[1]) if a_team else ("—", 0)
+            b_top = max(b_team.items(), key=lambda x: x[1]) if b_team else ("—", 0)
+            qmvp_cards += f'''<div class="qmvp-card">
+              <div class="qmvp-q">Q{q}</div>
+              <div class="qmvp-row"><span class="qmvp-team">{home_label}</span><span class="qmvp-player">{a_top[0]}</span><span class="qmvp-pts">{a_top[1]}p</span></div>
+              <div class="qmvp-row"><span class="qmvp-team">{away_label}</span><span class="qmvp-player">{b_top[0]}</span><span class="qmvp-pts">{b_top[1]}p</span></div>
+            </div>'''
 
     # ─────────────────────────────────────────────────────────────
     # Foul trouble timeline — Közgáz játékosok faultjai időtengelyen
@@ -3645,12 +3660,15 @@ def generate_match_page(details, cfg, team_key):
   </div>
   <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
   <div style="margin-top:14px;">{q_html}</div>
-</div>''' if progression or q_rows else ''}
+</div>''' if progression else (f'''<div class="card" style="margin-bottom:20px;">
+  <h3>Negyedenkénti bontás</h3>
+  {q_html}
+</div>''' if q_rows else '')}
 
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Érdekességek & Fun facts</h3>
   {facts_html}
-</div>''' if vs_items else ''}
+</div>''' if has_facts else ''}
 
 {f'''<div class="card" style="margin-bottom:20px;">
   <h3>Negyed MVP-k</h3>
@@ -3673,12 +3691,12 @@ def generate_match_page(details, cfg, team_key):
 </div>''' if lead_html else ''}
 
 {f'''<div class="card" style="margin-bottom:20px;">
-  <h3>Hibák alakulása <span class="title-note">(Közgáz játékosok)</span></h3>
+  <h3>Hibák alakulása <span class="title-note">({kg_short} játékosok)</span></h3>
   {foul_timeline_html}
 </div>''' if foul_timeline_html else ''}
 
 <div class="card">
-  <h3>Közgáz játékosok</h3>
+  <h3>{kg_short} játékosok</h3>
   {kg_html}
 </div>
 
@@ -4648,9 +4666,11 @@ def generate_team(team_key):
         team_stats_home = _team_stats_fn(conn, cfg, tp, hv_filter='H')
         team_stats_away = _team_stats_fn(conn, cfg, tp, hv_filter='V')
 
-        # Match-level pages (NB2 csapatok scoring_events adattal)
+        # Match-level pages — minden csapatra (tier-agnosztikus)
+        # A generate_match_page() lekezeli ha hiányzik progression / scoring_events:
+        # web-fallback meccseken csak a hero + Q-bontás + box score jelenik meg.
         generated_match_files = {}
-        if team_key in ("kozgaz-a", "kozgaz-b"):
+        if True:
             _comps = _comp_list(cfg)
             _cph = ",".join("?" * len(_comps))
             all_match_rows = conn.execute(f"""

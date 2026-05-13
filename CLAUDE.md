@@ -45,16 +45,23 @@ gh workflow run "Napi dashboard frissítés" --repo pozsikdani/mkosz-dashboard
 ```
 
 ## Csapatok (TEAMS dict)
-| Kulcs | comp_code | mkosz_extra_comps | output | szín |
-|---|---|---|---|---|
-| `kozgaz-b` | hun3k | hun3_plya | dashboards/ | `#C41E3A` piros |
-| `kozgaz-a` | hun3kob | hun3_plya | dashboards-a/ | `#e17055` narancs |
-| `kozgaz-noi` | whun_bud_na | — | dashboards-noi/ | `#6c5ce7` lila |
-| `leftoverz` | hun_bud_rkfb | — | leftoverz/ | `#fdcb6e` sárga |
-| `kozgaz-mefob` | whun_univn | — | dashboards-mefob/ | `#00cec9` teal |
-| `kozgaz-mefob-ferfi` | hun_univn | — | dashboards-mefob-ferfi/ | `#a0a0b0` szürke |
+| Kulcs | comp_code | mkosz_extra_comps | output | szín | Adat-tier |
+|---|---|---|---|---|---|
+| `kozgaz-b` | hun3k | hun3_plya | dashboards/ | `#C41E3A` piros | **1. Jegyzőkönyv** (NB2) |
+| `kozgaz-a` | hun3kob | hun3_plya | dashboards-a/ | `#e17055` narancs | **1. Jegyzőkönyv** (NB2) |
+| `kozgaz-noi` | whun_bud_na | — | dashboards-noi/ | `#6c5ce7` lila | **1. Jegyzőkönyv** (Bp. megyei) |
+| `leftoverz` | hun_bud_rkfb | — | leftoverz/ | `#fdcb6e` sárga | **1. Jegyzőkönyv** (Bp. megyei) |
+| `kozgaz-mefob` | whun_univn | — | dashboards-mefob/ | `#00cec9` teal | **2. + PBP** (MEFOB) |
+| `kozgaz-mefob-ferfi` | hun_univn | — | dashboards-mefob-ferfi/ | `#a0a0b0` szürke | **2. + PBP** (MEFOB) |
 
 A `mkosz_extra_comps` listája extra `comp_code`-okat ad a stat query-khez (pl. NB2 alapszakasz + rájátszás összevontan).
+
+**Adat-tier hierarchia** (lásd `DB_SCHEMA.md` "Három adatszint" szekció) — magasabb szint tartalmazza az alacsonyabbat:
+- **1. Jegyzőkönyv-szint** (NB2 `hun3*` + Bp. megyei `*_bud_*`): pts/FGM/FTM/FTA/PF + scoring_events (csak made=1) + quarter_scores + faultok + timeouts. **Nincs FGA/3PA**, ezért nincs eFG%/TS%/Pace/Possessions. Bp. megyei képes PDF-nél web fallback (`WEB-*` match-id) → ott scoring_events sincs.
+- **2. + PBP** (MEFOB `hun_univ*`, `whun_univ*`): tier 1 + FGA/3PA, ast/tov/reb/stl/blk/min/+−, substitutions, Pace, OffRtg.
+- **3. + Shotchart** (NB1B `hun2a`, `hun2b`): tier 2 + shotchart. Közgáz nem játszik itt, csak a `mkosz-scout` használja.
+
+Új feature tervezésekor mindig el kell dönteni: melyik tier-től felfelé működik (`min_tier`)?
 
 ## Generálás
 ```bash
@@ -143,9 +150,10 @@ A hazai/vendég badge minden helyen **vs** (hazai) és **@** (vendég), fehér s
 - Méret most ~56MB, stabil
 
 ## Match-level page (2026-05)
-- **Közgáz A** (21 meccs) és **Közgáz B** (20 meccs) összes lejátszott meccsére generálódik
+- **Mind a 6 csapatra** generálódik (2026-05-13 óta): Közgáz A (21), B (20), Női (19), Leftoverz (21), MEFOB Férfi (16), MEFOB Női (10) — **összesen 107 meccs-oldal**
 - URL séma: `{out_dir}/meccs/{gamecode}.html` (pl. `dashboards-a/meccs/hun3kob_125843.html`)
 - Link: a `csapat.html` MECCSEK táblázat minden sora kattintható (JS `onclick`, `MATCH_URLS` dict)
+- **Tier-aware**: a `generate_match_page()` lekezeli a hiányzó adatot — web-fallback meccseken (csak box score + Q-bontás) a chart, fun facts egy része és Q-MVP elmarad, de az oldal érvényes marad.
 
 ### Új query helper: `get_match_details(conn, cfg, tp, gamecode)`
 Visszaad egy dict-et: match info, quarters, **progression** (scoring_events made=1, minute, player, shot, points), kg_players + opp_players + opp_total, **timeouts**, **team_fouls** (personal_fouls-ból aggregálva), **foul_events** (jersey + quarter + minute).
@@ -182,11 +190,11 @@ Strukúra:
 
 ### Kiterjesztési pontok (a jövőre)
 1. ~~Minden lejátszott meccsre Közgáz A-nál~~ ✅ Kész (2026-05-13)
-2. ~~Másik csapatokra is~~ ✅ Közgáz B is kész (2026-05-13)
+2. ~~Másik csapatokra is~~ ✅ Mind a 6 csapatra kiterjesztve (2026-05-13)
 3. **Játékos dashboard "Meccsenként részletezve"** szintén linkelhetővé
 4. **Naptár** cellákról is link a meccs-oldalra
-5. **Pace, eFG%, possessions** statok hozzáadása (FGA elérhetőség kérdéses, scoring_events-ből kinyerhető)
-6. **További csapatok** (női, MEFOB, Leftoverz) — scoring_events adat szükséges hozzá
+5. **MEFOB-specifikus bónusz stats** (2. fázis) — `hun_univn`, `whun_univn` PBP-vel rendelkezik, így a meccs-oldalra eFG%, TS%, asszisztok / TOV oszlopok, Pace mehetnek (külön ág a `has_pbp=1` esetre)
+6. **Foul timeline kiterjesztése** Bp. megyei meccsekre — most jersey hiánya miatt sok megyei meccsen elmarad
 
 ## generate_dashboards.py architektúra (kb. 4700 sor)
 ```
@@ -258,6 +266,9 @@ git pull --rebase
 # konfliktus esetén: git checkout --ours <file>
 git push
 ```
+
+## Related Docs
+- `DB_SCHEMA.md` — Adatbázis táblák, kapcsolatok, használati térkép (mely táblákat olvas a generátor)
 
 ## Aktuális állapot (2026-05-13)
 - ✅ Match-level page: Közgáz A (21 meccs) + Közgáz B (20 meccs) — teljes szezon lefedve

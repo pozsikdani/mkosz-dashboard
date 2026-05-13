@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+<link rel="apple-touch-icon" href="/kozgaz_logo.png">
+<title>KÖZGÁZ LEFTOVERZ — MONOR SE · 2025-11-17</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:#0a0b0e; --card:#151518; --card-hover:#1a1b20; --border:rgba(255,255,255,0.08);
+    --accent:#C41E3A; --accent2:#00cec9; --text:#e8e8f0; --text-dim:#8b8da0;
+    --green:#00b894; --red:#e17055;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:24px; }
+  .container { max-width:1000px; margin:0 auto; }
+  .back-link {
+    display:inline-block; color:var(--text-dim); text-decoration:none;
+    font-size:0.82rem; font-weight:600; margin-bottom:16px; opacity:0.7;
+    transition:color 0.2s, opacity 0.2s;
+  }
+  .back-link:hover { color:var(--accent); opacity:1; }
+  .hero {
+    background:linear-gradient(135deg,#151518 0%,#2a1218 100%);
+    border:1px solid var(--border); border-radius:20px; padding:28px;
+    margin-bottom:20px; position:relative; overflow:hidden;
+  }
+  .hero::after {
+    content:''; position:absolute; top:-50%; right:-10%;
+    width:400px; height:400px;
+    background:radial-gradient(circle,rgba(196,30,58,0.18),transparent 70%);
+    pointer-events:none;
+  }
+  .hero-content { position:relative; z-index:1; text-align:center; }
+  .teams {
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    flex-wrap:wrap; font-size:1.1rem; font-weight:700;
+    color:var(--text-dim); margin-bottom:8px;
+  }
+  .teams .kg { color:#fff; font-size:1.25rem; }
+  .teams .sep { font-weight:400; }
+  .scoreline {
+    font-size:3.5rem; font-weight:900; letter-spacing:-2px;
+    margin:8px 0; line-height:1;
+  }
+  .scoreline .kg-score { color:#fff; }
+  .scoreline .opp-score { color:var(--text-dim); }
+  .scoreline .dash { color:var(--text-dim); margin:0 12px; }
+  .result-badge {
+    display:inline-block; padding:6px 18px; border-radius:8px;
+    font-size:0.85rem; font-weight:800; letter-spacing:1.2px;
+    background:rgba(0,184,148,0.15); color:var(--red);
+    margin:8px 0;
+  }
+  .meta { font-size:0.85rem; color:var(--text-dim); margin-top:8px; }
+  .meta .diff { color:var(--red); font-weight:700; margin-left:8px; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+  @media (max-width:800px) { .grid-2 { grid-template-columns:1fr; } }
+  .card {
+    background:var(--card); border-radius:16px; padding:24px;
+    border:1px solid var(--border);
+  }
+  .card h3 {
+    font-size:0.78rem; text-transform:uppercase; letter-spacing:1.3px;
+    color:var(--text-dim); margin-bottom:16px; font-weight:600;
+  }
+  .q-table { width:100%; border-collapse:collapse; font-size:0.92rem; }
+  .q-table th {
+    text-align:center; padding:8px 6px; font-size:0.7rem;
+    text-transform:uppercase; letter-spacing:0.6px;
+    color:var(--text-dim); font-weight:600;
+    border-bottom:1px solid var(--border);
+  }
+  .q-table td {
+    text-align:center; padding:10px 6px;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+  }
+  .q-table tr:last-child td { border-bottom:none; }
+  .q-table .team-cell { text-align:left; font-weight:600; }
+  .q-table .total { font-weight:800; color:var(--text); }
+  .q-table .kg-row .team-cell { color:#fff; }
+  .q-table .kg-row .total { color:var(--green); }
+  .q-table .opp-row { color:var(--text-dim); }
+  .dist-row {
+    display:grid; grid-template-columns:110px 1fr; gap:14px;
+    align-items:center; margin-bottom:10px;
+  }
+  @media (max-width:600px) { .dist-row { grid-template-columns:80px 1fr; gap:8px; } }
+  .dist-label { color:var(--text-dim); font-weight:600; font-size:0.85rem; }
+  .dist-bar {
+    display:flex; height:34px; border-radius:8px; overflow:hidden;
+    background:rgba(255,255,255,0.02);
+  }
+  .dist-seg {
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.74rem; font-weight:700; color:#fff;
+    white-space:nowrap; transition:flex-basis 0.3s;
+  }
+  .dist-seg.seg-2pt { background:#7e6fa8; }
+  .dist-seg.seg-3pt { background:#c08560; }
+  .dist-seg.seg-ft  { background:#6b8395; }
+  .dist-legend {
+    display:flex; justify-content:center; flex-wrap:wrap; gap:14px;
+    margin-top:14px;
+  }
+  .dist-legend .legend-swatch.seg-2pt { background:#7e6fa8; }
+  .dist-legend .legend-swatch.seg-3pt { background:#c08560; }
+  .dist-legend .legend-swatch.seg-ft  { background:#6b8395; }
+  .title-note {
+    font-size:0.7rem; font-weight:500; color:var(--text-dim);
+    text-transform:none; letter-spacing:0; margin-left:6px;
+  }
+  .lead-note {
+    font-size:0.72rem; color:var(--text-dim); margin-top:10px;
+    font-style:italic; text-align:center;
+  }
+  /* Érdekességek & Fun facts — lista stílus piros bal-szegéllyel (csapat.html-lel egységes) */
+  .fact-item {
+    padding:10px 14px; margin-bottom:8px;
+    background:rgba(255,255,255,0.02); border-radius:10px;
+    border-left:3px solid var(--accent); font-size:0.85rem;
+    color:var(--text-dim); line-height:1.5;
+  }
+  .fact-item b { color:#fff; }
+  /* VS-stílusú összehasonlítások */
+  .vs-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+    gap:10px; margin-bottom:14px;
+  }
+  .vs-card {
+    background:rgba(255,255,255,0.025); border-radius:10px;
+    padding:12px 14px;
+  }
+  .vs-label {
+    font-size:0.65rem; color:var(--text-dim);
+    text-transform:uppercase; letter-spacing:0.7px; font-weight:600;
+    margin-bottom:8px;
+  }
+  .vs-values {
+    display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    align-items:end; margin-bottom:7px;
+  }
+  .vs-side { display:flex; flex-direction:column; gap:2px; }
+  .vs-side:nth-child(1) { align-items:flex-start; text-align:left; }
+  .vs-side:nth-child(2) { align-items:flex-end; text-align:right; }
+  .vs-team { font-size:0.7rem; color:var(--text-dim); font-weight:500; }
+  .vs-val { font-size:1.45rem; font-weight:800; line-height:1; }
+  .vs-bar {
+    display:flex; height:6px; border-radius:3px; overflow:hidden;
+    background:rgba(255,255,255,0.04);
+  }
+  .vs-bar-fill { height:100%; transition:width 0.3s; }
+  .vs-note {
+    font-size:0.68rem; color:var(--text-dim); font-style:italic;
+    margin-top:6px;
+  }
+  .single-val {
+    font-size:1.85rem; font-weight:800; color:var(--text);
+    text-align:center; line-height:1; margin:4px 0;
+  }
+  .vs-card.single-stat .vs-note { text-align:center; }
+  .sb-rows { display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+  .sb-row {
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:6px 8px; background:rgba(255,255,255,0.03); border-radius:6px;
+  }
+  .sb-team { color:var(--text-dim); font-size:0.78rem; font-weight:600; }
+  .sb-cells { color:var(--text-dim); font-size:0.85rem; }
+  .sb-cells b { color:var(--text); font-weight:700; }
+  /* Negyed MVP grid */
+  .qmvp-grid {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:10px;
+  }
+  .qmvp-card {
+    background:rgba(255,255,255,0.025); border-radius:10px;
+    padding:12px 14px;
+  }
+  .qmvp-q {
+    font-weight:800; color:var(--text-dim);
+    font-size:0.72rem; letter-spacing:1px; margin-bottom:8px;
+  }
+  .qmvp-row {
+    display:grid; grid-template-columns:auto 1fr auto; gap:8px;
+    font-size:0.8rem; padding:2px 0;
+  }
+  .qmvp-team { color:var(--text-dim); font-size:0.72rem; min-width:60px; }
+  .qmvp-player { color:var(--text); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .qmvp-pts { color:var(--green); font-weight:700; }
+  .qmvp-row:nth-child(3) .qmvp-pts { color:var(--text-dim); }
+  /* Foul timeline */
+  .foul-tl-header {
+    display:grid; grid-template-columns:170px 1fr; gap:10px;
+    font-size:0.7rem; color:var(--text-dim); margin-bottom:6px;
+    text-transform:uppercase; letter-spacing:0.6px;
+  }
+  .foul-tl-quarters {
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    text-align:center;
+  }
+  .foul-row {
+    display:grid; grid-template-columns:170px 1fr; gap:10px;
+    align-items:center; padding:6px 0;
+  }
+  .foul-pname {
+    font-size:0.78rem; font-weight:600; color:var(--text);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .risk-badge {
+    font-size:0.6rem; padding:1px 6px; border-radius:4px;
+    background:rgba(225,112,85,0.18); color:var(--red);
+    font-weight:700; letter-spacing:0.5px; text-transform:uppercase;
+  }
+  .foul-timeline {
+    position:relative; height:22px; background:rgba(255,255,255,0.03);
+    border-radius:5px;
+  }
+  .foul-dot {
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    width:10px; height:10px; border-radius:50%;
+    box-shadow:0 0 0 2px var(--card);
+  }
+  .foul-q-marker {
+    position:absolute; top:0; bottom:0; width:1px;
+    background:rgba(255,255,255,0.07);
+  }
+  .foul-count {
+    position:absolute; right:-26px; top:50%; transform:translateY(-50%);
+    font-size:0.7rem; color:var(--text-dim); font-weight:600;
+  }
+  @media (max-width:600px) {
+    .foul-tl-header, .foul-row { grid-template-columns:100px 1fr; }
+    .foul-pname { font-size:0.7rem; }
+  }
+  .chart-legend {
+    display:flex; justify-content:center; gap:18px;
+    margin:-4px 0 12px;
+  }
+  .legend-item {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:5px 12px; border-radius:8px;
+    background:rgba(255,255,255,0.03);
+    font-size:0.82rem; font-weight:600;
+    color:var(--text);
+    cursor:pointer; user-select:none;
+    transition:opacity 0.18s, background 0.18s;
+  }
+  .legend-item:hover { background:rgba(255,255,255,0.06); }
+  .legend-item.hidden { opacity:0.4; text-decoration:line-through; }
+  .legend-swatch {
+    display:inline-block; width:14px; height:14px;
+    border-radius:3px;
+  }
+  .game-log-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .box-score { width:100%; border-collapse:collapse; font-size:0.85rem; }
+  .box-score th {
+    text-align:left; font-size:0.66rem; text-transform:uppercase;
+    letter-spacing:0.8px; color:var(--text-dim);
+    padding:8px 8px; border-bottom:1px solid var(--border); font-weight:600;
+    white-space:nowrap;
+  }
+  .box-score th:not(:first-child) { text-align:center; }
+  .box-score td {
+    padding:9px 8px; border-bottom:1px solid rgba(255,255,255,0.04);
+    text-align:center; white-space:nowrap;
+  }
+  .box-score td.pname { text-align:left; font-weight:600; }
+  .box-score td.starter-cell { width:20px; padding-right:0; }
+  .box-score .starter-mark {
+    display:inline-block; width:14px; height:14px; line-height:14px;
+    font-weight:800; font-size:0.85rem; color:var(--green);
+  }
+  .box-score td.special-cell { text-align:left; }
+  .box-score .foul-badge {
+    display:inline-block; padding:2px 6px; border-radius:5px;
+    font-size:0.65rem; font-weight:800; letter-spacing:0.5px;
+    margin-right:4px;
+  }
+  .box-score .foul-badge.tech {
+    background:rgba(225,112,85,0.18); color:var(--red);
+  }
+  .box-score .foul-badge.unsport {
+    background:rgba(225,112,85,0.32); color:#fff;
+  }
+  .box-score tr:last-child td { border-bottom:none; }
+  .box-score tr:hover { background:rgba(196,30,58,0.05); }
+  .box-score tr.totals td {
+    font-weight:800; padding-top:12px; padding-bottom:12px;
+    background:rgba(255,255,255,0.03);
+    border-top:2px solid var(--border);
+    border-bottom:none;
+  }
+  .box-score tr.totals:hover { background:rgba(255,255,255,0.03); }
+  .box-score tr.totals td.pname {
+    color:var(--text-dim); text-transform:uppercase;
+    font-size:0.7rem; letter-spacing:1px;
+  }
+  .opp-stats {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;
+    margin-bottom:12px;
+  }
+  .opp-stat {
+    background:rgba(255,255,255,0.02); border-radius:10px;
+    padding:14px 10px; text-align:center;
+  }
+  .opp-stat .lbl { font-size:0.65rem; color:var(--text-dim);
+    text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px; }
+  .opp-stat .val { font-size:1.4rem; font-weight:700; }
+  .opp-top {
+    background:rgba(255,255,255,0.02); border-radius:10px;
+    padding:12px 14px; font-size:0.88rem;
+    border-left:3px solid var(--text-dim);
+  }
+  .opp-top .lbl { color:var(--text-dim); font-weight:500; }
+  .opp-top .val { color:#fff; font-weight:700; margin-left:6px; }
+  .opp-top .pts { color:var(--text-dim); margin-left:8px; }
+  .empty-state {
+    color:var(--text-dim); font-size:0.85rem; font-style:italic;
+    padding:16px 0; text-align:center;
+  }
+  .chart-wrap { position:relative; width:100%; height:200px; margin-top:12px; }
+  @media (max-width:600px) {
+    body { padding:12px; }
+    .scoreline { font-size:2.4rem; }
+    .opp-stats { grid-template-columns:1fr 1fr; }
+  }
+  
+.site-nav {
+  display:flex; align-items:center; justify-content:space-between;
+  margin:0 auto 28px; padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.nav-logo {
+  font-weight:900; font-size:1rem; letter-spacing:1.5px;
+  color:var(--accent); text-decoration:none;
+  transition:opacity .2s;
+}
+.nav-logo:hover { opacity:0.8; }
+.nav-links { display:flex; gap:24px; }
+.nav-links a, .nav-links .nav-link {
+  font-size:0.82rem; font-weight:600; color:var(--text-dim);
+  text-decoration:none; text-transform:uppercase; letter-spacing:0.8px;
+  transition:color .2s;
+}
+.nav-links a:hover { color:var(--text); }
+.nav-links a.active { color:var(--accent); }
+.nav-links .disabled { opacity:0.3; cursor:default; }
+@media(max-width:600px) {
+  .site-nav { flex-direction:column; gap:12px; text-align:center; }
+  .nav-links { gap:16px; flex-wrap:wrap; justify-content:center; }
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+<nav class="site-nav"><a href="../../index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links"><a href="../../dashboards/index.html">Öregek NB2</a><a href="../../dashboards-a/index.html">Fiatalok NB2</a><a href="../../dashboards-noi/index.html">Közgáz Női</a><a href="../../leftoverz/index.html" class="active">Leftoverz</a><a href="../../dashboards-mefob/index.html">MEFOB Női</a><a href="../../dashboards-mefob-ferfi/index.html">MEFOB Férfi</a></div></nav>
+<a href="../csapat.html" class="back-link">&larr; Csapat dashboard</a>
+
+<div class="hero">
+  <div class="hero-content">
+    <div class="teams">
+      <span class="kg">KÖZGÁZ LEFTOVERZ</span>
+      <span class="sep">vs</span>
+      <span class="">MONOR SE</span>
+    </div>
+    <div class="scoreline">
+      <span class="kg-score">73</span>
+      <span class="dash">—</span>
+      <span class="opp-score">81</span>
+    </div>
+    <div class="result-badge">VERESÉG</div>
+    <div class="meta">2025. november 17. 20:00<span> · LÓNYAY UTCAI REFORMÁTUS GIMNÁZIUM ÉS K…</span><span class="diff">-8</span></div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Eredmény alakulása</h3>
+  <div class="chart-legend" id="chartLegend">
+    <span class="legend-item" data-idx="0" title="Kattintással be/ki"><span class="legend-swatch" style="background:#00b894"></span>Közgáz Leftoverz</span>
+    <span class="legend-item" data-idx="1" title="Kattintással be/ki"><span class="legend-swatch" style="background:#8b8da0"></span>Monor Se</span>
+  </div>
+  <div class="chart-wrap" style="height:340px;"><canvas id="progressChart"></canvas></div>
+  <div style="margin-top:14px;"><table class="q-table"><thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead><tbody><tr class="kg-row"><td class="team-cell">Leftoverz</td><td>21</td><td>18</td><td>19</td><td>15</td><td class="total">73</td></tr><tr class="opp-row"><td class="team-cell">Monor Se</td><td>27</td><td>19</td><td>18</td><td>17</td><td class="total">81</td></tr></tbody></table></div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Érdekességek & Fun facts</h3>
+  <div class="vs-grid"><div class="vs-card">
+          <div class="vs-label">Legnagyobb vezetés</div>
+          <div class="vs-values">
+            <div class="vs-side">
+              <div class="vs-team">Közgáz Leftoverz</div>
+              <div class="vs-val" style="color:var(--text-dim)">+2</div>
+            </div>
+            <div class="vs-side vs-winner">
+              <div class="vs-val" style="color:#8b8da0">+12</div>
+              <div class="vs-team">Monor Se</div>
+            </div>
+          </div>
+          <div class="vs-bar">
+            <div class="vs-bar-fill" style="width:14%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:86%;background:#8b8da0;"></div>
+          </div>
+          
+        </div><div class="vs-card">
+          <div class="vs-label">Leghosszabb run</div>
+          <div class="vs-values">
+            <div class="vs-side">
+              <div class="vs-team">Közgáz Leftoverz</div>
+              <div class="vs-val" style="color:var(--text-dim)">9-0</div>
+            </div>
+            <div class="vs-side vs-winner">
+              <div class="vs-val" style="color:#8b8da0">10-0</div>
+              <div class="vs-team">Monor Se</div>
+            </div>
+          </div>
+          <div class="vs-bar">
+            <div class="vs-bar-fill" style="width:47%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:53%;background:#8b8da0;"></div>
+          </div>
+          <div class="vs-note">válasz nélküli pont</div>
+        </div><div class="vs-card">
+          <div class="vs-label">Negyedek megnyerve</div>
+          <div class="vs-values">
+            <div class="vs-side">
+              <div class="vs-team">Közgáz Leftoverz</div>
+              <div class="vs-val" style="color:var(--text-dim)">1</div>
+            </div>
+            <div class="vs-side vs-winner">
+              <div class="vs-val" style="color:#8b8da0">3</div>
+              <div class="vs-team">Monor Se</div>
+            </div>
+          </div>
+          <div class="vs-bar">
+            <div class="vs-bar-fill" style="width:25%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:75%;background:#8b8da0;"></div>
+          </div>
+          
+        </div><div class="vs-card">
+          <div class="vs-label">Faultok csapatonként</div>
+          <div class="vs-values">
+            <div class="vs-side vs-winner">
+              <div class="vs-team">Közgáz Leftoverz</div>
+              <div class="vs-val" style="color:#00b894">11</div>
+            </div>
+            <div class="vs-side">
+              <div class="vs-val" style="color:var(--text-dim)">10</div>
+              <div class="vs-team">Monor Se</div>
+            </div>
+          </div>
+          <div class="vs-bar">
+            <div class="vs-bar-fill" style="width:52%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:48%;background:#8b8da0;"></div>
+          </div>
+          <div class="vs-note">összes személyes</div>
+        </div><div class="vs-card">
+          <div class="vs-label">Időkérések</div>
+          <div class="vs-values">
+            <div class="vs-side vs-winner">
+              <div class="vs-team">Közgáz Leftoverz</div>
+              <div class="vs-val" style="color:#00b894">3</div>
+            </div>
+            <div class="vs-side">
+              <div class="vs-val" style="color:var(--text-dim)">1</div>
+              <div class="vs-team">Monor Se</div>
+            </div>
+          </div>
+          <div class="vs-bar">
+            <div class="vs-bar-fill" style="width:75%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:25%;background:#8b8da0;"></div>
+          </div>
+          
+        </div><div class="vs-card">
+          <div class="vs-label">Záró 5 perc</div>
+          <div class="vs-values">
+            <div class="vs-side">
+              <div class="vs-team">Közgáz Leftoverz</div>
+              <div class="vs-val" style="color:var(--text-dim)">6p</div>
+            </div>
+            <div class="vs-side vs-winner">
+              <div class="vs-val" style="color:#8b8da0">11p</div>
+              <div class="vs-team">Monor Se</div>
+            </div>
+          </div>
+          <div class="vs-bar">
+            <div class="vs-bar-fill" style="width:35%;background:#00b894;"></div>
+            <div class="vs-bar-fill" style="width:65%;background:#8b8da0;"></div>
+          </div>
+          <div class="vs-note">utolsó 5 percben</div>
+        </div><div class="vs-card sb-card">
+          <div class="vs-label">Kezdő / Pad pontok</div>
+          <div class="sb-rows">
+            <div class="sb-row">
+              <span class="sb-team">Közgáz Leftoverz</span>
+              <span class="sb-cells">Kezdő <b>50p</b> · Pad <b>23p</b></span>
+            </div>
+            <div class="sb-row">
+              <span class="sb-team">Monor Se</span>
+              <span class="sb-cells">Kezdő <b>43p</b> · Pad <b>38p</b></span>
+            </div>
+          </div>
+        </div><div class="vs-card single-stat">
+          <div class="vs-label">Vezetés-váltás</div>
+          <div class="single-val">2</div>
+          <div class="vs-note">alkalommal fordult át a meccs</div>
+        </div></div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Negyed MVP-k</h3>
+  <div class="qmvp-grid"><div class="qmvp-card">
+              <div class="qmvp-q">Q1</div>
+              <div class="qmvp-row"><span class="qmvp-team">Közgáz Leftoverz</span><span class="qmvp-player">DR. ESSŐSY MÁTYÁS MIKLÓS</span><span class="qmvp-pts">12p</span></div>
+              <div class="qmvp-row"><span class="qmvp-team">Monor Se</span><span class="qmvp-player">LENDÉR ARMAND ANDRÁS</span><span class="qmvp-pts">8p</span></div>
+            </div><div class="qmvp-card">
+              <div class="qmvp-q">Q2</div>
+              <div class="qmvp-row"><span class="qmvp-team">Közgáz Leftoverz</span><span class="qmvp-player">DR. KANDRÁCS CSABA ISTVÁN</span><span class="qmvp-pts">6p</span></div>
+              <div class="qmvp-row"><span class="qmvp-team">Monor Se</span><span class="qmvp-player">GYURICSKÓ ANDRÁS</span><span class="qmvp-pts">9p</span></div>
+            </div><div class="qmvp-card">
+              <div class="qmvp-q">Q3</div>
+              <div class="qmvp-row"><span class="qmvp-team">Közgáz Leftoverz</span><span class="qmvp-player">DR. KANDRÁCS CSABA ISTVÁN</span><span class="qmvp-pts">7p</span></div>
+              <div class="qmvp-row"><span class="qmvp-team">Monor Se</span><span class="qmvp-player">VIKTOR HUGÓ BALÁZS</span><span class="qmvp-pts">6p</span></div>
+            </div><div class="qmvp-card">
+              <div class="qmvp-q">Q4</div>
+              <div class="qmvp-row"><span class="qmvp-team">Közgáz Leftoverz</span><span class="qmvp-player">HOLLAI PÉTER OLIVÉR</span><span class="qmvp-pts">6p</span></div>
+              <div class="qmvp-row"><span class="qmvp-team">Monor Se</span><span class="qmvp-player">BÓDI ATTILA</span><span class="qmvp-pts">5p</span></div>
+            </div></div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Pontszerzés megoszlása</h3>
+  <div class="dist-row">
+          <div class="dist-label">Leftoverz</div>
+          <div class="dist-bar">
+            <div class="dist-seg seg-2pt" style="flex-basis:63%;" title="2 pontos: 46 pt (63%)">2PT 63%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:29%;" title="3 pontos: 21 pt (29%)">3PT 29%</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:8%;" title="Büntető: 6 pt (8%)"></div>
+          </div>
+        </div><div class="dist-row">
+          <div class="dist-label">Monor Se</div>
+          <div class="dist-bar">
+            <div class="dist-seg seg-2pt" style="flex-basis:32%;" title="2 pontos: 26 pt (32%)">2PT 32%</div>
+            <div class="dist-seg seg-3pt" style="flex-basis:56%;" title="3 pontos: 45 pt (56%)">3PT 56%</div>
+            <div class="dist-seg seg-ft"  style="flex-basis:12%;" title="Büntető: 10 pt (12%)">FT 12%</div>
+          </div>
+        </div>
+  <div class="dist-legend">
+    <span class="legend-item"><span class="legend-swatch seg-2pt"></span>2 pontos</span>
+    <span class="legend-item"><span class="legend-swatch seg-3pt"></span>3 pontos</span>
+    <span class="legend-item"><span class="legend-swatch seg-ft"></span>Büntető</span>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Vezetési idő <span class="title-note">(becslés)</span></h3>
+  <div class="dist-bar" style="margin-top:8px;">
+          <div class="dist-seg" style="background:#00b894;flex-basis:5%;" title="Közgáz Leftoverz: 2 perc (5%)"></div>
+          <div class="dist-seg" style="background:#8b8da0;flex-basis:92%;" title="Monor Se: 37 perc (92%)">Monor Se 92%</div>
+          <div class="dist-seg" style="background:#3a3c46;flex-basis:2%;" title="Döntetlen: 1 perc (2%)"></div>
+        </div>
+        <div class="lead-note">A jegyzőkönyv perc-adatainak hiányos kitöltése miatt ez egy becslés (~5-15% pontatlanság).</div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <h3>Hibák alakulása <span class="title-note">(Leftoverz játékosok)</span></h3>
+  <div class="foul-tl-header">
+          <span></span>
+          <div class="foul-tl-quarters"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>
+        </div>
+        <div class="foul-row">
+          <div class="foul-pname">FÖLDES DÁNIEL GÁBOR</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:20.0%;background:var(--text-dim);" title="Q1 8p"></div><div class="foul-dot" style="left:97.5%;background:var(--text-dim);" title="Q4 9p"></div>
+            <div class="foul-count">2×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">HOLLAI PÉTER OLIVÉR</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:45.0%;background:var(--text-dim);" title="Q2 8p"></div><div class="foul-dot" style="left:55.00000000000001%;background:var(--text-dim);" title="Q3 2p"></div>
+            <div class="foul-count">2×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">DR. ESSŐSY MÁTYÁS MIKLÓS</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:60.0%;background:var(--text-dim);" title="Q3 4p"></div><div class="foul-dot" style="left:95.0%;background:var(--text-dim);" title="Q4 8p"></div>
+            <div class="foul-count">2×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">DR. KANDRÁCS CSABA ISTVÁN</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:52.5%;background:var(--text-dim);" title="Q3 1p"></div><div class="foul-dot" style="left:75.0%;background:var(--text-dim);" title="Q4 0p"></div>
+            <div class="foul-count">2×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">FODOR ANDRÁS</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:82.5%;background:var(--text-dim);" title="Q4 3p"></div><div class="foul-dot" style="left:87.5%;background:var(--text-dim);" title="Q4 5p"></div>
+            <div class="foul-count">2×</div>
+          </div>
+        </div><div class="foul-row">
+          <div class="foul-pname">VIRÁG BARNABÁS</div>
+          <div class="foul-timeline">
+            <div class="foul-q-marker" style="left:25%;"></div>
+            <div class="foul-q-marker" style="left:50%;"></div>
+            <div class="foul-q-marker" style="left:75%;"></div>
+            <div class="foul-dot" style="left:90.0%;background:var(--text-dim);" title="Q4 6p"></div>
+            <div class="foul-count">1×</div>
+          </div>
+        </div>
+</div>
+
+<div class="card">
+  <h3>Leftoverz játékosok</h3>
+  <div class="game-log-wrap">
+        <table class="box-score">
+          <thead><tr><th></th><th>Játékos</th><th>Pont</th><th>2FG</th><th>3FG</th><th>FT</th><th>PF</th><th></th></tr></thead>
+          <tbody><tr>
+                <td class="starter-cell"></td>
+                <td class="pname">DR. KANDRÁCS CSABA ISTVÁN</td>
+                <td style="color:var(--green);font-weight:800;">19</td>
+                <td>9</td>
+                <td>0</td>
+                <td>1/2</td>
+                <td>2</td>
+                <td class="special-cell"></td>
+            </tr><tr>
+                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
+                <td class="pname">DR. ESSŐSY MÁTYÁS MIKLÓS</td>
+                <td>18</td>
+                <td>0</td>
+                <td>6</td>
+                <td>–</td>
+                <td>2</td>
+                <td class="special-cell"></td>
+            </tr><tr>
+                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
+                <td class="pname">HOLLAI PÉTER OLIVÉR</td>
+                <td>12</td>
+                <td>6</td>
+                <td>0</td>
+                <td>–</td>
+                <td>2</td>
+                <td class="special-cell"></td>
+            </tr><tr>
+                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
+                <td class="pname">VIRÁG BARNABÁS</td>
+                <td>11</td>
+                <td>4</td>
+                <td>0</td>
+                <td>3/4</td>
+                <td>1</td>
+                <td class="special-cell"></td>
+            </tr><tr>
+                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
+                <td class="pname">FÖLDES DÁNIEL GÁBOR</td>
+                <td>7</td>
+                <td>1</td>
+                <td>1</td>
+                <td>2/4</td>
+                <td>2</td>
+                <td class="special-cell"></td>
+            </tr><tr>
+                <td class="starter-cell"></td>
+                <td class="pname">ALFARAG OSAMA FARAJ</td>
+                <td>2</td>
+                <td>1</td>
+                <td>0</td>
+                <td>–</td>
+                <td>0</td>
+                <td class="special-cell"></td>
+            </tr><tr>
+                <td class="starter-cell"><span class="starter-mark" title="Kezdőötös">×</span></td>
+                <td class="pname">FODOR ANDRÁS</td>
+                <td>2</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0/2</td>
+                <td>2</td>
+                <td class="special-cell"></td>
+            </tr><tr>
+                <td class="starter-cell"></td>
+                <td class="pname">VARGA MÁTÉ</td>
+                <td>2</td>
+                <td>1</td>
+                <td>0</td>
+                <td>–</td>
+                <td>0</td>
+                <td class="special-cell"></td>
+            </tr><tr class="totals">
+            <td class="starter-cell"></td>
+            <td class="pname">Összesen</td>
+            <td>73</td>
+            <td>23</td>
+            <td>7</td>
+            <td>6/12 (50%)</td>
+            <td>11</td>
+            <td class="special-cell"></td>
+        </tr></tbody>
+        </table>
+        </div>
+</div>
+
+</div>
+<script>
+Chart.defaults.color='#8b8da0';
+Chart.defaults.borderColor='rgba(255,255,255,0.06)';
+Chart.defaults.font.family="'Inter',sans-serif";
+
+const kgProg = [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0}, {"x": 3, "y": 3}, {"x": 4, "y": 3}, {"x": 5, "y": 5}, {"x": 6, "y": 5}, {"x": 7, "y": 5}, {"x": 8, "y": 8}, {"x": 9, "y": 8}, {"x": 10, "y": 8}, {"x": 11, "y": 11}, {"x": 12, "y": 14}, {"x": 13, "y": 14}, {"x": 14, "y": 16}, {"x": 15, "y": 16}, {"x": 16, "y": 16}, {"x": 17, "y": 19}, {"x": 18, "y": 19}, {"x": 19, "y": 21}, {"x": 20, "y": 21}, {"x": 21, "y": 23}, {"x": 22, "y": 23}, {"x": 23, "y": 23}, {"x": 24, "y": 25}, {"x": 25, "y": 27}, {"x": 26, "y": 29}, {"x": 27, "y": 29}, {"x": 29, "y": 30}, {"x": 30, "y": 32}, {"x": 31, "y": 32}, {"x": 32, "y": 32}, {"x": 33, "y": 33}, {"x": 34, "y": 34}, {"x": 35, "y": 34}, {"x": 36, "y": 34}, {"x": 37, "y": 37}, {"x": 38, "y": 39}, {"x": 39, "y": 39}, {"x": 40, "y": 41}, {"x": 41, "y": 43}, {"x": 43, "y": 44}, {"x": 44, "y": 44}, {"x": 45, "y": 46}, {"x": 46, "y": 47}, {"x": 47, "y": 47}, {"x": 48, "y": 50}, {"x": 49, "y": 52}, {"x": 50, "y": 54}, {"x": 54, "y": 56}, {"x": 55, "y": 56}, {"x": 56, "y": 56}, {"x": 57, "y": 56}, {"x": 58, "y": 56}, {"x": 59, "y": 56}, {"x": 60, "y": 58}, {"x": 61, "y": 60}, {"x": 62, "y": 60}, {"x": 63, "y": 62}, {"x": 64, "y": 64}, {"x": 66, "y": 65}, {"x": 67, "y": 65}, {"x": 69, "y": 65}, {"x": 70, "y": 67}, {"x": 71, "y": 69}, {"x": 72, "y": 69}, {"x": 73, "y": 69}, {"x": 74, "y": 69}, {"x": 75, "y": 71}, {"x": 76, "y": 71}, {"x": 77, "y": 71}, {"x": 78, "y": 73}, {"x": 79, "y": 73}, {"x": 80, "y": 73}, {"x": 81, "y": 73}];
+const oppProg = [{"x": 0, "y": 0}, {"x": 1, "y": 2}, {"x": 2, "y": 4}, {"x": 3, "y": 4}, {"x": 4, "y": 7}, {"x": 5, "y": 7}, {"x": 6, "y": 10}, {"x": 7, "y": 13}, {"x": 8, "y": 13}, {"x": 9, "y": 15}, {"x": 10, "y": 18}, {"x": 11, "y": 18}, {"x": 12, "y": 18}, {"x": 13, "y": 20}, {"x": 14, "y": 20}, {"x": 15, "y": 22}, {"x": 16, "y": 25}, {"x": 17, "y": 25}, {"x": 18, "y": 27}, {"x": 19, "y": 27}, {"x": 20, "y": 30}, {"x": 21, "y": 30}, {"x": 22, "y": 32}, {"x": 23, "y": 35}, {"x": 24, "y": 35}, {"x": 25, "y": 35}, {"x": 26, "y": 35}, {"x": 27, "y": 38}, {"x": 29, "y": 38}, {"x": 30, "y": 38}, {"x": 31, "y": 41}, {"x": 32, "y": 44}, {"x": 33, "y": 44}, {"x": 34, "y": 44}, {"x": 35, "y": 45}, {"x": 36, "y": 46}, {"x": 37, "y": 46}, {"x": 38, "y": 46}, {"x": 39, "y": 49}, {"x": 40, "y": 49}, {"x": 41, "y": 49}, {"x": 43, "y": 49}, {"x": 44, "y": 51}, {"x": 45, "y": 51}, {"x": 46, "y": 51}, {"x": 47, "y": 54}, {"x": 48, "y": 54}, {"x": 49, "y": 54}, {"x": 50, "y": 54}, {"x": 54, "y": 54}, {"x": 55, "y": 56}, {"x": 56, "y": 59}, {"x": 57, "y": 61}, {"x": 58, "y": 62}, {"x": 59, "y": 64}, {"x": 60, "y": 64}, {"x": 61, "y": 64}, {"x": 62, "y": 66}, {"x": 63, "y": 66}, {"x": 64, "y": 66}, {"x": 66, "y": 66}, {"x": 67, "y": 67}, {"x": 69, "y": 70}, {"x": 70, "y": 70}, {"x": 71, "y": 70}, {"x": 72, "y": 72}, {"x": 73, "y": 73}, {"x": 74, "y": 76}, {"x": 75, "y": 76}, {"x": 76, "y": 77}, {"x": 77, "y": 78}, {"x": 78, "y": 78}, {"x": 79, "y": 79}, {"x": 80, "y": 80}, {"x": 81, "y": 81}];
+const qTicks = [{"x": 10.5, "label": "Q1"}, {"x": 29.5, "label": "Q2"}, {"x": 50.0, "label": "Q3"}, {"x": 71.0, "label": "Q4"}];
+const qMarkers = [{"x": 19, "q": 1, "home": 21, "away": 27, "label": "Q1 v\u00e9ge \u00b7 21\u201327"}, {"x": 38, "q": 2, "home": 39, "away": 46, "label": "Q2 v\u00e9ge \u00b7 39\u201346"}, {"x": 60, "q": 3, "home": 58, "away": 64, "label": "Q3 v\u00e9ge \u00b7 58\u201364"}, {"x": 81, "q": 4, "home": 73, "away": 81, "label": "Q4 v\u00e9ge \u00b7 73\u201381"}];
+const eventInfo = {"1": {"team": "Monor Se", "player": "B\u00d3DI ATTILA", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "2": {"team": "Monor Se", "player": "H\u00c1RY SZABOLCS", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "3": {"team": "Leftoverz", "player": "DR. ESS\u0150SY M\u00c1TY\u00c1S MIKL\u00d3S", "pts": 3, "shot": "tripla", "q": 1}, "4": {"team": "Monor Se", "player": "LEND\u00c9R ARMAND ANDR\u00c1S", "pts": 3, "shot": "tripla", "q": 1}, "5": {"team": "Leftoverz", "player": "VIR\u00c1G BARNAB\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "6": {"team": "Monor Se", "player": "VIKTOR HUG\u00d3 BAL\u00c1ZS", "pts": 3, "shot": "tripla", "q": 1}, "7": {"team": "Monor Se", "player": "H\u00c1RY SZABOLCS", "pts": 3, "shot": "tripla", "q": 1}, "8": {"team": "Leftoverz", "player": "DR. ESS\u0150SY M\u00c1TY\u00c1S MIKL\u00d3S", "pts": 3, "shot": "tripla", "q": 1}, "9": {"team": "Monor Se", "player": "OH\u00c1T VIKTOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "10": {"team": "Monor Se", "player": "LEND\u00c9R ARMAND ANDR\u00c1S", "pts": 3, "shot": "tripla", "q": 1}, "11": {"team": "Leftoverz", "player": "F\u00d6LDES D\u00c1NIEL G\u00c1BOR", "pts": 3, "shot": "tripla", "q": 1}, "12": {"team": "Leftoverz", "player": "DR. ESS\u0150SY M\u00c1TY\u00c1S MIKL\u00d3S", "pts": 3, "shot": "tripla", "q": 1}, "13": {"team": "Monor Se", "player": "LEND\u00c9R ARMAND ANDR\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "14": {"team": "Leftoverz", "player": "HOLLAI P\u00c9TER OLIV\u00c9R", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "15": {"team": "Monor Se", "player": "B\u00daZ\u00c1S BENCE", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "16": {"team": "Monor Se", "player": "KOTHAJ M\u00c1T\u00c9", "pts": 3, "shot": "tripla", "q": 1}, "17": {"team": "Leftoverz", "player": "DR. ESS\u0150SY M\u00c1TY\u00c1S MIKL\u00d3S", "pts": 3, "shot": "tripla", "q": 1}, "18": {"team": "Monor Se", "player": "KOTHAJ M\u00c1T\u00c9", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "19": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 1}, "20": {"team": "Monor Se", "player": "BODOR D\u00c1NIEL", "pts": 3, "shot": "tripla", "q": 2}, "21": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "22": {"team": "Monor Se", "player": "BODOR D\u00c1NIEL", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "23": {"team": "Monor Se", "player": "BODOR D\u00c1NIEL", "pts": 3, "shot": "tripla", "q": 2}, "24": {"team": "Leftoverz", "player": "VIR\u00c1G BARNAB\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "25": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "26": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "27": {"team": "Monor Se", "player": "GYURICSK\u00d3 ANDR\u00c1S", "pts": 3, "shot": "tripla", "q": 2}, "29": {"team": "Leftoverz", "player": "F\u00d6LDES D\u00c1NIEL G\u00c1BOR", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 2}, "30": {"team": "Leftoverz", "player": "F\u00d6LDES D\u00c1NIEL G\u00c1BOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "31": {"team": "Monor Se", "player": "GYURICSK\u00d3 ANDR\u00c1S", "pts": 3, "shot": "tripla", "q": 2}, "32": {"team": "Monor Se", "player": "GYURICSK\u00d3 ANDR\u00c1S", "pts": 3, "shot": "tripla", "q": 2}, "33": {"team": "Leftoverz", "player": "VIR\u00c1G BARNAB\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 2}, "34": {"team": "Leftoverz", "player": "VIR\u00c1G BARNAB\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 2}, "35": {"team": "Monor Se", "player": "LEND\u00c9R ARMAND ANDR\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 2}, "36": {"team": "Monor Se", "player": "LEND\u00c9R ARMAND ANDR\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 2}, "37": {"team": "Leftoverz", "player": "DR. ESS\u0150SY M\u00c1TY\u00c1S MIKL\u00d3S", "pts": 3, "shot": "tripla", "q": 2}, "38": {"team": "Leftoverz", "player": "HOLLAI P\u00c9TER OLIV\u00c9R", "pts": 2, "shot": "k\u00e9tpontos", "q": 2}, "39": {"team": "Monor Se", "player": "VIKTOR HUG\u00d3 BAL\u00c1ZS", "pts": 3, "shot": "tripla", "q": 3}, "40": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "41": {"team": "Leftoverz", "player": "VARGA M\u00c1T\u00c9", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "43": {"team": "Leftoverz", "player": "F\u00d6LDES D\u00c1NIEL G\u00c1BOR", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 3}, "44": {"team": "Monor Se", "player": "OH\u00c1T VIKTOR", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "45": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "46": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 3}, "47": {"team": "Monor Se", "player": "B\u00d3DI ATTILA", "pts": 3, "shot": "tripla", "q": 3}, "48": {"team": "Leftoverz", "player": "DR. ESS\u0150SY M\u00c1TY\u00c1S MIKL\u00d3S", "pts": 3, "shot": "tripla", "q": 3}, "49": {"team": "Leftoverz", "player": "HOLLAI P\u00c9TER OLIV\u00c9R", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "50": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "54": {"team": "Leftoverz", "player": "FODOR ANDR\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "55": {"team": "Monor Se", "player": "B\u00daZ\u00c1S BENCE", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "56": {"team": "Monor Se", "player": "KOTHAJ M\u00c1T\u00c9", "pts": 3, "shot": "tripla", "q": 3}, "57": {"team": "Monor Se", "player": "VIKTOR HUG\u00d3 BAL\u00c1ZS", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "58": {"team": "Monor Se", "player": "VIKTOR HUG\u00d3 BAL\u00c1ZS", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 3}, "59": {"team": "Monor Se", "player": "B\u00daZ\u00c1S BENCE", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "60": {"team": "Leftoverz", "player": "ALFARAG OSAMA FARAJ", "pts": 2, "shot": "k\u00e9tpontos", "q": 3}, "61": {"team": "Leftoverz", "player": "HOLLAI P\u00c9TER OLIV\u00c9R", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "62": {"team": "Monor Se", "player": "B\u00d3DI ATTILA", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "63": {"team": "Leftoverz", "player": "VIR\u00c1G BARNAB\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "64": {"team": "Leftoverz", "player": "HOLLAI P\u00c9TER OLIV\u00c9R", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "66": {"team": "Leftoverz", "player": "VIR\u00c1G BARNAB\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "67": {"team": "Monor Se", "player": "B\u00daZ\u00c1S BENCE", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "69": {"team": "Monor Se", "player": "KOTHAJ M\u00c1T\u00c9", "pts": 3, "shot": "tripla", "q": 4}, "70": {"team": "Leftoverz", "player": "HOLLAI P\u00c9TER OLIV\u00c9R", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "71": {"team": "Leftoverz", "player": "VIR\u00c1G BARNAB\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "72": {"team": "Monor Se", "player": "GYURICSK\u00d3 ANDR\u00c1S", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "73": {"team": "Monor Se", "player": "GYURICSK\u00d3 ANDR\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "74": {"team": "Monor Se", "player": "B\u00d3DI ATTILA", "pts": 3, "shot": "tripla", "q": 4}, "75": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "76": {"team": "Monor Se", "player": "VIKTOR HUG\u00d3 BAL\u00c1ZS", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "77": {"team": "Monor Se", "player": "VIKTOR HUG\u00d3 BAL\u00c1ZS", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "78": {"team": "Leftoverz", "player": "DR. KANDR\u00c1CS CSABA ISTV\u00c1N", "pts": 2, "shot": "k\u00e9tpontos", "q": 4}, "79": {"team": "Monor Se", "player": "VIKTOR HUG\u00d3 BAL\u00c1ZS", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "80": {"team": "Monor Se", "player": "VIKTOR HUG\u00d3 BAL\u00c1ZS", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}, "81": {"team": "Monor Se", "player": "LEND\u00c9R ARMAND ANDR\u00c1S", "pts": 1, "shot": "b\u00fcntet\u0151", "q": 4}};
+const qTickValues = qTicks.map(t => t.x);
+const qTickLabels = {};
+qTicks.forEach(t => { qTickLabels[t.x] = t.label; });
+
+// Custom plugin: negyed-vég jelölők (függőleges szaggatott vonal + eredmény badge)
+const quarterMarkerPlugin = {
+  id: 'quarterMarker',
+  afterDatasetsDraw(chart) {
+    const {ctx, chartArea: {top, bottom}, scales: {x, y}} = chart;
+    if (!qMarkers || !qMarkers.length) return;
+    ctx.save();
+    qMarkers.forEach((m, idx) => {
+      // Skip the last quarter end (it's just the final score, shown in hero)
+      if (idx === qMarkers.length - 1) return;
+      const px = x.getPixelForValue(m.x);
+      // Függőleges szaggatott vonal
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(px, top);
+      ctx.lineTo(px, bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Badge tetején: "Q1 vége · 15–15" (hazai–vendég)
+      const text = 'Q'+m.q+' vége · '+m.home+'–'+m.away;
+      ctx.font = '600 10px Inter, sans-serif';
+      const padX = 6, padY = 3;
+      const tw = ctx.measureText(text).width;
+      const bx = px - tw/2 - padX;
+      const by = top + 4;
+      // Háttér (semleges sötétszürke)
+      ctx.fillStyle = 'rgba(45,47,56,0.95)';
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(bx, by, tw + padX*2, 18, 6) : ctx.rect(bx, by, tw + padX*2, 18);
+      ctx.fill();
+      // Szöveg
+      ctx.fillStyle = '#e8e8f0';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, px - tw/2, by + 9);
+    });
+    ctx.restore();
+  }
+};
+
+const kgDs = {label:"Leftoverz", data:[], borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false};
+const oppDs = {label:"Monor Se", data:[], borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false};
+const datasetsOrdered = [kgDs, oppDs];
+
+// Animáció: negyed-határok seq értékei (pause pontok)
+const qBoundarySeqs = qMarkers.filter((_,i) => i < qMarkers.length - 1).map(m => m.x);
+let animVisibleMarkers = 0;
+
+const quarterMarkerAnimPlugin = {
+  id: 'quarterMarkerAnim',
+  afterDatasetsDraw(chart) {
+    const {ctx, chartArea: {top, bottom}, scales: {x, y}} = chart;
+    if (!qMarkers || !qMarkers.length) return;
+    ctx.save();
+    const visibleCount = Math.min(animVisibleMarkers, qMarkers.length - 1);
+    for (let idx = 0; idx < visibleCount; idx++) {
+      const m = qMarkers[idx];
+      const px = x.getPixelForValue(m.x);
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(px, top);
+      ctx.lineTo(px, bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      const text = 'Q'+m.q+' vége · '+m.home+'–'+m.away;
+      ctx.font = '600 10px Inter, sans-serif';
+      const padX = 6;
+      const tw = ctx.measureText(text).width;
+      const bx = px - tw/2 - padX;
+      const by = top + 4;
+      ctx.fillStyle = 'rgba(45,47,56,0.95)';
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(bx, by, tw + padX*2, 18, 6) : ctx.rect(bx, by, tw + padX*2, 18);
+      ctx.fill();
+      ctx.fillStyle = '#e8e8f0';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, px - tw/2, by + 9);
+    }
+    ctx.restore();
+  }
+};
+
+const progressChart = new Chart(document.getElementById('progressChart').getContext('2d'), {
+  type:'line',
+  data:{ datasets: datasetsOrdered },
+  plugins: [quarterMarkerAnimPlugin],
+  options:{
+    animation: false,
+    responsive:true, maintainAspectRatio:false,
+    layout: {padding: {top: 22}},
+    interaction:{mode:'index', intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        callbacks:{
+          title: ctx => {
+            const seq = ctx[0].parsed.x;
+            const ev = eventInfo[seq];
+            if (ev) return 'Q'+ev.q+' · '+ev.team+' · '+ev.player+' ('+ev.pts+'p '+ev.shot+')';
+            return 'Esemény #'+seq;
+          }
+        }
+      }
+    },
+    scales:{
+      y:{beginAtZero:true, suggestedMax:81, grid:{color:'rgba(255,255,255,0.04)'}},
+      x:{
+        type:'linear', beginAtZero:true, max:81,
+        grid:{color:'rgba(255,255,255,0.04)'},
+        ticks:{
+          autoSkip:false,
+          callback: function(val) { return qTickLabels[val] || ''; },
+          font:{size:11, weight:'600'}
+        },
+        afterBuildTicks: scale => { scale.ticks = qTickValues.map(v => ({value:v})); }
+      }
+    }
+  }
+});
+
+// Progresszív animáció: adatpontok megjelenítése negyed-szünetekkel
+(function animateChart() {
+  const SPEED = 35;
+  const Q_PAUSE = 1500;
+  const kgHome = true;
+  const ds0 = kgHome ? kgProg : oppProg;
+  const ds1 = kgHome ? oppProg : kgProg;
+  let i = 0;
+  let qIdx = 0;
+
+  function addNext() {
+    if (i >= ds0.length) return;
+    datasetsOrdered[0].data.push(ds0[i]);
+    if (i < ds1.length) datasetsOrdered[1].data.push(ds1[i]);
+    progressChart.update('none');
+    i++;
+    const curSeq = ds0[i-1] ? ds0[i-1].x : 0;
+    if (qIdx < qBoundarySeqs.length && curSeq >= qBoundarySeqs[qIdx]) {
+      animVisibleMarkers = qIdx + 1;
+      progressChart.update('none');
+      qIdx++;
+      setTimeout(addNext, Q_PAUSE);
+    } else {
+      setTimeout(addNext, SPEED);
+    }
+  }
+  // IntersectionObserver: animáció indul amint a chart bármennyire is látható
+  const el = document.getElementById('progressChart');
+  let started = false;
+  function startOnce() { if (!started) { started = true; addNext(); } }
+  if (el && 'IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) { obs.disconnect(); startOnce(); }
+    }, {threshold: 0});
+    obs.observe(el.closest('.card') || el);
+  }
+  setTimeout(startOnce, 2000);
+})();
+
+// Custom legend kattintás: csapat toggle (Chart.js default legend kikapcsolva)
+document.querySelectorAll('#chartLegend .legend-item').forEach(el => {
+  el.addEventListener('click', () => {
+    const idx = parseInt(el.dataset.idx, 10);
+    const meta = progressChart.getDatasetMeta(idx);
+    meta.hidden = meta.hidden === null ? !progressChart.data.datasets[idx].hidden : !meta.hidden;
+    el.classList.toggle('hidden', meta.hidden);
+    progressChart.update();
+  });
+});
+
+</script>
+</body>
+</html>
