@@ -2669,6 +2669,7 @@ def generate_match_page(details, cfg, team_key):
     kg_name = details["kg_team_name"]
     opp_name = details["opp_team_name"]
     kg_is_home = details["kg_is_home"]
+    kg_short = cfg["team_short"]
 
     # Magyar dátum
     md = details["match_date"]
@@ -2691,12 +2692,12 @@ def generate_match_page(details, cfg, team_key):
             q_html += f'<th>Q{q}</th>'
         q_html += '<th>Σ</th></tr></thead><tbody>'
         # Hazai sor
-        q_html += f'<tr class="{"kg-row" if kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_a_name"]) if not kg_is_home else "Közgáz A"}</td>'
+        q_html += f'<tr class="{"kg-row" if kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_a_name"]) if not kg_is_home else kg_short}</td>'
         for _, sa, _ in q_rows:
             q_html += f'<td>{sa}</td>'
         q_html += f'<td class="total">{details["score_a"] or 0}</td></tr>'
         # Vendég sor
-        q_html += f'<tr class="{"kg-row" if not kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_b_name"]) if kg_is_home else "Közgáz A"}</td>'
+        q_html += f'<tr class="{"kg-row" if not kg_is_home else "opp-row"}"><td class="team-cell">{shorten_opponent(details["team_b_name"]) if kg_is_home else kg_short}</td>'
         for _, _, sb in q_rows:
             q_html += f'<td>{sb}</td>'
         q_html += f'<td class="total">{details["score_b"] or 0}</td></tr>'
@@ -2811,7 +2812,7 @@ def generate_match_page(details, cfg, team_key):
         # Eseményleírás
         scorer = ev["player"] or "?"
         # Csapat-fókuszú prefix
-        team_lbl = "Közgáz A" if ev["team"] == kg_side else shorten_opponent(details["opp_team_name"])
+        team_lbl = kg_short if ev["team"] == kg_side else shorten_opponent(details["opp_team_name"])
         # Lövéstípus
         pts = ev["points"]
         shot = ev["shot"]
@@ -2882,9 +2883,9 @@ def generate_match_page(details, cfg, team_key):
         </div>'''
 
     if details["kg_is_home"]:
-        dist_html = _dist_row("Közgáz A", kg_dist) + _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist)
+        dist_html = _dist_row(kg_short, kg_dist) + _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist)
     else:
-        dist_html = _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist) + _dist_row("Közgáz A", kg_dist)
+        dist_html = _dist_row(shorten_opponent(details["opp_team_name"]), opp_dist) + _dist_row(kg_short, kg_dist)
 
     # Vezetési idő (lead time) — becslés a scoring_events minute mezője alapján
     def _calc_lead_times(progression):
@@ -3728,7 +3729,7 @@ const quarterMarkerPlugin = {{
   }}
 }};
 
-const kgDs = {{label:'Közgáz A', data:kgProg, borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}};
+const kgDs = {{label:{json.dumps(kg_short)}, data:kgProg, borderColor:'#00b894', backgroundColor:'rgba(0,184,148,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}};
 const oppDs = {{label:{json.dumps(shorten_opponent(details["opp_team_name"]))}, data:oppProg, borderColor:'#8b8da0', backgroundColor:'rgba(139,141,160,0.05)', borderWidth:2.5, pointRadius:0, pointHoverRadius:4, stepped:'after', fill:false}};
 // Sorrend: hazai elöl, vendég hátul (egyezzen a quarter táblázat és hero sorrenddel)
 const datasetsOrdered = {'[kgDs, oppDs]' if details["kg_is_home"] else '[oppDs, kgDs]'};
