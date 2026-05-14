@@ -113,7 +113,7 @@
     <div class="header-stats">
       <div class="header-stat"><div class="val" style="color:var(--text-dim)">9.0</div><div class="label">PPG</div></div>
       <div class="header-stat"><div class="val" style="color:var(--text-dim)">2</div><div class="label">Meccs</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">2</div><div class="label">3FG</div></div>
+      <div class="header-stat"><div class="val" style="color:var(--text-dim)">3</div><div class="label">3FG</div></div>
       <div class="header-stat"><div class="val" style="color:var(--green)">9</div><div class="label">Csúcs</div></div>
       
     </div>
@@ -134,17 +134,17 @@
       <div style="margin-top:20px;">
         <div class="shot-row">
           <div class="shot-label" style="color:#c0c2ce">3FG</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:60%;background:#c0c2ce;color:#1a1b20;">2 db</div></div>
-          <div class="shot-pct" style="color:#c0c2ce">6 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:100%;background:#c0c2ce;color:#1a1b20;">3 db</div></div>
+          <div class="shot-pct" style="color:#c0c2ce">9 pt</div>
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:#8b8da0">2FG</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:100%;background:#8b8da0;">5 db</div></div>
-          <div class="shot-pct" style="color:#8b8da0">10 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:89%;background:#8b8da0;">4 db</div></div>
+          <div class="shot-pct" style="color:#8b8da0">8 pt</div>
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:#5a5c6a">FT</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:20%;background:#5a5c6a;">2/2</div></div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:22%;background:#5a5c6a;">2/2</div></div>
           <div class="shot-pct" style="color:#5a5c6a">2 pt</div>
         </div>
       </div>
@@ -193,7 +193,7 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": null}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": null}, {"date": "11.10", "opp": "Szoese", "res": "W", "pts": null}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": null}, {"date": "12.08", "opp": "Bme-Mafc", "res": "W", "pts": null}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": null}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": null}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 0, "share": 9.7, "start": false}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": null}, {"date": "03.30", "opp": "Bme-Mafc", "res": "W", "pts": 9, "fg2": 2, "fg3": 1, "ft": "2/2", "pf": 1, "share": 11.8, "start": false}];
+const games = [{"date": "10.13", "opp": "Elte Beac", "res": "L", "pts": null}, {"date": "10.27", "opp": "Uni Győr Szese", "res": "L", "pts": null}, {"date": "11.10", "opp": "Szoese", "res": "W", "pts": null}, {"date": "11.24", "opp": "Pte-Peac", "res": "W", "pts": null}, {"date": "12.08", "opp": "Bme-Mafc", "res": "W", "pts": null}, {"date": "02.02", "opp": "Elte Beac", "res": "L", "pts": null}, {"date": "02.16", "opp": "Uni Győr Szese", "res": "W", "pts": null}, {"date": "03.02", "opp": "Szoese", "res": "W", "pts": 9, "fg2": 2, "fg3": 2, "ft": "0/0", "pf": 0, "share": 9.7, "start": false}, {"date": "03.16", "opp": "Pte-Peac", "res": "W", "pts": null}, {"date": "03.30", "opp": "Bme-Mafc", "res": "W", "pts": 9, "fg2": 2, "fg3": 1, "ft": "2/2", "pf": 1, "share": 11.8, "start": false}];
 const maxPts = 9;
 
 const tbody = document.getElementById('gameLogBody');
@@ -241,8 +241,8 @@ new Chart(document.getElementById('scoringTrend').getContext('2d'), {
 new Chart(document.getElementById('shotPie').getContext('2d'), {
   type:'doughnut',
   data: {
-    labels:['3FG (6 pt)','2FG (10 pt)','FT (2 pt)'],
-    datasets:[{ data:[6,10,2], backgroundColor:['#c0c2ce','#8b8da0','#5a5c6a'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
+    labels:['3FG (9 pt)','2FG (8 pt)','FT (2 pt)'],
+    datasets:[{ data:[9,8,2], backgroundColor:['#c0c2ce','#8b8da0','#5a5c6a'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
   },
   options: { responsive:true, maintainAspectRatio:false, cutout:'60%',
     plugins:{ legend:{ position:'right', labels:{ padding:12, usePointStyle:true, font:{size:11} } } }
