@@ -1871,6 +1871,12 @@ def get_match_details(conn, cfg, tp, gamecode):
         ORDER BY quarter, CAST(minute AS INTEGER)
     """, (gamecode,)).fetchall()
 
+    # Jersey nélküli faultok — a parser ezeket nem tudta játékoshoz rendelni
+    orphan_fouls_kg = conn.execute("""
+        SELECT COUNT(*) FROM personal_fouls
+        WHERE gamecode = ? AND team = ? AND jersey_number IS NULL
+    """, (gamecode, kg_side)).fetchone()[0]
+
     # Ellenfél összesítő
     opp_total = {
         "points": opp_score or 0,
@@ -1909,6 +1915,7 @@ def get_match_details(conn, cfg, tp, gamecode):
         "timeouts": [{"team": t, "quarter": q, "minute": m} for t, q, m in timeouts],
         "team_fouls": [{"team": t, "quarter": q, "count": c} for t, q, c in team_fouls_by_quarter],
         "foul_events": [{"team": t, "jersey": j, "quarter": q, "minute": m} for t, j, q, m in foul_events],
+        "orphan_fouls_kg": orphan_fouls_kg,
     }
 
 
@@ -2866,10 +2873,19 @@ def generate_match_page(details, cfg, team_key):
         _kg_diff = _kg_official - _kg_box_total
         _warn_html = ''
         if _kg_box_total > 0 and _kg_diff != 0:
-            _warn_html = (
+            _warn_html += (
                 f'<div class="box-warn">'
                 f'⚠ A jegyzőkönyv-adatok hiányosak: a box score-ban {_kg_box_total} pont van rendelve '
                 f'játékosokhoz, a hivatalos végeredmény {_kg_official} pont ({_kg_diff:+d} eltérés).'
+                f'</div>'
+            )
+        # Jersey nélküli faultok figyelmeztetés (parser nem tudta játékoshoz rendelni)
+        _orphan = details.get("orphan_fouls_kg") or 0
+        if _orphan:
+            _warn_html += (
+                f'<div class="box-warn">'
+                f'⚠ A jegyzőkönyv-parser {_orphan} faultot nem tudott játékoshoz rendelni '
+                f'(jersey-szám felismerési hiba). A PF oszlop és a Hibák timeline ennyi faultot kihagy.'
                 f'</div>'
             )
         kg_html = f'''<div class="game-log-wrap">
