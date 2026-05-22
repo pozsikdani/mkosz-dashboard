@@ -2371,6 +2371,8 @@ new Chart(attCtx, {{
   .grid-3 {{ grid-template-columns:1fr 1fr 1fr; }}
   .grid-4 {{ grid-template-columns:1fr 1fr 1fr 1fr; }}
   .grid-5 {{ grid-template-columns:1fr 1fr 1fr 1fr 1fr; }}
+  .grid-6 {{ grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr; }}
+  @media (max-width:900px) {{ .grid-6 {{ grid-template-columns:1fr 1fr 1fr; }} }}
   .card {{
     background:var(--card); border-radius:16px; padding:24px;
     border:1px solid var(--border); transition:background 0.2s;
@@ -2433,7 +2435,7 @@ new Chart(attCtx, {{
   {NAV_CSS}
   .mb20 {{ margin-bottom:20px; }}
   @media (max-width:900px) {{
-    .grid-2,.grid-3,.grid-4,.grid-5 {{ grid-template-columns:1fr; }}
+    .grid-2,.grid-3,.grid-4,.grid-5,.grid-6 {{ grid-template-columns:1fr; }}
     .header {{ flex-direction:column; text-align:center; }}
     .header-stats {{ margin-left:0; justify-content:center; }}
   }}
@@ -2477,11 +2479,12 @@ new Chart(attCtx, {{
     {_phase_buttons}
   </div>
 
-  <div class="grid grid-5 mb20">
+  <div class="grid grid-6 mb20">
     <div class="card mini-stat"><div class="big" id="mScored" style="color:var(--accent2)">{d["scored"]}</div><div class="desc">Összes dobott</div></div>
     <div class="card mini-stat"><div class="big" id="mAllowed" style="color:var(--red)">{d["allowed"]}</div><div class="desc">Összes kapott</div></div>
     <div class="card mini-stat"><div class="big" id="mBest" style="color:var(--green)">{d["best_score"]}</div><div class="desc">Legtöbb dobott</div></div>
     <div class="card mini-stat"><div class="big" id="mWorst" style="color:var(--red)">{d["most_allowed"]}</div><div class="desc">Legtöbb kapott</div></div>
+    <div class="card mini-stat"><div class="big" id="mFtPct" style="color:var(--text-dim)">{round(100*(d["ftm"] or 0)/(d["fta"] or 1)) if (d["fta"] or 0) > 0 else 0}%</div><div class="desc" id="mFtDesc">Büntető ({d["ftm"] or 0}/{d["fta"] or 0})</div></div>
     <div class="card mini-stat"><div class="big" id="mPlayers" style="color:var(--accent2)">{d["players_used"]}</div><div class="desc">Játékos a keretben</div></div>
   </div>
 
@@ -2713,6 +2716,9 @@ function switchView(mode) {{
   document.getElementById('mBest').textContent = s.best_score;
   document.getElementById('mWorst').textContent = s.most_allowed;
   document.getElementById('mPlayers').textContent = s.players_used;
+  const ftPct = s.fta > 0 ? Math.round(100 * s.ftm / s.fta) : 0;
+  document.getElementById('mFtPct').textContent = ftPct + '%';
+  document.getElementById('mFtDesc').textContent = 'Büntető (' + s.ftm + '/' + s.fta + ')';
 
   // Charts
   buildTrendChart(s);
