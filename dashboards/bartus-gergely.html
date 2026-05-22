@@ -60,6 +60,27 @@
   .mini-stat { text-align:center; }
   .mini-stat .big { font-size:2rem; font-weight:800; }
   .mini-stat .desc { font-size:0.75rem; color:var(--text-dim); margin-top:4px; }
+  .view-toggle {
+    display:flex; gap:4px; justify-content:center; margin-bottom:20px;
+    background:var(--card); border-radius:12px; padding:4px; border:1px solid var(--border);
+    width:fit-content; margin-left:auto; margin-right:auto;
+  }
+  .view-btn {
+    padding:8px 20px; border-radius:10px; border:none; cursor:pointer;
+    font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600;
+    color:var(--text-dim); background:transparent; transition:all 0.2s;
+    letter-spacing:0.5px;
+  }
+  .view-btn:hover { color:var(--text); background:rgba(255,255,255,0.05); }
+  .view-btn.active { background:var(--accent); color:#fff; }
+  .view-sep {
+    display:inline-block; width:1px; align-self:stretch;
+    background:var(--border); margin:4px 6px;
+  }
+  @media (max-width:600px) {
+    .view-toggle { flex-wrap:wrap; max-width:100%; }
+    .view-btn { padding:6px 12px; font-size:0.72rem; }
+  }
   .game-log-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .game-log { width:100%; border-collapse:collapse; font-size:0.82rem; }
   .game-log th { text-align:left; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); padding:8px 10px; border-bottom:1px solid var(--border); font-weight:600; white-space:nowrap; }
@@ -111,18 +132,26 @@
       </div>
     </div>
     <div class="header-stats">
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">11.7</div><div class="label">PPG</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">20</div><div class="label">Meccs</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">26</div><div class="label">3FG</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--green)">28</div><div class="label">Csúcs</div></div>
+      <div class="header-stat"><div class="val" id="pPpg" style="color:var(--text-dim)">11.7</div><div class="label">PPG</div></div>
+      <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">20</div><div class="label">Meccs</div></div>
+      <div class="header-stat"><div class="val" id="pFg3" style="color:var(--text-dim)">26</div><div class="label">3FG</div></div>
+      <div class="header-stat"><div class="val" id="pMax" style="color:var(--green)">28</div><div class="label">Csúcs</div></div>
       <div class="header-stat"><div class="val" style="color:var(--green)">36/49 (73%)</div><div class="label">Edzés</div></div>
     </div>
   </div>
+
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchPlayerView('all')">Összes</button>
+    <button class="view-btn" onclick="switchPlayerView('home')">Hazai</button>
+    <button class="view-btn" onclick="switchPlayerView('away')">Vendég</button>
+    <span class="view-sep"></span><button class="view-btn" onclick="switchPlayerView('alap')">Alapszakasz</button><button class="view-btn" onclick="switchPlayerView('play')">Rájátszás</button>
+  </div>
+
   <div class="grid grid-4 mb20">
-    <div class="card mini-stat"><div class="big" style="color:var(--text-dim)">234</div><div class="desc">Összes pont</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--text-dim)">86%</div><div class="desc">FT% (48/56)</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--red)">1.3</div><div class="desc">Fault / meccs</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--green)">15.5%</div><div class="desc">Csapat pont részesedés</div></div>
+    <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">234</div><div class="desc">Összes pont</div></div>
+    <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">86%</div><div class="desc" id="pFtDesc">FT% (48/56)</div></div>
+    <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">1.3</div><div class="desc">Fault / meccs</div></div>
+    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">15.5%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
   <div class="grid grid-2 mb20">
     <div class="card">
@@ -195,19 +224,41 @@ Chart.defaults.font.family="'Inter',sans-serif";
 
 const games = [{"date": "10.07", "opp": "Sunshine-NYÍKSE", "res": "L", "pts": 9, "fg2": 1, "fg3": 2, "ft": "1/2", "pf": 3, "share": 13.2, "start": true}, {"date": "10.09", "opp": "Újpest-Mt", "res": "W", "pts": null}, {"date": "10.16", "opp": "Blf Se", "res": "L", "pts": 9, "fg2": 2, "fg3": 0, "ft": "5/5", "pf": 0, "share": 12.2, "start": true}, {"date": "10.22", "opp": "Szerencs Vse", "res": "L", "pts": 17, "fg2": 2, "fg3": 3, "ft": "4/4", "pf": 4, "share": 25.4, "start": true}, {"date": "11.06", "opp": "BKG-Prima Deb.", "res": "L", "pts": 3, "fg2": 0, "fg3": 1, "ft": "0/0", "pf": 1, "share": 4.2, "start": true}, {"date": "11.20", "opp": "Bp. Bikák", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 0, "share": 19.1, "start": false}, {"date": "11.25", "opp": "BKG-Veresegyh.", "res": "L", "pts": 7, "fg2": 3, "fg3": 0, "ft": "1/3", "pf": 0, "share": 9.9, "start": false}, {"date": "12.06", "opp": "Fke Sas", "res": "L", "pts": 7, "fg2": 1, "fg3": 1, "ft": "2/2", "pf": 0, "share": 10.9, "start": true}, {"date": "01.09", "opp": "Sunshine-NYÍKSE", "res": "W", "pts": 17, "fg2": 8, "fg3": 0, "ft": "1/1", "pf": 2, "share": 24.6, "start": true}, {"date": "01.15", "opp": "Blf Se", "res": "L", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 0, "share": 5.1, "start": true}, {"date": "01.22", "opp": "Szerencs Vse", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 3, "share": 13.2, "start": false}, {"date": "01.29", "opp": "Újpest-Mt", "res": "L", "pts": 16, "fg2": 4, "fg3": 1, "ft": "5/6", "pf": 1, "share": 27.1, "start": false}, {"date": "02.17", "opp": "Bp. Bikák", "res": "L", "pts": 11, "fg2": 2, "fg3": 1, "ft": "4/4", "pf": 1, "share": 18.6, "start": true}, {"date": "02.19", "opp": "BKG-Prima Deb.", "res": "W", "pts": 20, "fg2": 4, "fg3": 3, "ft": "3/4", "pf": 2, "share": 24.7, "start": true}, {"date": "03.01", "opp": "BKG-Veresegyh.", "res": "L", "pts": 28, "fg2": 1, "fg3": 4, "ft": "14/14", "pf": 3, "share": 28.9, "start": true}, {"date": "03.03", "opp": "Fke Sas", "res": "W", "pts": 19, "fg2": 4, "fg3": 2, "ft": "5/5", "pf": 0, "share": 19.6, "start": true}, {"date": "04.01", "opp": "Közgáz A", "res": "W", "pts": 5, "fg2": 1, "fg3": 1, "ft": "0/2", "pf": 1, "share": 6.0, "start": true}, {"date": "04.20", "opp": "Bkg Dse", "res": "W", "pts": 11, "fg2": 4, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.6, "start": true}, {"date": "04.27", "opp": "Radobasket Törökbá.", "res": "W", "pts": 12, "fg2": 4, "fg3": 1, "ft": "1/2", "pf": 3, "share": 14.3, "start": true}, {"date": "05.05", "opp": "Bkg Dse", "res": "W", "pts": 12, "fg2": 3, "fg3": 2, "ft": "0/0", "pf": 0, "share": 11.9, "start": true}, {"date": "05.14", "opp": "Közgáz A", "res": "L", "pts": 9, "fg2": 2, "fg3": 1, "ft": "2/2", "pf": 2, "share": 11.8, "start": true}];
 const maxPts = 28;
+const PVIEWS = {"all": {"games": 20, "total_pts": 234, "ppg": 11.7, "fg2": 54, "fg3": 26, "ft_m": 48, "ft_a": 56, "ft_pct": 86, "pf": 26, "pf_pg": 1.3, "max_pts": 28, "starts": 16, "share_pct": 15.5, "pts_3fg": 78, "pts_2fg": 108, "pts_ft": 48, "q_data": [47, 49, 62, 76], "q_3fg_data": [10, 10, 9, 13], "opp_labels": ["BKG-Veresegyh.", "Újpest-Mt", "Szerencs Vse", "Sunshine-NYÍKSE", "Fke Sas", "Radobasket Törökbá.", "BKG-Prima Deb.", "Bkg Dse", "Bp. Bikák", "Közgáz A", "Blf Se"], "opp_ppg_data": [17.5, 16.0, 13.0, 13.0, 13.0, 12.0, 11.5, 11.5, 10.0, 7.0, 6.5], "js_games": [{"date": "10.07", "opp": "Sunshine-NYÍKSE", "res": "L", "pts": 9, "fg2": 1, "fg3": 2, "ft": "1/2", "pf": 3, "share": 13.2, "start": true, "hv": "H"}, {"date": "10.09", "opp": "Újpest-Mt", "res": "W", "pts": null, "hv": "V"}, {"date": "10.16", "opp": "Blf Se", "res": "L", "pts": 9, "fg2": 2, "fg3": 0, "ft": "5/5", "pf": 0, "share": 12.2, "start": true, "hv": "H"}, {"date": "10.22", "opp": "Szerencs Vse", "res": "L", "pts": 17, "fg2": 2, "fg3": 3, "ft": "4/4", "pf": 4, "share": 25.4, "start": true, "hv": "V"}, {"date": "11.06", "opp": "BKG-Prima Deb.", "res": "L", "pts": 3, "fg2": 0, "fg3": 1, "ft": "0/0", "pf": 1, "share": 4.2, "start": true, "hv": "H"}, {"date": "11.20", "opp": "Bp. Bikák", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 0, "share": 19.1, "start": false, "hv": "V"}, {"date": "11.25", "opp": "BKG-Veresegyh.", "res": "L", "pts": 7, "fg2": 3, "fg3": 0, "ft": "1/3", "pf": 0, "share": 9.9, "start": false, "hv": "H"}, {"date": "12.06", "opp": "Fke Sas", "res": "L", "pts": 7, "fg2": 1, "fg3": 1, "ft": "2/2", "pf": 0, "share": 10.9, "start": true, "hv": "V"}, {"date": "01.09", "opp": "Sunshine-NYÍKSE", "res": "W", "pts": 17, "fg2": 8, "fg3": 0, "ft": "1/1", "pf": 2, "share": 24.6, "start": true, "hv": "V"}, {"date": "01.15", "opp": "Blf Se", "res": "L", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 0, "share": 5.1, "start": true, "hv": "V"}, {"date": "01.22", "opp": "Szerencs Vse", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 3, "share": 13.2, "start": false, "hv": "H"}, {"date": "01.29", "opp": "Újpest-Mt", "res": "L", "pts": 16, "fg2": 4, "fg3": 1, "ft": "5/6", "pf": 1, "share": 27.1, "start": false, "hv": "H"}, {"date": "02.17", "opp": "Bp. Bikák", "res": "L", "pts": 11, "fg2": 2, "fg3": 1, "ft": "4/4", "pf": 1, "share": 18.6, "start": true, "hv": "H"}, {"date": "02.19", "opp": "BKG-Prima Deb.", "res": "W", "pts": 20, "fg2": 4, "fg3": 3, "ft": "3/4", "pf": 2, "share": 24.7, "start": true, "hv": "V"}, {"date": "03.01", "opp": "BKG-Veresegyh.", "res": "L", "pts": 28, "fg2": 1, "fg3": 4, "ft": "14/14", "pf": 3, "share": 28.9, "start": true, "hv": "V"}, {"date": "03.03", "opp": "Fke Sas", "res": "W", "pts": 19, "fg2": 4, "fg3": 2, "ft": "5/5", "pf": 0, "share": 19.6, "start": true, "hv": "H"}, {"date": "04.01", "opp": "Közgáz A", "res": "W", "pts": 5, "fg2": 1, "fg3": 1, "ft": "0/2", "pf": 1, "share": 6.0, "start": true, "hv": "H"}, {"date": "04.20", "opp": "Bkg Dse", "res": "W", "pts": 11, "fg2": 4, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.6, "start": true, "hv": "V"}, {"date": "04.27", "opp": "Radobasket Törökbá.", "res": "W", "pts": 12, "fg2": 4, "fg3": 1, "ft": "1/2", "pf": 3, "share": 14.3, "start": true, "hv": "V"}, {"date": "05.05", "opp": "Bkg Dse", "res": "W", "pts": 12, "fg2": 3, "fg3": 2, "ft": "0/0", "pf": 0, "share": 11.9, "start": true, "hv": "H"}, {"date": "05.14", "opp": "Közgáz A", "res": "L", "pts": 9, "fg2": 2, "fg3": 1, "ft": "2/2", "pf": 2, "share": 11.8, "start": true, "hv": "V"}], "tech": 1, "unsport": 0}, "home": {"games": 10, "total_pts": 100, "ppg": 10.0, "fg2": 23, "fg3": 11, "ft_m": 21, "ft_a": 27, "ft_pct": 78, "pf": 10, "pf_pg": 1.0, "max_pts": 19, "starts": 7, "share_pct": 13.3, "pts_3fg": 33, "pts_2fg": 46, "pts_ft": 21, "q_data": [16, 18, 27, 39], "q_3fg_data": [3, 2, 4, 6], "opp_labels": ["Fke Sas", "Újpest-Mt", "Bkg Dse", "Bp. Bikák", "Szerencs Vse", "Sunshine-NYÍKSE", "Blf Se", "BKG-Veresegyh.", "Közgáz A", "BKG-Prima Deb."], "opp_ppg_data": [19.0, 16.0, 12.0, 11.0, 9.0, 9.0, 9.0, 7.0, 5.0, 3.0], "js_games": [{"date": "10.07", "opp": "Sunshine-NYÍKSE", "res": "L", "pts": 9, "fg2": 1, "fg3": 2, "ft": "1/2", "pf": 3, "share": 13.2, "start": true, "hv": "H"}, {"date": "10.16", "opp": "Blf Se", "res": "L", "pts": 9, "fg2": 2, "fg3": 0, "ft": "5/5", "pf": 0, "share": 12.2, "start": true, "hv": "H"}, {"date": "11.06", "opp": "BKG-Prima Deb.", "res": "L", "pts": 3, "fg2": 0, "fg3": 1, "ft": "0/0", "pf": 1, "share": 4.2, "start": true, "hv": "H"}, {"date": "11.25", "opp": "BKG-Veresegyh.", "res": "L", "pts": 7, "fg2": 3, "fg3": 0, "ft": "1/3", "pf": 0, "share": 9.9, "start": false, "hv": "H"}, {"date": "01.22", "opp": "Szerencs Vse", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 3, "share": 13.2, "start": false, "hv": "H"}, {"date": "01.29", "opp": "Újpest-Mt", "res": "L", "pts": 16, "fg2": 4, "fg3": 1, "ft": "5/6", "pf": 1, "share": 27.1, "start": false, "hv": "H"}, {"date": "02.17", "opp": "Bp. Bikák", "res": "L", "pts": 11, "fg2": 2, "fg3": 1, "ft": "4/4", "pf": 1, "share": 18.6, "start": true, "hv": "H"}, {"date": "03.03", "opp": "Fke Sas", "res": "W", "pts": 19, "fg2": 4, "fg3": 2, "ft": "5/5", "pf": 0, "share": 19.6, "start": true, "hv": "H"}, {"date": "04.01", "opp": "Közgáz A", "res": "W", "pts": 5, "fg2": 1, "fg3": 1, "ft": "0/2", "pf": 1, "share": 6.0, "start": true, "hv": "H"}, {"date": "05.05", "opp": "Bkg Dse", "res": "W", "pts": 12, "fg2": 3, "fg3": 2, "ft": "0/0", "pf": 0, "share": 11.9, "start": true, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 10, "total_pts": 134, "ppg": 13.4, "fg2": 31, "fg3": 15, "ft_m": 27, "ft_a": 29, "ft_pct": 93, "pf": 16, "pf_pg": 1.6, "max_pts": 28, "starts": 9, "share_pct": 17.7, "pts_3fg": 45, "pts_2fg": 62, "pts_ft": 27, "q_data": [31, 31, 35, 37], "q_3fg_data": [7, 8, 5, 7], "opp_labels": ["BKG-Veresegyh.", "BKG-Prima Deb.", "Szerencs Vse", "Sunshine-NYÍKSE", "Radobasket Törökbá.", "Bkg Dse", "Közgáz A", "Bp. Bikák", "Fke Sas", "Blf Se"], "opp_ppg_data": [28.0, 20.0, 17.0, 17.0, 12.0, 11.0, 9.0, 9.0, 7.0, 4.0], "js_games": [{"date": "10.09", "opp": "Újpest-Mt", "res": "W", "pts": null, "hv": "V"}, {"date": "10.22", "opp": "Szerencs Vse", "res": "L", "pts": 17, "fg2": 2, "fg3": 3, "ft": "4/4", "pf": 4, "share": 25.4, "start": true, "hv": "V"}, {"date": "11.20", "opp": "Bp. Bikák", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 0, "share": 19.1, "start": false, "hv": "V"}, {"date": "12.06", "opp": "Fke Sas", "res": "L", "pts": 7, "fg2": 1, "fg3": 1, "ft": "2/2", "pf": 0, "share": 10.9, "start": true, "hv": "V"}, {"date": "01.09", "opp": "Sunshine-NYÍKSE", "res": "W", "pts": 17, "fg2": 8, "fg3": 0, "ft": "1/1", "pf": 2, "share": 24.6, "start": true, "hv": "V"}, {"date": "01.15", "opp": "Blf Se", "res": "L", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 0, "share": 5.1, "start": true, "hv": "V"}, {"date": "02.19", "opp": "BKG-Prima Deb.", "res": "W", "pts": 20, "fg2": 4, "fg3": 3, "ft": "3/4", "pf": 2, "share": 24.7, "start": true, "hv": "V"}, {"date": "03.01", "opp": "BKG-Veresegyh.", "res": "L", "pts": 28, "fg2": 1, "fg3": 4, "ft": "14/14", "pf": 3, "share": 28.9, "start": true, "hv": "V"}, {"date": "04.20", "opp": "Bkg Dse", "res": "W", "pts": 11, "fg2": 4, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.6, "start": true, "hv": "V"}, {"date": "04.27", "opp": "Radobasket Törökbá.", "res": "W", "pts": 12, "fg2": 4, "fg3": 1, "ft": "1/2", "pf": 3, "share": 14.3, "start": true, "hv": "V"}, {"date": "05.14", "opp": "Közgáz A", "res": "L", "pts": 9, "fg2": 2, "fg3": 1, "ft": "2/2", "pf": 2, "share": 11.8, "start": true, "hv": "V"}], "tech": 1, "unsport": 0}, "alap": {"games": 15, "total_pts": 185, "ppg": 12.3, "fg2": 40, "fg3": 20, "ft_m": 45, "ft_a": 50, "ft_pct": 90, "pf": 20, "pf_pg": 1.3, "max_pts": 28, "starts": 11, "share_pct": 17.3, "pts_3fg": 60, "pts_2fg": 80, "pts_ft": 45, "q_data": [35, 35, 46, 69], "q_3fg_data": [8, 7, 7, 11], "opp_labels": ["BKG-Veresegyh.", "Újpest-Mt", "Szerencs Vse", "Sunshine-NYÍKSE", "Fke Sas", "BKG-Prima Deb.", "Bp. Bikák", "Blf Se"], "opp_ppg_data": [17.5, 16.0, 13.0, 13.0, 13.0, 11.5, 10.0, 6.5], "js_games": [{"date": "10.07", "opp": "Sunshine-NYÍKSE", "res": "L", "pts": 9, "fg2": 1, "fg3": 2, "ft": "1/2", "pf": 3, "share": 13.2, "start": true, "hv": "H"}, {"date": "10.09", "opp": "Újpest-Mt", "res": "W", "pts": null, "hv": "V"}, {"date": "10.16", "opp": "Blf Se", "res": "L", "pts": 9, "fg2": 2, "fg3": 0, "ft": "5/5", "pf": 0, "share": 12.2, "start": true, "hv": "H"}, {"date": "10.22", "opp": "Szerencs Vse", "res": "L", "pts": 17, "fg2": 2, "fg3": 3, "ft": "4/4", "pf": 4, "share": 25.4, "start": true, "hv": "V"}, {"date": "11.06", "opp": "BKG-Prima Deb.", "res": "L", "pts": 3, "fg2": 0, "fg3": 1, "ft": "0/0", "pf": 1, "share": 4.2, "start": true, "hv": "H"}, {"date": "11.20", "opp": "Bp. Bikák", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 0, "share": 19.1, "start": false, "hv": "V"}, {"date": "11.25", "opp": "BKG-Veresegyh.", "res": "L", "pts": 7, "fg2": 3, "fg3": 0, "ft": "1/3", "pf": 0, "share": 9.9, "start": false, "hv": "H"}, {"date": "12.06", "opp": "Fke Sas", "res": "L", "pts": 7, "fg2": 1, "fg3": 1, "ft": "2/2", "pf": 0, "share": 10.9, "start": true, "hv": "V"}, {"date": "01.09", "opp": "Sunshine-NYÍKSE", "res": "W", "pts": 17, "fg2": 8, "fg3": 0, "ft": "1/1", "pf": 2, "share": 24.6, "start": true, "hv": "V"}, {"date": "01.15", "opp": "Blf Se", "res": "L", "pts": 4, "fg2": 2, "fg3": 0, "ft": "0/0", "pf": 0, "share": 5.1, "start": true, "hv": "V"}, {"date": "01.22", "opp": "Szerencs Vse", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 3, "share": 13.2, "start": false, "hv": "H"}, {"date": "01.29", "opp": "Újpest-Mt", "res": "L", "pts": 16, "fg2": 4, "fg3": 1, "ft": "5/6", "pf": 1, "share": 27.1, "start": false, "hv": "H"}, {"date": "02.17", "opp": "Bp. Bikák", "res": "L", "pts": 11, "fg2": 2, "fg3": 1, "ft": "4/4", "pf": 1, "share": 18.6, "start": true, "hv": "H"}, {"date": "02.19", "opp": "BKG-Prima Deb.", "res": "W", "pts": 20, "fg2": 4, "fg3": 3, "ft": "3/4", "pf": 2, "share": 24.7, "start": true, "hv": "V"}, {"date": "03.01", "opp": "BKG-Veresegyh.", "res": "L", "pts": 28, "fg2": 1, "fg3": 4, "ft": "14/14", "pf": 3, "share": 28.9, "start": true, "hv": "V"}, {"date": "03.03", "opp": "Fke Sas", "res": "W", "pts": 19, "fg2": 4, "fg3": 2, "ft": "5/5", "pf": 0, "share": 19.6, "start": true, "hv": "H"}], "tech": 0, "unsport": 0}, "play": {"games": 5, "total_pts": 49, "ppg": 9.8, "fg2": 14, "fg3": 6, "ft_m": 3, "ft_a": 6, "ft_pct": 50, "pf": 6, "pf_pg": 1.2, "max_pts": 12, "starts": 5, "share_pct": 11.2, "pts_3fg": 18, "pts_2fg": 28, "pts_ft": 3, "q_data": [12, 14, 16, 7], "q_3fg_data": [2, 3, 2, 2], "opp_labels": ["Radobasket Törökbá.", "Bkg Dse", "Közgáz A"], "opp_ppg_data": [12.0, 11.5, 7.0], "js_games": [{"date": "04.01", "opp": "Közgáz A", "res": "W", "pts": 5, "fg2": 1, "fg3": 1, "ft": "0/2", "pf": 1, "share": 6.0, "start": true, "hv": "H"}, {"date": "04.20", "opp": "Bkg Dse", "res": "W", "pts": 11, "fg2": 4, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.6, "start": true, "hv": "V"}, {"date": "04.27", "opp": "Radobasket Törökbá.", "res": "W", "pts": 12, "fg2": 4, "fg3": 1, "ft": "1/2", "pf": 3, "share": 14.3, "start": true, "hv": "V"}, {"date": "05.05", "opp": "Bkg Dse", "res": "W", "pts": 12, "fg2": 3, "fg3": 2, "ft": "0/0", "pf": 0, "share": 11.9, "start": true, "hv": "H"}, {"date": "05.14", "opp": "Közgáz A", "res": "L", "pts": 9, "fg2": 2, "fg3": 1, "ft": "2/2", "pf": 2, "share": 11.8, "start": true, "hv": "V"}], "tech": 1, "unsport": 0}};
+const HIGHLIGHT_PTS = 18;
 
-const tbody = document.getElementById('gameLogBody');
-games.forEach(g => {
-  const tr = document.createElement('tr');
-  if (g.pts === null) {
-    tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge dnp">DNP</span></td><td colspan="6" style="color:var(--text-dim);font-style:italic;font-size:0.78rem;">Nem lépett pályára</td>';
-  } else {
-    const barW = Math.max((g.pts/maxPts)*100, 5);
-    const barColor = g.pts >= 18 ? 'var(--green)' : 'var(--text-dim)';
-    tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td><td class="bar-cell" style="min-width:80px;"><div class="bar-bg" style="width:'+barW+'%;background:'+barColor+';"></div><span class="bar-val" style="color:'+barColor+';">'+g.pts+'</span></td><td>'+g.fg2+'</td><td style="color:var(--text);font-weight:600;">'+g.fg3+'</td><td>'+g.ft+'</td><td>'+g.pf+'</td><td style="color:var(--text-dim)">'+g.share+'%</td>';
-  }
-  tbody.appendChild(tr);
-});
+function renderPlayerGameLog(gms) {
+  const tbody = document.getElementById('gameLogBody');
+  tbody.innerHTML = '';
+  gms.forEach(g => {
+    const tr = document.createElement('tr');
+    if (g.pts === null) {
+      tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge dnp">DNP</span></td><td colspan="6" style="color:var(--text-dim);font-style:italic;font-size:0.78rem;">Nem lépett pályára</td>';
+    } else {
+      const barW = Math.max((g.pts/maxPts)*100, 5);
+      const barColor = g.pts >= HIGHLIGHT_PTS ? 'var(--green)' : 'var(--text-dim)';
+      tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td><td class="bar-cell" style="min-width:80px;"><div class="bar-bg" style="width:'+barW+'%;background:'+barColor+';"></div><span class="bar-val" style="color:'+barColor+';">'+g.pts+'</span></td><td>'+g.fg2+'</td><td style="color:var(--text);font-weight:600;">'+g.fg3+'</td><td>'+g.ft+'</td><td>'+g.pf+'</td><td style="color:var(--text-dim)">'+g.share+'%</td>';
+    }
+    tbody.appendChild(tr);
+  });
+}
+renderPlayerGameLog(games);
+
+function switchPlayerView(mode) {
+  const v = PVIEWS[mode]; if (!v) return;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.view-btn[onclick*="\''+mode+'\'"]').classList.add('active');
+  document.getElementById('pPpg').textContent   = v.ppg;
+  document.getElementById('pGames').textContent = v.games;
+  document.getElementById('pFg3').textContent   = v.fg3;
+  document.getElementById('pMax').textContent   = v.max_pts;
+  document.getElementById('pTotal').textContent = v.total_pts;
+  document.getElementById('pFtBig').textContent = v.ft_pct + '%';
+  document.getElementById('pFtDesc').textContent = 'FT% (' + v.ft_m + '/' + v.ft_a + ')';
+  document.getElementById('pPfPg').textContent  = v.pf_pg;
+  document.getElementById('pShare').textContent = v.share_pct + '%';
+  renderPlayerGameLog(v.js_games);
+}
 
 const played = games.filter(g => g.pts !== null);
 new Chart(document.getElementById('scoringTrend').getContext('2d'), {

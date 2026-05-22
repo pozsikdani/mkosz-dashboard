@@ -60,6 +60,27 @@
   .mini-stat { text-align:center; }
   .mini-stat .big { font-size:2rem; font-weight:800; }
   .mini-stat .desc { font-size:0.75rem; color:var(--text-dim); margin-top:4px; }
+  .view-toggle {
+    display:flex; gap:4px; justify-content:center; margin-bottom:20px;
+    background:var(--card); border-radius:12px; padding:4px; border:1px solid var(--border);
+    width:fit-content; margin-left:auto; margin-right:auto;
+  }
+  .view-btn {
+    padding:8px 20px; border-radius:10px; border:none; cursor:pointer;
+    font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600;
+    color:var(--text-dim); background:transparent; transition:all 0.2s;
+    letter-spacing:0.5px;
+  }
+  .view-btn:hover { color:var(--text); background:rgba(255,255,255,0.05); }
+  .view-btn.active { background:var(--accent); color:#fff; }
+  .view-sep {
+    display:inline-block; width:1px; align-self:stretch;
+    background:var(--border); margin:4px 6px;
+  }
+  @media (max-width:600px) {
+    .view-toggle { flex-wrap:wrap; max-width:100%; }
+    .view-btn { padding:6px 12px; font-size:0.72rem; }
+  }
   .game-log-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .game-log { width:100%; border-collapse:collapse; font-size:0.82rem; }
   .game-log th { text-align:left; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); padding:8px 10px; border-bottom:1px solid var(--border); font-weight:600; white-space:nowrap; }
@@ -111,18 +132,26 @@
       </div>
     </div>
     <div class="header-stats">
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">9.4</div><div class="label">PPG</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">15</div><div class="label">Meccs</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">14</div><div class="label">3FG</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--green)">14</div><div class="label">Csúcs</div></div>
+      <div class="header-stat"><div class="val" id="pPpg" style="color:var(--text-dim)">9.4</div><div class="label">PPG</div></div>
+      <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">15</div><div class="label">Meccs</div></div>
+      <div class="header-stat"><div class="val" id="pFg3" style="color:var(--text-dim)">14</div><div class="label">3FG</div></div>
+      <div class="header-stat"><div class="val" id="pMax" style="color:var(--green)">14</div><div class="label">Csúcs</div></div>
       
     </div>
   </div>
+
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchPlayerView('all')">Összes</button>
+    <button class="view-btn" onclick="switchPlayerView('home')">Hazai</button>
+    <button class="view-btn" onclick="switchPlayerView('away')">Vendég</button>
+    
+  </div>
+
   <div class="grid grid-4 mb20">
-    <div class="card mini-stat"><div class="big" style="color:var(--text-dim)">141</div><div class="desc">Összes pont</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--text-dim)">79%</div><div class="desc">FT% (22/28)</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--red)">1.6</div><div class="desc">Fault / meccs</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--green)">9.4%</div><div class="desc">Csapat pont részesedés</div></div>
+    <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">141</div><div class="desc">Összes pont</div></div>
+    <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">79%</div><div class="desc" id="pFtDesc">FT% (22/28)</div></div>
+    <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">1.6</div><div class="desc">Fault / meccs</div></div>
+    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">9.4%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
   <div class="grid grid-2 mb20">
     <div class="card">
@@ -195,19 +224,41 @@ Chart.defaults.font.family="'Inter',sans-serif";
 
 const games = [{"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": null}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 5, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.1, "start": false}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 5, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.1, "start": false}, {"date": "11.03", "opp": "University Of Pann.", "res": "W", "pts": null}, {"date": "11.17", "opp": "Mosonmagyaróvár Un.", "res": "L", "pts": null}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": null}, {"date": "12.01", "opp": "Pte-Peac", "res": "L", "pts": null}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": null}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 8, "fg2": 1, "fg3": 1, "ft": "1/2", "pf": 2, "share": 8.7, "start": false}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 6, "fg2": 1, "fg3": 1, "ft": "1/2", "pf": 2, "share": 6.5, "start": false}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": 12, "fg2": 0, "fg3": 3, "ft": "4/4", "pf": 3, "share": 11.4, "start": true}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": 13, "fg2": 0, "fg3": 3, "ft": "4/4", "pf": 3, "share": 12.4, "start": true}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": null}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 6, "fg2": 3, "fg3": 0, "ft": "0/0", "pf": 0, "share": 6.1, "start": false}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 6, "fg2": 3, "fg3": 0, "ft": "0/0", "pf": 0, "share": 6.1, "start": false}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 14, "fg2": 4, "fg3": 1, "ft": "3/3", "pf": 2, "share": 17.1, "start": true}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 14, "fg2": 4, "fg3": 1, "ft": "3/3", "pf": 2, "share": 17.1, "start": true}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 1.9, "start": false}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 1.9, "start": false}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": 11, "fg2": 5, "fg3": 0, "ft": "3/5", "pf": 3, "share": 9.6, "start": true}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": 13, "fg2": 5, "fg3": 0, "ft": "3/5", "pf": 3, "share": 11.4, "start": true}, {"date": "03.23", "opp": "Pte-Peac", "res": "W", "pts": null}, {"date": "03.30", "opp": "Tfse", "res": "L", "pts": 8, "fg2": 2, "fg3": 2, "ft": "0/0", "pf": 2, "share": 9.8, "start": false}];
 const maxPts = 14;
+const PVIEWS = {"all": {"games": 15, "total_pts": 141, "ppg": 9.4, "fg2": 40, "fg3": 14, "ft_m": 22, "ft_a": 28, "ft_pct": 79, "pf": 24, "pf_pg": 1.6, "max_pts": 14, "starts": 6, "share_pct": 9.4, "pts_3fg": 42, "pts_2fg": 80, "pts_ft": 22, "q_data": [8, 2, 0, 0], "q_3fg_data": [2, 0, 0, 0], "opp_labels": ["Ludovika Sportegye.", "Smafc 1860 Soproni.", "Vesc", "Tfse", "Szombathelyi Egyet.", "University Of Pann.", "Mosonmagyaróvár Un."], "opp_ppg_data": [13.3, 13.0, 12.0, 8.0, 7.0, 6.0, 2.0], "js_games": [{"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": null, "hv": "V"}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 5, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.1, "start": false, "hv": "H"}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 5, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.1, "start": false, "hv": "H"}, {"date": "11.03", "opp": "University Of Pann.", "res": "W", "pts": null, "hv": "V"}, {"date": "11.17", "opp": "Mosonmagyaróvár Un.", "res": "L", "pts": null, "hv": "V"}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": null, "hv": "H"}, {"date": "12.01", "opp": "Pte-Peac", "res": "L", "pts": null, "hv": "V"}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": null, "hv": "V"}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 8, "fg2": 1, "fg3": 1, "ft": "1/2", "pf": 2, "share": 8.7, "start": false, "hv": "H"}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 6, "fg2": 1, "fg3": 1, "ft": "1/2", "pf": 2, "share": 6.5, "start": false, "hv": "H"}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": 12, "fg2": 0, "fg3": 3, "ft": "4/4", "pf": 3, "share": 11.4, "start": true, "hv": "H"}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": 13, "fg2": 0, "fg3": 3, "ft": "4/4", "pf": 3, "share": 12.4, "start": true, "hv": "H"}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": null, "hv": "V"}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 6, "fg2": 3, "fg3": 0, "ft": "0/0", "pf": 0, "share": 6.1, "start": false, "hv": "H"}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 6, "fg2": 3, "fg3": 0, "ft": "0/0", "pf": 0, "share": 6.1, "start": false, "hv": "H"}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 14, "fg2": 4, "fg3": 1, "ft": "3/3", "pf": 2, "share": 17.1, "start": true, "hv": "V"}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 14, "fg2": 4, "fg3": 1, "ft": "3/3", "pf": 2, "share": 17.1, "start": true, "hv": "V"}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 1.9, "start": false, "hv": "H"}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 1.9, "start": false, "hv": "H"}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": 11, "fg2": 5, "fg3": 0, "ft": "3/5", "pf": 3, "share": 9.6, "start": true, "hv": "V"}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": 13, "fg2": 5, "fg3": 0, "ft": "3/5", "pf": 3, "share": 11.4, "start": true, "hv": "V"}, {"date": "03.23", "opp": "Pte-Peac", "res": "W", "pts": null, "hv": "H"}, {"date": "03.30", "opp": "Tfse", "res": "L", "pts": 8, "fg2": 2, "fg3": 2, "ft": "0/0", "pf": 2, "share": 9.8, "start": false, "hv": "H"}], "tech": 0, "unsport": 0}, "home": {"games": 11, "total_pts": 89, "ppg": 8.1, "fg2": 22, "fg3": 12, "ft_m": 10, "ft_a": 12, "ft_pct": 83, "pf": 14, "pf_pg": 1.3, "max_pts": 13, "starts": 2, "share_pct": 8.0, "pts_3fg": 36, "pts_2fg": 44, "pts_ft": 10, "q_data": [8, 2, 0, 0], "q_3fg_data": [2, 0, 0, 0], "opp_labels": ["Smafc 1860 Soproni.", "Ludovika Sportegye.", "Tfse", "Szombathelyi Egyet.", "University Of Pann.", "Mosonmagyaróvár Un."], "opp_ppg_data": [13.0, 12.5, 8.0, 7.0, 6.0, 2.0], "js_games": [{"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 5, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.1, "start": false, "hv": "H"}, {"date": "10.27", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": 13, "fg2": 5, "fg3": 1, "ft": "0/0", "pf": 0, "share": 11.1, "start": false, "hv": "H"}, {"date": "11.24", "opp": "Vesc", "res": "W", "pts": null, "hv": "H"}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 8, "fg2": 1, "fg3": 1, "ft": "1/2", "pf": 2, "share": 8.7, "start": false, "hv": "H"}, {"date": "02.02", "opp": "Szombathelyi Egyet.", "res": "W", "pts": 6, "fg2": 1, "fg3": 1, "ft": "1/2", "pf": 2, "share": 6.5, "start": false, "hv": "H"}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": 12, "fg2": 0, "fg3": 3, "ft": "4/4", "pf": 3, "share": 11.4, "start": true, "hv": "H"}, {"date": "02.09", "opp": "Ludovika Sportegye.", "res": "W", "pts": 13, "fg2": 0, "fg3": 3, "ft": "4/4", "pf": 3, "share": 12.4, "start": true, "hv": "H"}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 6, "fg2": 3, "fg3": 0, "ft": "0/0", "pf": 0, "share": 6.1, "start": false, "hv": "H"}, {"date": "02.23", "opp": "University Of Pann.", "res": "W", "pts": 6, "fg2": 3, "fg3": 0, "ft": "0/0", "pf": 0, "share": 6.1, "start": false, "hv": "H"}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 1.9, "start": false, "hv": "H"}, {"date": "03.09", "opp": "Mosonmagyaróvár Un.", "res": "W", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 1.9, "start": false, "hv": "H"}, {"date": "03.23", "opp": "Pte-Peac", "res": "W", "pts": null, "hv": "H"}, {"date": "03.30", "opp": "Tfse", "res": "L", "pts": 8, "fg2": 2, "fg3": 2, "ft": "0/0", "pf": 2, "share": 9.8, "start": false, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 4, "total_pts": 52, "ppg": 13.0, "fg2": 18, "fg3": 2, "ft_m": 12, "ft_a": 16, "ft_pct": 75, "pf": 10, "pf_pg": 2.5, "max_pts": 14, "starts": 4, "share_pct": 13.3, "pts_3fg": 6, "pts_2fg": 36, "pts_ft": 12, "q_data": [0, 0, 0, 0], "q_3fg_data": [0, 0, 0, 0], "opp_labels": ["Ludovika Sportegye.", "Vesc"], "opp_ppg_data": [14.0, 12.0], "js_games": [{"date": "10.13", "opp": "Szombathelyi Egyet.", "res": "L", "pts": null, "hv": "V"}, {"date": "11.03", "opp": "University Of Pann.", "res": "W", "pts": null, "hv": "V"}, {"date": "11.17", "opp": "Mosonmagyaróvár Un.", "res": "L", "pts": null, "hv": "V"}, {"date": "12.01", "opp": "Pte-Peac", "res": "L", "pts": null, "hv": "V"}, {"date": "12.08", "opp": "Tfse", "res": "L", "pts": null, "hv": "V"}, {"date": "02.16", "opp": "Smafc 1860 Soproni.", "res": "W", "pts": null, "hv": "V"}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 14, "fg2": 4, "fg3": 1, "ft": "3/3", "pf": 2, "share": 17.1, "start": true, "hv": "V"}, {"date": "03.02", "opp": "Ludovika Sportegye.", "res": "W", "pts": 14, "fg2": 4, "fg3": 1, "ft": "3/3", "pf": 2, "share": 17.1, "start": true, "hv": "V"}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": 11, "fg2": 5, "fg3": 0, "ft": "3/5", "pf": 3, "share": 9.6, "start": true, "hv": "V"}, {"date": "03.17", "opp": "Vesc", "res": "W", "pts": 13, "fg2": 5, "fg3": 0, "ft": "3/5", "pf": 3, "share": 11.4, "start": true, "hv": "V"}], "tech": 0, "unsport": 0}};
+const HIGHLIGHT_PTS = 14;
 
-const tbody = document.getElementById('gameLogBody');
-games.forEach(g => {
-  const tr = document.createElement('tr');
-  if (g.pts === null) {
-    tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge dnp">DNP</span></td><td colspan="6" style="color:var(--text-dim);font-style:italic;font-size:0.78rem;">Nem lépett pályára</td>';
-  } else {
-    const barW = Math.max((g.pts/maxPts)*100, 5);
-    const barColor = g.pts >= 14 ? 'var(--green)' : 'var(--text-dim)';
-    tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td><td class="bar-cell" style="min-width:80px;"><div class="bar-bg" style="width:'+barW+'%;background:'+barColor+';"></div><span class="bar-val" style="color:'+barColor+';">'+g.pts+'</span></td><td>'+g.fg2+'</td><td style="color:var(--text);font-weight:600;">'+g.fg3+'</td><td>'+g.ft+'</td><td>'+g.pf+'</td><td style="color:var(--text-dim)">'+g.share+'%</td>';
-  }
-  tbody.appendChild(tr);
-});
+function renderPlayerGameLog(gms) {
+  const tbody = document.getElementById('gameLogBody');
+  tbody.innerHTML = '';
+  gms.forEach(g => {
+    const tr = document.createElement('tr');
+    if (g.pts === null) {
+      tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge dnp">DNP</span></td><td colspan="6" style="color:var(--text-dim);font-style:italic;font-size:0.78rem;">Nem lépett pályára</td>';
+    } else {
+      const barW = Math.max((g.pts/maxPts)*100, 5);
+      const barColor = g.pts >= HIGHLIGHT_PTS ? 'var(--green)' : 'var(--text-dim)';
+      tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td><td class="bar-cell" style="min-width:80px;"><div class="bar-bg" style="width:'+barW+'%;background:'+barColor+';"></div><span class="bar-val" style="color:'+barColor+';">'+g.pts+'</span></td><td>'+g.fg2+'</td><td style="color:var(--text);font-weight:600;">'+g.fg3+'</td><td>'+g.ft+'</td><td>'+g.pf+'</td><td style="color:var(--text-dim)">'+g.share+'%</td>';
+    }
+    tbody.appendChild(tr);
+  });
+}
+renderPlayerGameLog(games);
+
+function switchPlayerView(mode) {
+  const v = PVIEWS[mode]; if (!v) return;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.view-btn[onclick*="\''+mode+'\'"]').classList.add('active');
+  document.getElementById('pPpg').textContent   = v.ppg;
+  document.getElementById('pGames').textContent = v.games;
+  document.getElementById('pFg3').textContent   = v.fg3;
+  document.getElementById('pMax').textContent   = v.max_pts;
+  document.getElementById('pTotal').textContent = v.total_pts;
+  document.getElementById('pFtBig').textContent = v.ft_pct + '%';
+  document.getElementById('pFtDesc').textContent = 'FT% (' + v.ft_m + '/' + v.ft_a + ')';
+  document.getElementById('pPfPg').textContent  = v.pf_pg;
+  document.getElementById('pShare').textContent = v.share_pct + '%';
+  renderPlayerGameLog(v.js_games);
+}
 
 const played = games.filter(g => g.pts !== null);
 new Chart(document.getElementById('scoringTrend').getContext('2d'), {

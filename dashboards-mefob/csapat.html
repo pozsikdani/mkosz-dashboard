@@ -101,6 +101,14 @@
   }
   .view-btn:hover { color:var(--text); background:rgba(255,255,255,0.05); }
   .view-btn.active { background:var(--accent); color:#fff; }
+  .view-sep {
+    display:inline-block; width:1px; align-self:stretch;
+    background:var(--border); margin:4px 6px;
+  }
+  @media (max-width:600px) {
+    .view-toggle { flex-wrap:wrap; max-width:100%; }
+    .view-btn { padding:6px 12px; font-size:0.72rem; }
+  }
   
 .site-nav {
   display:flex; align-items:center; justify-content:space-between;
@@ -170,6 +178,7 @@
     <button class="view-btn active" onclick="switchView('all')">Összes</button>
     <button class="view-btn" onclick="switchView('home')">Hazai</button>
     <button class="view-btn" onclick="switchView('away')">Vendég</button>
+    
   </div>
 
   <div class="grid grid-5 mb20">

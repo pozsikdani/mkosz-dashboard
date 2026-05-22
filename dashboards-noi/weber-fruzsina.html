@@ -60,6 +60,27 @@
   .mini-stat { text-align:center; }
   .mini-stat .big { font-size:2rem; font-weight:800; }
   .mini-stat .desc { font-size:0.75rem; color:var(--text-dim); margin-top:4px; }
+  .view-toggle {
+    display:flex; gap:4px; justify-content:center; margin-bottom:20px;
+    background:var(--card); border-radius:12px; padding:4px; border:1px solid var(--border);
+    width:fit-content; margin-left:auto; margin-right:auto;
+  }
+  .view-btn {
+    padding:8px 20px; border-radius:10px; border:none; cursor:pointer;
+    font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600;
+    color:var(--text-dim); background:transparent; transition:all 0.2s;
+    letter-spacing:0.5px;
+  }
+  .view-btn:hover { color:var(--text); background:rgba(255,255,255,0.05); }
+  .view-btn.active { background:var(--accent); color:#fff; }
+  .view-sep {
+    display:inline-block; width:1px; align-self:stretch;
+    background:var(--border); margin:4px 6px;
+  }
+  @media (max-width:600px) {
+    .view-toggle { flex-wrap:wrap; max-width:100%; }
+    .view-btn { padding:6px 12px; font-size:0.72rem; }
+  }
   .game-log-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
   .game-log { width:100%; border-collapse:collapse; font-size:0.82rem; }
   .game-log th { text-align:left; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); padding:8px 10px; border-bottom:1px solid var(--border); font-weight:600; white-space:nowrap; }
@@ -111,18 +132,26 @@
       </div>
     </div>
     <div class="header-stats">
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">8.0</div><div class="label">PPG</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">3</div><div class="label">Meccs</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">0</div><div class="label">3FG</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--green)">13</div><div class="label">Csúcs</div></div>
+      <div class="header-stat"><div class="val" id="pPpg" style="color:var(--text-dim)">8.0</div><div class="label">PPG</div></div>
+      <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">3</div><div class="label">Meccs</div></div>
+      <div class="header-stat"><div class="val" id="pFg3" style="color:var(--text-dim)">0</div><div class="label">3FG</div></div>
+      <div class="header-stat"><div class="val" id="pMax" style="color:var(--green)">13</div><div class="label">Csúcs</div></div>
       
     </div>
   </div>
+
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchPlayerView('all')">Összes</button>
+    <button class="view-btn" onclick="switchPlayerView('home')">Hazai</button>
+    <button class="view-btn" onclick="switchPlayerView('away')">Vendég</button>
+    
+  </div>
+
   <div class="grid grid-4 mb20">
-    <div class="card mini-stat"><div class="big" style="color:var(--text-dim)">24</div><div class="desc">Összes pont</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--text-dim)">80%</div><div class="desc">FT% (4/5)</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--red)">0.0</div><div class="desc">Fault / meccs</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--green)">12.6%</div><div class="desc">Csapat pont részesedés</div></div>
+    <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">24</div><div class="desc">Összes pont</div></div>
+    <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">80%</div><div class="desc" id="pFtDesc">FT% (4/5)</div></div>
+    <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">0.0</div><div class="desc">Fault / meccs</div></div>
+    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">12.6%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
   <div class="grid grid-2 mb20">
     <div class="card">
@@ -182,7 +211,7 @@
       <div>
         <div style="color:var(--red);font-weight:700;margin-bottom:6px;">Fejlesztendő területek</div>
         <ul style="padding-left:18px;color:var(--text-dim);">
-          <li><span style="color:#fff;font-weight:600;">Q3 a leggyengébb negyed (0.7 pont/meccs)</span></li><li><span style="color:#fff;font-weight:600;">18 meccsen nem kapott lehetőséget (DNP)</span></li>
+          <li><span style="color:#fff;font-weight:600;">Q3 a leggyengébb negyed (0.7 pont/meccs)</span></li><li><span style="color:#fff;font-weight:600;">17 meccsen nem kapott lehetőséget (DNP)</span></li>
         </ul>
       </div>
     </div>
@@ -193,21 +222,43 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.29", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null}, {"date": "11.05", "opp": "Kék Rókák", "res": "L", "pts": null}, {"date": "11.16", "opp": "Beac Blse", "res": "W", "pts": 13, "fg2": 5, "fg3": 0, "ft": "3/3", "pf": 0, "share": 14.3, "start": true}, {"date": "11.19", "opp": "Szpa - Hse", "res": "W", "pts": null}, {"date": "11.23", "opp": "Regi Waldorf U23", "res": "W", "pts": null}, {"date": "11.30", "opp": "Radobasket", "res": "L", "pts": 10, "fg2": 5, "fg3": 0, "ft": "0/0", "pf": 0, "share": 19.2, "start": false}, {"date": "12.07", "opp": "Beac Muff", "res": "L", "pts": 1, "fg2": 0, "fg3": 0, "ft": "1/2", "pf": 0, "share": 2.1, "start": false}, {"date": "12.17", "opp": "Beac Bics", "res": "W", "pts": null}, {"date": "01.21", "opp": "Parthus Se", "res": "W", "pts": null}, {"date": "01.28", "opp": "Beac Muff", "res": "W", "pts": null}, {"date": "02.01", "opp": "Törekvés Se", "res": "W", "pts": null}, {"date": "02.11", "opp": "Beac Budafok", "res": "W", "pts": null}, {"date": "03.04", "opp": "Radobasket-Csepel", "res": "L", "pts": null}, {"date": "03.22", "opp": "Bkg Veresegyház", "res": "W", "pts": null}, {"date": "04.14", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null}, {"date": "04.22", "opp": "Bkg Veresegyház", "res": "W", "pts": null}, {"date": "04.29", "opp": "Törekvés Se", "res": "W", "pts": null}, {"date": "05.04", "opp": "Józsefvárosi Kc", "res": "W", "pts": null}, {"date": "05.07", "opp": "Kék Rókák", "res": "W", "pts": null}, {"date": "05.13", "opp": "Beac Budafok", "res": "W", "pts": null}, {"date": "05.20", "opp": "Józsefvárosi Kc", "res": "W", "pts": null}];
+const games = [{"date": "10.29", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null}, {"date": "11.05", "opp": "Kék Rókák", "res": "L", "pts": null}, {"date": "11.16", "opp": "Beac Blse", "res": "W", "pts": 13, "fg2": 5, "fg3": 0, "ft": "3/3", "pf": 0, "share": 14.3, "start": true}, {"date": "11.19", "opp": "Szpa - Hse", "res": "W", "pts": null}, {"date": "11.23", "opp": "Regi Waldorf U23", "res": "W", "pts": null}, {"date": "11.30", "opp": "Radobasket", "res": "L", "pts": 10, "fg2": 5, "fg3": 0, "ft": "0/0", "pf": 0, "share": 19.2, "start": false}, {"date": "12.07", "opp": "Beac Muff", "res": "L", "pts": 1, "fg2": 0, "fg3": 0, "ft": "1/2", "pf": 0, "share": 2.1, "start": false}, {"date": "12.17", "opp": "Beac Bics", "res": "W", "pts": null}, {"date": "01.21", "opp": "Parthus Se", "res": "W", "pts": null}, {"date": "01.28", "opp": "Beac Muff", "res": "W", "pts": null}, {"date": "02.01", "opp": "Törekvés Se", "res": "W", "pts": null}, {"date": "02.11", "opp": "Beac Budafok", "res": "W", "pts": null}, {"date": "03.04", "opp": "Radobasket-Csepel", "res": "L", "pts": null}, {"date": "03.22", "opp": "Bkg Veresegyház", "res": "W", "pts": null}, {"date": "04.14", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null}, {"date": "04.22", "opp": "Bkg Veresegyház", "res": "W", "pts": null}, {"date": "04.29", "opp": "Törekvés Se", "res": "W", "pts": null}, {"date": "05.04", "opp": "Józsefvárosi Kc", "res": "W", "pts": null}, {"date": "05.07", "opp": "Kék Rókák", "res": "W", "pts": null}, {"date": "05.13", "opp": "Beac Budafok", "res": "W", "pts": null}];
 const maxPts = 13;
+const PVIEWS = {"all": {"games": 3, "total_pts": 24, "ppg": 8.0, "fg2": 10, "fg3": 0, "ft_m": 4, "ft_a": 5, "ft_pct": 80, "pf": 0, "pf_pg": 0.0, "max_pts": 13, "starts": 1, "share_pct": 12.6, "pts_3fg": 0, "pts_2fg": 20, "pts_ft": 4, "q_data": [8, 3, 2, 0], "q_3fg_data": [0, 0, 1, 0], "opp_labels": ["Beac Blse", "Radobasket", "Beac Muff"], "opp_ppg_data": [13.0, 10.0, 1.0], "js_games": [{"date": "10.29", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null, "hv": "H"}, {"date": "11.05", "opp": "Kék Rókák", "res": "L", "pts": null, "hv": "H"}, {"date": "11.16", "opp": "Beac Blse", "res": "W", "pts": 13, "fg2": 5, "fg3": 0, "ft": "3/3", "pf": 0, "share": 14.3, "start": true, "hv": "V"}, {"date": "11.19", "opp": "Szpa - Hse", "res": "W", "pts": null, "hv": "H"}, {"date": "11.23", "opp": "Regi Waldorf U23", "res": "W", "pts": null, "hv": "V"}, {"date": "11.30", "opp": "Radobasket", "res": "L", "pts": 10, "fg2": 5, "fg3": 0, "ft": "0/0", "pf": 0, "share": 19.2, "start": false, "hv": "V"}, {"date": "12.07", "opp": "Beac Muff", "res": "L", "pts": 1, "fg2": 0, "fg3": 0, "ft": "1/2", "pf": 0, "share": 2.1, "start": false, "hv": "V"}, {"date": "12.17", "opp": "Beac Bics", "res": "W", "pts": null, "hv": "H"}, {"date": "01.21", "opp": "Parthus Se", "res": "W", "pts": null, "hv": "H"}, {"date": "01.28", "opp": "Beac Muff", "res": "W", "pts": null, "hv": "H"}, {"date": "02.01", "opp": "Törekvés Se", "res": "W", "pts": null, "hv": "V"}, {"date": "02.11", "opp": "Beac Budafok", "res": "W", "pts": null, "hv": "H"}, {"date": "03.04", "opp": "Radobasket-Csepel", "res": "L", "pts": null, "hv": "H"}, {"date": "03.22", "opp": "Bkg Veresegyház", "res": "W", "pts": null, "hv": "V"}, {"date": "04.14", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null, "hv": "V"}, {"date": "04.22", "opp": "Bkg Veresegyház", "res": "W", "pts": null, "hv": "H"}, {"date": "04.29", "opp": "Törekvés Se", "res": "W", "pts": null, "hv": "H"}, {"date": "05.04", "opp": "Józsefvárosi Kc", "res": "W", "pts": null, "hv": "V"}, {"date": "05.07", "opp": "Kék Rókák", "res": "W", "pts": null, "hv": "V"}, {"date": "05.13", "opp": "Beac Budafok", "res": "W", "pts": null, "hv": "V"}], "tech": 0, "unsport": 0}, "home": {"games": 0, "total_pts": 0, "ppg": 0, "fg2": 0, "fg3": 0, "ft_m": 0, "ft_a": 0, "ft_pct": 0, "pf": 0, "pf_pg": 0, "max_pts": 0, "starts": 0, "share_pct": 0, "pts_3fg": 0, "pts_2fg": 0, "pts_ft": 0, "q_data": [0, 0, 0, 0], "q_3fg_data": [0, 0, 0, 0], "opp_labels": [], "opp_ppg_data": [], "js_games": [{"date": "10.29", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null, "hv": "H"}, {"date": "11.05", "opp": "Kék Rókák", "res": "L", "pts": null, "hv": "H"}, {"date": "11.19", "opp": "Szpa - Hse", "res": "W", "pts": null, "hv": "H"}, {"date": "12.17", "opp": "Beac Bics", "res": "W", "pts": null, "hv": "H"}, {"date": "01.21", "opp": "Parthus Se", "res": "W", "pts": null, "hv": "H"}, {"date": "01.28", "opp": "Beac Muff", "res": "W", "pts": null, "hv": "H"}, {"date": "02.11", "opp": "Beac Budafok", "res": "W", "pts": null, "hv": "H"}, {"date": "03.04", "opp": "Radobasket-Csepel", "res": "L", "pts": null, "hv": "H"}, {"date": "04.22", "opp": "Bkg Veresegyház", "res": "W", "pts": null, "hv": "H"}, {"date": "04.29", "opp": "Törekvés Se", "res": "W", "pts": null, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 3, "total_pts": 24, "ppg": 8.0, "fg2": 10, "fg3": 0, "ft_m": 4, "ft_a": 5, "ft_pct": 80, "pf": 0, "pf_pg": 0.0, "max_pts": 13, "starts": 1, "share_pct": 12.6, "pts_3fg": 0, "pts_2fg": 20, "pts_ft": 4, "q_data": [8, 3, 2, 0], "q_3fg_data": [0, 0, 1, 0], "opp_labels": ["Beac Blse", "Radobasket", "Beac Muff"], "opp_ppg_data": [13.0, 10.0, 1.0], "js_games": [{"date": "11.16", "opp": "Beac Blse", "res": "W", "pts": 13, "fg2": 5, "fg3": 0, "ft": "3/3", "pf": 0, "share": 14.3, "start": true, "hv": "V"}, {"date": "11.23", "opp": "Regi Waldorf U23", "res": "W", "pts": null, "hv": "V"}, {"date": "11.30", "opp": "Radobasket", "res": "L", "pts": 10, "fg2": 5, "fg3": 0, "ft": "0/0", "pf": 0, "share": 19.2, "start": false, "hv": "V"}, {"date": "12.07", "opp": "Beac Muff", "res": "L", "pts": 1, "fg2": 0, "fg3": 0, "ft": "1/2", "pf": 0, "share": 2.1, "start": false, "hv": "V"}, {"date": "02.01", "opp": "Törekvés Se", "res": "W", "pts": null, "hv": "V"}, {"date": "03.22", "opp": "Bkg Veresegyház", "res": "W", "pts": null, "hv": "V"}, {"date": "04.14", "opp": "Külkereskedelmi Sc", "res": "W", "pts": null, "hv": "V"}, {"date": "05.04", "opp": "Józsefvárosi Kc", "res": "W", "pts": null, "hv": "V"}, {"date": "05.07", "opp": "Kék Rókák", "res": "W", "pts": null, "hv": "V"}, {"date": "05.13", "opp": "Beac Budafok", "res": "W", "pts": null, "hv": "V"}], "tech": 0, "unsport": 0}};
+const HIGHLIGHT_PTS = 12;
 
-const tbody = document.getElementById('gameLogBody');
-games.forEach(g => {
-  const tr = document.createElement('tr');
-  if (g.pts === null) {
-    tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge dnp">DNP</span></td><td colspan="6" style="color:var(--text-dim);font-style:italic;font-size:0.78rem;">Nem lépett pályára</td>';
-  } else {
-    const barW = Math.max((g.pts/maxPts)*100, 5);
-    const barColor = g.pts >= 12 ? 'var(--green)' : 'var(--text-dim)';
-    tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td><td class="bar-cell" style="min-width:80px;"><div class="bar-bg" style="width:'+barW+'%;background:'+barColor+';"></div><span class="bar-val" style="color:'+barColor+';">'+g.pts+'</span></td><td>'+g.fg2+'</td><td style="color:var(--text);font-weight:600;">'+g.fg3+'</td><td>'+g.ft+'</td><td>'+g.pf+'</td><td style="color:var(--text-dim)">'+g.share+'%</td>';
-  }
-  tbody.appendChild(tr);
-});
+function renderPlayerGameLog(gms) {
+  const tbody = document.getElementById('gameLogBody');
+  tbody.innerHTML = '';
+  gms.forEach(g => {
+    const tr = document.createElement('tr');
+    if (g.pts === null) {
+      tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge dnp">DNP</span></td><td colspan="6" style="color:var(--text-dim);font-style:italic;font-size:0.78rem;">Nem lépett pályára</td>';
+    } else {
+      const barW = Math.max((g.pts/maxPts)*100, 5);
+      const barColor = g.pts >= HIGHLIGHT_PTS ? 'var(--green)' : 'var(--text-dim)';
+      tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td><td class="bar-cell" style="min-width:80px;"><div class="bar-bg" style="width:'+barW+'%;background:'+barColor+';"></div><span class="bar-val" style="color:'+barColor+';">'+g.pts+'</span></td><td>'+g.fg2+'</td><td style="color:var(--text);font-weight:600;">'+g.fg3+'</td><td>'+g.ft+'</td><td>'+g.pf+'</td><td style="color:var(--text-dim)">'+g.share+'%</td>';
+    }
+    tbody.appendChild(tr);
+  });
+}
+renderPlayerGameLog(games);
+
+function switchPlayerView(mode) {
+  const v = PVIEWS[mode]; if (!v) return;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.view-btn[onclick*="\''+mode+'\'"]').classList.add('active');
+  document.getElementById('pPpg').textContent   = v.ppg;
+  document.getElementById('pGames').textContent = v.games;
+  document.getElementById('pFg3').textContent   = v.fg3;
+  document.getElementById('pMax').textContent   = v.max_pts;
+  document.getElementById('pTotal').textContent = v.total_pts;
+  document.getElementById('pFtBig').textContent = v.ft_pct + '%';
+  document.getElementById('pFtDesc').textContent = 'FT% (' + v.ft_m + '/' + v.ft_a + ')';
+  document.getElementById('pPfPg').textContent  = v.pf_pg;
+  document.getElementById('pShare').textContent = v.share_pct + '%';
+  renderPlayerGameLog(v.js_games);
+}
 
 const played = games.filter(g => g.pts !== null);
 new Chart(document.getElementById('scoringTrend').getContext('2d'), {

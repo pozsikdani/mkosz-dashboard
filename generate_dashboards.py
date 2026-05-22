@@ -319,15 +319,38 @@ def _comp_list(cfg):
     return [cfg["comp_code"]] + list(cfg.get("mkosz_extra_comps", []))
 
 
-def get_roster(conn, cfg, tp):
-    comps = _comp_list(cfg)
+def _comps_for_phase(cfg, phase_filter):
+    """Helper: a phase_filter alapján visszaadja a comps listát.
+    'alap' = csak cfg.comp_code, 'play' = csak mkosz_extra_comps, None = mind."""
+    if phase_filter == 'alap':
+        return [cfg["comp_code"]]
+    elif phase_filter == 'play':
+        extras = list(cfg.get("mkosz_extra_comps", []))
+        return extras if extras else [cfg["comp_code"]]
+    return _comp_list(cfg)
+
+
+def _hv_clause(hv_filter, tp):
+    """Helper: visszaadja (sql_fragment, params_tuple) a H/V szűrőhöz.
+    Az SQL fragment a 'AND ...' után jön a matches sub-querybe."""
+    if hv_filter == 'H':
+        return "AND m.team_a_name LIKE ?", (tp,)
+    elif hv_filter == 'V':
+        return "AND m.team_b_name LIKE ?", (tp,)
+    else:
+        return "AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)", (tp, tp)
+
+
+def get_roster(conn, cfg, tp, hv_filter=None, phase_filter=None):
+    comps = _comps_for_phase(cfg, phase_filter)
     ph = ",".join("?" * len(comps))
+    hv_sql, hv_params = _hv_clause(hv_filter, tp)
     return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team
             FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
-              AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
+              {hv_sql}
         )
         SELECT COALESCE(pgs.license_number, pgs.player_name) as lic,
                pgs.player_name, MAX(pgs.jersey_number) as jersey_number,
@@ -343,13 +366,14 @@ def get_roster(conn, cfg, tp):
         JOIN kg ON pgs.gamecode = kg.gamecode AND pgs.team = kg.kg_team
         GROUP BY COALESCE(pgs.license_number, pgs.player_name)
         ORDER BY total_pts DESC
-    """, (tp, *comps, SEASON, tp, tp)).fetchall()
+    """, (tp, *comps, SEASON, *hv_params)).fetchall()
 
 
-def get_game_log(conn, cfg, tp, player_id):
+def get_game_log(conn, cfg, tp, player_id, hv_filter=None, phase_filter=None):
     """Get game log for a player. player_id is license_number or player_name."""
-    comps = _comp_list(cfg)
+    comps = _comps_for_phase(cfg, phase_filter)
     ph = ",".join("?" * len(comps))
+    hv_sql, hv_params = _hv_clause(hv_filter, tp)
     return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode, m.match_date,
@@ -359,7 +383,7 @@ def get_game_log(conn, cfg, tp, player_id):
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_a ELSE m.score_b END as kg_score,
                    CASE WHEN m.team_a_name LIKE ? THEN m.score_b ELSE m.score_a END as opp_score
             FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
-              AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
+              {hv_sql}
         )
         SELECT kg.gamecode, kg.match_date, kg.hv, kg.opponent, kg.kg_score, kg.opp_score,
                pgs.points, pgs.fg2_made, pgs.fg3_made, pgs.ft_made, pgs.ft_attempted,
@@ -370,19 +394,20 @@ def get_game_log(conn, cfg, tp, player_id):
             AND COALESCE(pgs.license_number, pgs.player_name) = ?
             AND pgs.team = kg.kg_team
         ORDER BY kg.match_date
-    """, (tp, tp, tp, tp, tp, *comps, SEASON, tp, tp, player_id)).fetchall()
+    """, (tp, tp, tp, tp, tp, *comps, SEASON, *hv_params, player_id)).fetchall()
 
 
-def get_quarter_stats(conn, cfg, tp, player_id):
+def get_quarter_stats(conn, cfg, tp, player_id, hv_filter=None, phase_filter=None):
     """Get quarter stats for a player using scoring_events table."""
-    comps = _comp_list(cfg)
+    comps = _comps_for_phase(cfg, phase_filter)
     ph = ",".join("?" * len(comps))
+    hv_sql, hv_params = _hv_clause(hv_filter, tp)
     return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team
             FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
-              AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
+              {hv_sql}
         )
         SELECT se.quarter,
                SUM(CASE WHEN se.made=1 THEN se.points ELSE 0 END) as pts,
@@ -393,19 +418,20 @@ def get_quarter_stats(conn, cfg, tp, player_id):
         JOIN kg ON se.gamecode = kg.gamecode AND se.team = kg.kg_team
         WHERE se.license_number = ?
         GROUP BY se.quarter ORDER BY se.quarter
-    """, (tp, *comps, SEASON, tp, tp, player_id)).fetchall()
+    """, (tp, *comps, SEASON, *hv_params, player_id)).fetchall()
 
 
-def get_quarter_stats_pbp(conn, cfg, tp, player_id):
+def get_quarter_stats_pbp(conn, cfg, tp, player_id, hv_filter=None, phase_filter=None):
     """Get quarter stats for a player using pbp_events table."""
-    comps = _comp_list(cfg)
+    comps = _comps_for_phase(cfg, phase_filter)
     ph = ",".join("?" * len(comps))
+    hv_sql, hv_params = _hv_clause(hv_filter, tp)
     return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team
             FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
-              AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
+              {hv_sql}
               AND m.score_a + m.score_b > 0
         )
         SELECT e.quarter,
@@ -418,19 +444,20 @@ def get_quarter_stats_pbp(conn, cfg, tp, player_id):
         WHERE e.player_name = (SELECT pgs.player_name FROM player_game_stats pgs
               WHERE COALESCE(pgs.license_number, pgs.player_name) = ? LIMIT 1)
         GROUP BY e.quarter ORDER BY e.quarter
-    """, (tp, *comps, SEASON, tp, tp, player_id)).fetchall()
+    """, (tp, *comps, SEASON, *hv_params, player_id)).fetchall()
 
 
-def get_opponent_ppg(conn, cfg, tp, player_id):
-    comps = _comp_list(cfg)
+def get_opponent_ppg(conn, cfg, tp, player_id, hv_filter=None, phase_filter=None):
+    comps = _comps_for_phase(cfg, phase_filter)
     ph = ",".join("?" * len(comps))
+    hv_sql, hv_params = _hv_clause(hv_filter, tp)
     return conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team,
                    CASE WHEN m.team_a_name LIKE ? THEN m.team_b_name ELSE m.team_a_name END as opponent
             FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
-              AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
+              {hv_sql}
         )
         SELECT kg.opponent,
                ROUND(1.0*SUM(pgs.points)/COUNT(*),1) as ppg,
@@ -441,19 +468,20 @@ def get_opponent_ppg(conn, cfg, tp, player_id):
         WHERE COALESCE(pgs.license_number, pgs.player_name) = ?
         GROUP BY kg.opponent
         ORDER BY ppg DESC
-    """, (tp, tp, *comps, SEASON, tp, tp, player_id)).fetchall()
+    """, (tp, tp, *comps, SEASON, *hv_params, player_id)).fetchall()
 
 
-def get_tech_unsport(conn, cfg, tp, player_id):
+def get_tech_unsport(conn, cfg, tp, player_id, hv_filter=None, phase_filter=None):
     """Get tech and unsportsmanlike foul counts for a player."""
-    comps = _comp_list(cfg)
+    comps = _comps_for_phase(cfg, phase_filter)
     ph = ",".join("?" * len(comps))
+    hv_sql, hv_params = _hv_clause(hv_filter, tp)
     rows = conn.execute(f"""
         WITH kg AS (
             SELECT m.gamecode,
                    CASE WHEN m.team_a_name LIKE ? THEN 'A' ELSE 'B' END as kg_team
             FROM matches m WHERE m.comp_code IN ({ph}) AND m.season = ?
-              AND (m.team_a_name LIKE ? OR m.team_b_name LIKE ?)
+              {hv_sql}
         ),
         player_jerseys AS (
             SELECT DISTINCT pgs.gamecode, pgs.team, pgs.jersey_number
@@ -468,7 +496,7 @@ def get_tech_unsport(conn, cfg, tp, player_id):
         JOIN player_jerseys pj ON pf.gamecode = pj.gamecode AND pf.team = pj.team
             AND pf.jersey_number = pj.jersey_number
         WHERE pf.foul_category IN ('T','U')
-    """, (tp, *comps, SEASON, tp, tp, player_id)).fetchone()
+    """, (tp, *comps, SEASON, *hv_params, player_id)).fetchone()
     if rows is None:
         return (0, 0)
     return (rows[0] or 0, rows[1] or 0)
@@ -821,7 +849,74 @@ def generate_insights(name, games_played, ppg, fg3, ft_made, ft_att, pf_per_game
     return strengths[:5], weaknesses[:5]
 
 
-def generate_html(player_data, game_log, quarter_stats, opp_stats, tech, unsport, cfg, training_att=None):
+def _compute_player_view(player_tuple, bundle):
+    """A player_data + egy bundle (game_log, quarter_stats, opp_stats, tech, unsport)
+    alapján visszaadja az összes derivált értéket dict-ként, amit a player-page használ."""
+    _lic, _name, _jersey, _games_orig, _total_orig, _ppg_orig, _fg2_orig, _fg3_orig, _ftm_orig, _fta_orig, _pf_orig, _max_orig, _starts_orig = player_tuple
+    gl = bundle['game_log']
+    qs = bundle['quarter_stats']
+    op_st = bundle['opp_stats']
+    # Csak a játszott meccsek
+    played = [g for g in gl if g[6] is not None]
+    games = len(played)
+    total_pts = sum((g[6] or 0) for g in played)
+    fg2 = sum((g[7] or 0) for g in played)
+    fg3 = sum((g[8] or 0) for g in played)
+    ft_m = sum((g[9] or 0) for g in played)
+    ft_a = sum((g[10] or 0) for g in played)
+    pf = sum((g[11] or 0) for g in played)
+    starts = sum(1 for g in played if g[12])
+    max_pts = max((g[6] or 0) for g in played) if played else 0
+    ppg = round(total_pts / games, 1) if games else 0
+    ft_pct = round(100 * ft_m / ft_a) if ft_a else 0
+    pf_pg = round(pf / games, 1) if games else 0
+    total_team_pts = sum((g[4] or 0) for g in played)
+    share_pct = round(100 * total_pts / total_team_pts, 1) if total_team_pts else 0
+    pts_3fg = fg3 * 3
+    pts_2fg = fg2 * 2
+    pts_ft = ft_m
+    q_pts = {str(q[0]): q[1] for q in qs if str(q[0]) in ('1','2','3','4')}
+    q_3fg = {str(q[0]): q[2] for q in qs if str(q[0]) in ('1','2','3','4')}
+    q_data = [q_pts.get(str(i), 0) for i in range(1, 5)]
+    q_3fg_data = [q_3fg.get(str(i), 0) for i in range(1, 5)]
+    opp_labels = [shorten_opponent(o[0]) for o in op_st]
+    opp_ppg_data = [o[1] for o in op_st]
+    js_games = []
+    for g in gl:
+        match_id, date, hv, opp, kg_score, opp_score, pts, f2, f3, ftm, fta, pfg, starter = g
+        win = kg_score > opp_score if (kg_score is not None and opp_score is not None) else False
+        if pts is not None:
+            share = round(100*pts/kg_score, 1) if kg_score else 0
+            ft_str = f"{ftm}/{fta}" if fta else "0/0"
+            js_games.append({
+                "date": date[5:].replace("-", "."),
+                "opp": shorten_opponent(opp),
+                "res": "W" if win else "L",
+                "pts": pts, "fg2": f2 or 0, "fg3": f3 or 0,
+                "ft": ft_str, "pf": pfg or 0,
+                "share": share, "start": bool(starter),
+                "hv": hv,
+            })
+        else:
+            js_games.append({
+                "date": date[5:].replace("-", "."),
+                "opp": shorten_opponent(opp),
+                "res": "W" if win else "L",
+                "pts": None, "hv": hv,
+            })
+    return {
+        "games": games, "total_pts": total_pts, "ppg": ppg,
+        "fg2": fg2, "fg3": fg3, "ft_m": ft_m, "ft_a": ft_a, "ft_pct": ft_pct,
+        "pf": pf, "pf_pg": pf_pg, "max_pts": max_pts, "starts": starts,
+        "share_pct": share_pct, "pts_3fg": pts_3fg, "pts_2fg": pts_2fg, "pts_ft": pts_ft,
+        "q_data": q_data, "q_3fg_data": q_3fg_data,
+        "opp_labels": opp_labels, "opp_ppg_data": opp_ppg_data,
+        "js_games": js_games,
+        "tech": bundle.get('tech', 0), "unsport": bundle.get('unsport', 0),
+    }
+
+
+def generate_html(player_data, game_log, quarter_stats, opp_stats, tech, unsport, cfg, training_att=None, bundles=None):
     lic, name, jersey, games, total_pts, ppg, fg2, fg3, ft_m, ft_a, pf, max_pts, starts = player_data
 
     ft_pct = round(100*ft_m/ft_a) if ft_a > 0 else 0
@@ -895,6 +990,20 @@ def generate_html(player_data, game_log, quarter_stats, opp_stats, tech, unsport
     bar_2fg = round(100 * pts_2fg / shot_max)
     bar_ft = round(100 * pts_ft / shot_max) if pts_ft > 0 else 5
 
+    # Bundle views (összes/hazai/idegen/alapszakasz/rájátszás) JS-be való serializáláshoz
+    bundles = bundles or {'all': {
+        'game_log': game_log, 'quarter_stats': quarter_stats,
+        'opp_stats': opp_stats, 'tech': tech, 'unsport': unsport,
+    }}
+    views_js = {mode: _compute_player_view(player_data, b) for mode, b in bundles.items()}
+    has_phase_player = 'alap' in views_js and 'play' in views_js
+    _phase_buttons_p = (
+        '<span class="view-sep"></span>'
+        '<button class="view-btn" onclick="switchPlayerView(\'alap\')">Alapszakasz</button>'
+        '<button class="view-btn" onclick="switchPlayerView(\'play\')">Rájátszás</button>'
+        if has_phase_player else ""
+    )
+
     tech_text = ""
     if tech > 0 or unsport > 0:
         parts = []
@@ -967,6 +1076,27 @@ def generate_html(player_data, game_log, quarter_stats, opp_stats, tech, unsport
   .mini-stat {{ text-align:center; }}
   .mini-stat .big {{ font-size:2rem; font-weight:800; }}
   .mini-stat .desc {{ font-size:0.75rem; color:var(--text-dim); margin-top:4px; }}
+  .view-toggle {{
+    display:flex; gap:4px; justify-content:center; margin-bottom:20px;
+    background:var(--card); border-radius:12px; padding:4px; border:1px solid var(--border);
+    width:fit-content; margin-left:auto; margin-right:auto;
+  }}
+  .view-btn {{
+    padding:8px 20px; border-radius:10px; border:none; cursor:pointer;
+    font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600;
+    color:var(--text-dim); background:transparent; transition:all 0.2s;
+    letter-spacing:0.5px;
+  }}
+  .view-btn:hover {{ color:var(--text); background:rgba(255,255,255,0.05); }}
+  .view-btn.active {{ background:var(--accent); color:#fff; }}
+  .view-sep {{
+    display:inline-block; width:1px; align-self:stretch;
+    background:var(--border); margin:4px 6px;
+  }}
+  @media (max-width:600px) {{
+    .view-toggle {{ flex-wrap:wrap; max-width:100%; }}
+    .view-btn {{ padding:6px 12px; font-size:0.72rem; }}
+  }}
   .game-log-wrap {{ overflow-x:auto; -webkit-overflow-scrolling:touch; }}
   .game-log {{ width:100%; border-collapse:collapse; font-size:0.82rem; }}
   .game-log th {{ text-align:left; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); padding:8px 10px; border-bottom:1px solid var(--border); font-weight:600; white-space:nowrap; }}
@@ -1018,18 +1148,26 @@ def generate_html(player_data, game_log, quarter_stats, opp_stats, tech, unsport
       </div>
     </div>
     <div class="header-stats">
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">{ppg}</div><div class="label">PPG</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">{games}</div><div class="label">Meccs</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--text-dim)">{fg3}</div><div class="label">3FG</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--green)">{max_pts}</div><div class="label">Csúcs</div></div>
+      <div class="header-stat"><div class="val" id="pPpg" style="color:var(--text-dim)">{ppg}</div><div class="label">PPG</div></div>
+      <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">{games}</div><div class="label">Meccs</div></div>
+      <div class="header-stat"><div class="val" id="pFg3" style="color:var(--text-dim)">{fg3}</div><div class="label">3FG</div></div>
+      <div class="header-stat"><div class="val" id="pMax" style="color:var(--green)">{max_pts}</div><div class="label">Csúcs</div></div>
       {"" if not training_att else (lambda r: f'<div class="header-stat"><div class="val" style="color:var(--green)">{training_att} ({round(int(r[0])/int(r[1])*100)}%)</div><div class="label">Edzés</div></div>')(training_att.split('/'))}
     </div>
   </div>
+
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchPlayerView('all')">Összes</button>
+    <button class="view-btn" onclick="switchPlayerView('home')">Hazai</button>
+    <button class="view-btn" onclick="switchPlayerView('away')">Vendég</button>
+    {_phase_buttons_p}
+  </div>
+
   <div class="grid grid-4 mb20">
-    <div class="card mini-stat"><div class="big" style="color:var(--text-dim)">{total_pts}</div><div class="desc">Összes pont</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--text-dim)">{ft_pct}%</div><div class="desc">FT% ({ft_m}/{ft_a})</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--red)">{pf_pg}</div><div class="desc">Fault / meccs</div></div>
-    <div class="card mini-stat"><div class="big" style="color:var(--green)">{share_pct}%</div><div class="desc">Csapat pont részesedés</div></div>
+    <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">{total_pts}</div><div class="desc">Összes pont</div></div>
+    <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">{ft_pct}%</div><div class="desc" id="pFtDesc">FT% ({ft_m}/{ft_a})</div></div>
+    <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">{pf_pg}</div><div class="desc">Fault / meccs</div></div>
+    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">{share_pct}%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
   <div class="grid grid-2 mb20">
     <div class="card">
@@ -1102,19 +1240,41 @@ Chart.defaults.font.family="'Inter',sans-serif";
 
 const games = {json.dumps(js_games, ensure_ascii=False)};
 const maxPts = {max(trend_max, 1)};
+const PVIEWS = {json.dumps(views_js, ensure_ascii=False)};
+const HIGHLIGHT_PTS = {max(round(ppg*1.5), 8)};
 
-const tbody = document.getElementById('gameLogBody');
-games.forEach(g => {{
-  const tr = document.createElement('tr');
-  if (g.pts === null) {{
-    tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge dnp">DNP</span></td><td colspan="6" style="color:var(--text-dim);font-style:italic;font-size:0.78rem;">Nem lépett pályára</td>';
-  }} else {{
-    const barW = Math.max((g.pts/maxPts)*100, 5);
-    const barColor = g.pts >= {max(round(ppg*1.5), 8)} ? 'var(--green)' : 'var(--text-dim)';
-    tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td><td class="bar-cell" style="min-width:80px;"><div class="bar-bg" style="width:'+barW+'%;background:'+barColor+';"></div><span class="bar-val" style="color:'+barColor+';">'+g.pts+'</span></td><td>'+g.fg2+'</td><td style="color:var(--text);font-weight:600;">'+g.fg3+'</td><td>'+g.ft+'</td><td>'+g.pf+'</td><td style="color:var(--text-dim)">'+g.share+'%</td>';
-  }}
-  tbody.appendChild(tr);
-}});
+function renderPlayerGameLog(gms) {{
+  const tbody = document.getElementById('gameLogBody');
+  tbody.innerHTML = '';
+  gms.forEach(g => {{
+    const tr = document.createElement('tr');
+    if (g.pts === null) {{
+      tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge dnp">DNP</span></td><td colspan="6" style="color:var(--text-dim);font-style:italic;font-size:0.78rem;">Nem lépett pályára</td>';
+    }} else {{
+      const barW = Math.max((g.pts/maxPts)*100, 5);
+      const barColor = g.pts >= HIGHLIGHT_PTS ? 'var(--green)' : 'var(--text-dim)';
+      tr.innerHTML = '<td>'+g.date+'</td><td>'+g.opp+'</td><td><span class="badge '+(g.res==='W'?'w':'l')+'">'+(g.res==='W'?'GY':'V')+'</span></td><td class="bar-cell" style="min-width:80px;"><div class="bar-bg" style="width:'+barW+'%;background:'+barColor+';"></div><span class="bar-val" style="color:'+barColor+';">'+g.pts+'</span></td><td>'+g.fg2+'</td><td style="color:var(--text);font-weight:600;">'+g.fg3+'</td><td>'+g.ft+'</td><td>'+g.pf+'</td><td style="color:var(--text-dim)">'+g.share+'%</td>';
+    }}
+    tbody.appendChild(tr);
+  }});
+}}
+renderPlayerGameLog(games);
+
+function switchPlayerView(mode) {{
+  const v = PVIEWS[mode]; if (!v) return;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.view-btn[onclick*="\\''+mode+'\\'"]').classList.add('active');
+  document.getElementById('pPpg').textContent   = v.ppg;
+  document.getElementById('pGames').textContent = v.games;
+  document.getElementById('pFg3').textContent   = v.fg3;
+  document.getElementById('pMax').textContent   = v.max_pts;
+  document.getElementById('pTotal').textContent = v.total_pts;
+  document.getElementById('pFtBig').textContent = v.ft_pct + '%';
+  document.getElementById('pFtDesc').textContent = 'FT% (' + v.ft_m + '/' + v.ft_a + ')';
+  document.getElementById('pPfPg').textContent  = v.pf_pg;
+  document.getElementById('pShare').textContent = v.share_pct + '%';
+  renderPlayerGameLog(v.js_games);
+}}
 
 const played = games.filter(g => g.pts !== null);
 new Chart(document.getElementById('scoringTrend').getContext('2d'), {{
@@ -4817,23 +4977,51 @@ def generate_team(team_key):
             else:
                 print(f"  ⚠ Nem sikerült betölteni az edzéslátogatást")
 
+        # Bundle modes: all + home + away mindig, plus alap+play ha NB2
+        bundle_modes = ['all', 'home', 'away']
+        if cfg.get("mkosz_extra_comps"):
+            bundle_modes += ['alap', 'play']
+        # Mode → (hv_filter, phase_filter)
+        _mode_args = {
+            'all':  (None, None),
+            'home': ('H',  None),
+            'away': ('V',  None),
+            'alap': (None, 'alap'),
+            'play': (None, 'play'),
+        }
+        _qs_fn = get_quarter_stats_pbp if pbp else get_quarter_stats
+
         for idx, player in enumerate(roster):
             lic = player[0]  # license_number or player_name (unified)
             name = player[1]
             slug = slugify(name)
 
+            # Default bundle ('all') — eredeti viselkedés a player_data-hoz
             game_log = get_game_log(conn, cfg, tp, lic)
-            if pbp:
-                quarter_stats = get_quarter_stats_pbp(conn, cfg, tp, lic)
-            else:
-                quarter_stats = get_quarter_stats(conn, cfg, tp, lic)
+            quarter_stats = _qs_fn(conn, cfg, tp, lic)
             opp_stats = get_opponent_ppg(conn, cfg, tp, lic)
             tech, unsport = get_tech_unsport(conn, cfg, tp, lic)
+
+            # Az 'all' mellé a többi mode bundle-jét is kiszámoljuk
+            bundles = {'all': {
+                'game_log': game_log, 'quarter_stats': quarter_stats,
+                'opp_stats': opp_stats, 'tech': tech, 'unsport': unsport,
+            }}
+            for m in bundle_modes:
+                if m == 'all':
+                    continue
+                hvf, phf = _mode_args[m]
+                bundles[m] = {
+                    'game_log': get_game_log(conn, cfg, tp, lic, hv_filter=hvf, phase_filter=phf),
+                    'quarter_stats': _qs_fn(conn, cfg, tp, lic, hv_filter=hvf, phase_filter=phf),
+                    'opp_stats': get_opponent_ppg(conn, cfg, tp, lic, hv_filter=hvf, phase_filter=phf),
+                    **dict(zip(('tech', 'unsport'), get_tech_unsport(conn, cfg, tp, lic, hv_filter=hvf, phase_filter=phf))),
+                }
 
             # Training attendance (Közgáz B only)
             att = att_data.get(name)
 
-            html = generate_html(player, game_log, quarter_stats, opp_stats, tech, unsport, cfg, training_att=att)
+            html = generate_html(player, game_log, quarter_stats, opp_stats, tech, unsport, cfg, training_att=att, bundles=bundles)
 
             filename = f"{slug}.html"
             filepath = os.path.join(out_dir, filename)
