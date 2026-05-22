@@ -52,6 +52,25 @@
   .grid-5 { grid-template-columns:1fr 1fr 1fr 1fr 1fr; }
   .grid-6 { grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr; }
   @media (max-width:900px) { .grid-6 { grid-template-columns:1fr 1fr 1fr; } }
+  .league-link-card {
+    display:flex; align-items:center; gap:14px;
+    background:linear-gradient(135deg,#1a1518 0%,#251018 100%);
+    border-radius:14px; padding:14px 20px; margin-bottom:14px;
+    border:1px solid rgba(196,30,58,0.25); text-decoration:none; color:var(--text);
+    transition:all 0.2s; cursor:pointer;
+  }
+  .league-link-card:hover {
+    border-color:var(--accent); transform:translateY(-1px);
+    box-shadow:0 6px 18px rgba(196,30,58,0.15);
+  }
+  .league-link-card .ll-icon { font-size:1.5rem; min-width:32px; text-align:center; }
+  .league-link-card .ll-title { font-weight:700; font-size:0.95rem; }
+  .league-link-card .ll-desc { font-size:0.74rem; color:var(--text-dim); margin-top:2px; }
+  .league-link-card .ll-arrow {
+    margin-left:auto; font-size:1.2rem; color:var(--accent); opacity:0.6;
+    transition:opacity 0.2s, transform 0.2s;
+  }
+  .league-link-card:hover .ll-arrow { opacity:1; transform:translateX(3px); }
   .card {
     background:var(--card); border-radius:16px; padding:24px;
     border:1px solid var(--border); transition:background 0.2s;
@@ -175,6 +194,8 @@
       <div class="header-stat"><div class="val" id="hDiff" style="color:var(--green)">26.7</div><div class="label">Kül./m</div></div>
     </div>
   </div>
+
+  
 
   <div class="view-toggle">
     <button class="view-btn active" onclick="switchView('all')">Összes</button>

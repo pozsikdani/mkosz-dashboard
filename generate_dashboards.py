@@ -1815,6 +1815,60 @@ def scrape_schedule_county(cfg):
     return matches if matches else None
 
 
+def get_league_comparison(conn, comp_code):
+    """Egy adott comp_code minden csapatának összesített meccsenkénti mutatói.
+
+    Visszaad egy list-et dict-ekkel:
+        {name, games, wins, losses, ppg, oppg, ft_pct, fg2_pg, fg3_pg}
+    Csak az adott comp_code lejátszott meccseit veszi figyelembe.
+    """
+    rows = conn.execute("""
+        WITH match_teams AS (
+            SELECT gamecode, team_a_name AS name, score_a AS pts, score_b AS opp_pts, 'A' AS side
+            FROM matches WHERE comp_code = ? AND season = ? AND score_a IS NOT NULL
+            UNION ALL
+            SELECT gamecode, team_b_name, score_b, score_a, 'B'
+            FROM matches WHERE comp_code = ? AND season = ? AND score_a IS NOT NULL
+        ),
+        pgs_agg AS (
+            SELECT gamecode, team,
+                SUM(fg2_made) AS fg2_made, SUM(fg3_made) AS fg3_made,
+                SUM(ft_made) AS ft_made, SUM(ft_attempted) AS ft_att
+            FROM player_game_stats GROUP BY gamecode, team
+        )
+        SELECT
+            mt.name,
+            COUNT(*) AS games,
+            SUM(CASE WHEN mt.pts > mt.opp_pts THEN 1 ELSE 0 END) AS wins,
+            SUM(CASE WHEN mt.pts < mt.opp_pts THEN 1 ELSE 0 END) AS losses,
+            ROUND(1.0*SUM(mt.pts)/COUNT(*), 1) AS ppg,
+            ROUND(1.0*SUM(mt.opp_pts)/COUNT(*), 1) AS oppg,
+            COALESCE(SUM(pgs_agg.fg2_made), 0) AS fg2_total,
+            COALESCE(SUM(pgs_agg.fg3_made), 0) AS fg3_total,
+            COALESCE(SUM(pgs_agg.ft_made), 0) AS ftm_total,
+            COALESCE(SUM(pgs_agg.ft_att), 0) AS fta_total
+        FROM match_teams mt
+        LEFT JOIN pgs_agg ON pgs_agg.gamecode = mt.gamecode AND pgs_agg.team = mt.side
+        WHERE mt.name IS NOT NULL AND mt.name != ''
+        GROUP BY mt.name
+        HAVING games >= 1
+        ORDER BY mt.name
+    """, (comp_code, SEASON, comp_code, SEASON)).fetchall()
+    result = []
+    for r in rows:
+        name, games, wins, losses, ppg, oppg, fg2_t, fg3_t, ftm_t, fta_t = r
+        ft_pct = round(100 * ftm_t / fta_t, 1) if fta_t else 0.0
+        fg2_pg = round(fg2_t / games, 1) if games else 0.0
+        fg3_pg = round(fg3_t / games, 1) if games else 0.0
+        result.append({
+            "name": name, "games": games,
+            "wins": wins or 0, "losses": losses or 0,
+            "ppg": ppg or 0.0, "oppg": oppg or 0.0,
+            "ft_pct": ft_pct, "fg2_pg": fg2_pg, "fg3_pg": fg3_pg,
+        })
+    return result
+
+
 def get_calendar_data_db(conn, cfg, tp):
     """Fallback: fetch match data from SQLite."""
     comps = _comp_list(cfg)
@@ -2182,6 +2236,177 @@ def _stats_to_js(d):
     }
 
 
+def generate_league_comparison_page(cfg, alap_data, play_data, team_key=None):
+    """Csoport-összehasonlító oldal: 2x6 mini-tábla (alapszakasz + rájátszás).
+
+    Megjeleníti a 6 jegyzőkönyv-alapú mutatót (W-L, PPG, OPPG, FT%, 2FG/G, 3FG/G)
+    minden csapatra az adott comp_code-okban. A Közgáz csapat sora minden
+    rangsorban kiemelve.
+    """
+    team_short = cfg["team_short"]
+    team_name = cfg["team_name"]
+    group_name = cfg["group_name"]
+
+    # Csapatnév-egyezés: van-e a saját csapatunk az adott listában?
+    def _is_kg(name):
+        return team_short.upper() in (name or "").upper() or \
+               "KÖZGÁZ" in (name or "").upper() and team_key in ("kozgaz-a", "kozgaz-b") and \
+               (("DSK/A" in name and team_key == "kozgaz-a") or ("DSK/B" in name and team_key == "kozgaz-b"))
+
+    def _mini_table(title, data, sort_key, fmt_val, ascending=False, secondary_key=None):
+        """Egy mini-táblázat: rang, csapatnév, érték; rendezve sort_key szerint."""
+        sorted_data = sorted(
+            data,
+            key=lambda d: (sort_key(d), (secondary_key(d) if secondary_key else 0)),
+            reverse=not ascending,
+        )
+        rows_html = ""
+        for i, t in enumerate(sorted_data, 1):
+            name = calendar_short_name(t["name"])
+            is_kg = _is_kg(t["name"])
+            row_class = "lg-row lg-kg" if is_kg else "lg-row"
+            rows_html += (
+                f'<tr class="{row_class}">'
+                f'<td class="lg-rank">{i}.</td>'
+                f'<td class="lg-name">{name}</td>'
+                f'<td class="lg-val">{fmt_val(t)}</td>'
+                f'</tr>'
+            )
+        return f'''<div class="card lg-card">
+          <h3>{title}</h3>
+          <table class="lg-tbl"><tbody>{rows_html}</tbody></table>
+        </div>'''
+
+    def _section_grid(data):
+        """6 mini-tábla 2x3 grid-ben az adott data list-re."""
+        if not data:
+            return '<div class="empty-state">Nincs adat ehhez a csoporthoz.</div>'
+        tables = []
+        tables.append(_mini_table("Győzelem-vereség", data,
+            sort_key=lambda d: d["wins"],
+            secondary_key=lambda d: -d["losses"],
+            fmt_val=lambda d: f'{d["wins"]}-{d["losses"]}'))
+        tables.append(_mini_table("PPG (dobott)", data,
+            sort_key=lambda d: d["ppg"],
+            fmt_val=lambda d: f'{d["ppg"]:.1f}'))
+        tables.append(_mini_table("OPPG (kapott)", data,
+            sort_key=lambda d: d["oppg"], ascending=True,
+            fmt_val=lambda d: f'{d["oppg"]:.1f}'))
+        tables.append(_mini_table("Büntető%", data,
+            sort_key=lambda d: d["ft_pct"],
+            fmt_val=lambda d: f'{d["ft_pct"]:.1f}%'))
+        tables.append(_mini_table("2FG / meccs", data,
+            sort_key=lambda d: d["fg2_pg"],
+            fmt_val=lambda d: f'{d["fg2_pg"]:.1f}'))
+        tables.append(_mini_table("3FG / meccs", data,
+            sort_key=lambda d: d["fg3_pg"],
+            fmt_val=lambda d: f'{d["fg3_pg"]:.1f}'))
+        return '<div class="lg-grid">' + "".join(tables) + '</div>'
+
+    alap_label = group_name  # pl. "NB2 Közép B" Közgáz A-hoz
+    alap_section = ""
+    if alap_data:
+        alap_section = f'''<div class="lg-section">
+          <h2>Alapszakasz — {alap_label}</h2>
+          <div class="lg-section-note">{len(alap_data)} csapat · meccsenkénti átlagok az alapszakasz meccsek alapján</div>
+          {_section_grid(alap_data)}
+        </div>'''
+
+    play_section = ""
+    if play_data:
+        play_section = f'''<div class="lg-section">
+          <h2>Rájátszás — NB2 Rájátszás (alsóház)</h2>
+          <div class="lg-section-note">{len(play_data)} csapat · csak a rájátszás meccsek alapján</div>
+          {_section_grid(play_data)}
+        </div>'''
+
+    return f"""<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+<link rel="apple-touch-icon" href="/kozgaz_logo.png">
+<title>{team_name} — Csoport összehasonlítás</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {{
+    --bg:#0a0b0e; --card:#151518; --card-hover:#1a1b20; --border:rgba(255,255,255,0.08);
+    --accent:#C41E3A; --accent2:#00cec9; --text:#e8e8f0; --text-dim:#8b8da0;
+    --green:#00b894; --red:#e17055;
+  }}
+  * {{ box-sizing:border-box; margin:0; padding:0; }}
+  body {{ font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:24px; }}
+  .container {{ max-width:1200px; margin:0 auto; }}
+  .back-link {{
+    display:inline-block; color:var(--text-dim); text-decoration:none;
+    font-size:0.82rem; font-weight:600; margin-bottom:16px; opacity:0.7;
+    transition:color 0.2s, opacity 0.2s;
+  }}
+  .back-link:hover {{ color:var(--accent); opacity:1; }}
+  .hero {{
+    background:linear-gradient(135deg,#151518 0%,#2a1218 100%);
+    border:1px solid var(--border); border-radius:20px; padding:28px;
+    margin-bottom:24px; text-align:center;
+  }}
+  .hero h1 {{ font-size:1.8rem; font-weight:900; margin-bottom:8px; }}
+  .hero .sub {{ color:var(--text-dim); font-size:0.95rem; }}
+  .lg-section {{ margin-bottom:32px; }}
+  .lg-section h2 {{
+    font-size:1.1rem; font-weight:800; margin-bottom:4px;
+    text-transform:uppercase; letter-spacing:1px;
+    color:var(--accent);
+  }}
+  .lg-section-note {{
+    font-size:0.78rem; color:var(--text-dim); margin-bottom:14px; font-style:italic;
+  }}
+  .lg-grid {{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;
+  }}
+  @media (max-width:900px) {{ .lg-grid {{ grid-template-columns:1fr 1fr; }} }}
+  @media (max-width:600px) {{ .lg-grid {{ grid-template-columns:1fr; }} }}
+  .card {{
+    background:var(--card); border-radius:14px; padding:16px 18px;
+    border:1px solid var(--border);
+  }}
+  .lg-card h3 {{
+    font-size:0.72rem; text-transform:uppercase; letter-spacing:1.1px;
+    color:var(--text-dim); margin-bottom:10px; font-weight:600;
+  }}
+  .lg-tbl {{ width:100%; border-collapse:collapse; font-size:0.82rem; }}
+  .lg-row {{ transition:background 0.15s; }}
+  .lg-row td {{ padding:5px 6px; border-bottom:1px solid rgba(255,255,255,0.04); }}
+  .lg-row:last-child td {{ border-bottom:none; }}
+  .lg-rank {{ color:var(--text-dim); width:24px; font-weight:600; font-size:0.75rem; }}
+  .lg-name {{ color:var(--text); }}
+  .lg-val {{ text-align:right; font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; }}
+  .lg-kg {{ background:rgba(196,30,58,0.18); }}
+  .lg-kg td {{ color:#fff; }}
+  .lg-kg .lg-rank {{ color:#fff; }}
+  .lg-kg .lg-name {{ font-weight:700; }}
+  .empty-state {{ color:var(--text-dim); font-style:italic; padding:20px; text-align:center; }}
+  {NAV_CSS}
+</style>
+</head>
+<body>
+<div class="container">
+{_nav_html(active_key=team_key, depth=1)}
+<a href="csapat.html" class="back-link">&larr; Csapat dashboard</a>
+
+<div class="hero">
+  <h1>{team_name} — Csoport összehasonlítás</h1>
+  <div class="sub">{group_name} &nbsp;|&nbsp; 2025/26 szezon &nbsp;|&nbsp; A pirossal kiemelt sor a saját csapat</div>
+</div>
+
+{alap_section}
+{play_section}
+
+</div>
+</body>
+</html>"""
+
+
 def generate_team_dashboard(stats_all, cfg, team_key=None, att_data=None,
                             stats_home=None, stats_away=None, match_urls=None,
                             stats_alap=None, stats_play=None):
@@ -2373,6 +2598,25 @@ new Chart(attCtx, {{
   .grid-5 {{ grid-template-columns:1fr 1fr 1fr 1fr 1fr; }}
   .grid-6 {{ grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr; }}
   @media (max-width:900px) {{ .grid-6 {{ grid-template-columns:1fr 1fr 1fr; }} }}
+  .league-link-card {{
+    display:flex; align-items:center; gap:14px;
+    background:linear-gradient(135deg,#1a1518 0%,#251018 100%);
+    border-radius:14px; padding:14px 20px; margin-bottom:14px;
+    border:1px solid rgba(196,30,58,0.25); text-decoration:none; color:var(--text);
+    transition:all 0.2s; cursor:pointer;
+  }}
+  .league-link-card:hover {{
+    border-color:var(--accent); transform:translateY(-1px);
+    box-shadow:0 6px 18px rgba(196,30,58,0.15);
+  }}
+  .league-link-card .ll-icon {{ font-size:1.5rem; min-width:32px; text-align:center; }}
+  .league-link-card .ll-title {{ font-weight:700; font-size:0.95rem; }}
+  .league-link-card .ll-desc {{ font-size:0.74rem; color:var(--text-dim); margin-top:2px; }}
+  .league-link-card .ll-arrow {{
+    margin-left:auto; font-size:1.2rem; color:var(--accent); opacity:0.6;
+    transition:opacity 0.2s, transform 0.2s;
+  }}
+  .league-link-card:hover .ll-arrow {{ opacity:1; transform:translateX(3px); }}
   .card {{
     background:var(--card); border-radius:16px; padding:24px;
     border:1px solid var(--border); transition:background 0.2s;
@@ -2471,6 +2715,13 @@ new Chart(attCtx, {{
       <div class="header-stat"><div class="val" id="hDiff" style="color:var(--{"green" if d["ppg"] >= d["opp_ppg"] else "red"})">{round(d["ppg"]-d["opp_ppg"],1)}</div><div class="label">Kül./m</div></div>
     </div>
   </div>
+
+  {('''<a href="csoport.html" class="league-link-card">
+    <div class="ll-icon">📈</div>
+    <div class="ll-body"><div class="ll-title">Csoport összehasonlítás</div>
+    <div class="ll-desc">A liga csapatai meccsenkénti mutatók szerint</div></div>
+    <div class="ll-arrow">→</div>
+  </a>''') if cfg.get("mkosz_extra_comps") else ''}
 
   <div class="view-toggle">
     <button class="view-btn active" onclick="switchView('all')">Összes</button>
@@ -5092,6 +5343,16 @@ def generate_team(team_key):
         with open(os.path.join(out_dir, "csapat.html"), "w", encoding="utf-8") as f:
             f.write(team_html)
         print(f"\n  ✓ csapat.html (csapat dashboard)")
+
+        # Csoport-összehasonlítás oldal csak NB2 csapatokra (van mkosz_extra_comps)
+        if cfg.get("mkosz_extra_comps"):
+            alap_data = get_league_comparison(conn, cfg["comp_code"])
+            play_data = get_league_comparison(conn, cfg["mkosz_extra_comps"][0])
+            if alap_data or play_data:
+                comp_html = generate_league_comparison_page(cfg, alap_data, play_data, team_key=team_key)
+                with open(os.path.join(out_dir, "csoport.html"), "w", encoding="utf-8") as f:
+                    f.write(comp_html)
+                print(f"  ✓ csoport.html (alap: {len(alap_data)}, rájátszás: {len(play_data)} csapat)")
 
     # Calendar — scrape from MKOSZ (or megye for county), fall back to SQLite
     if cfg.get("county"):
