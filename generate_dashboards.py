@@ -3592,7 +3592,8 @@ def generate_match_page(details, cfg, team_key):
             m = max(0, min(10, m))
             t = (f["quarter"] - 1) * 10 + m
             left_pct = (t / 40) * 100
-            color = "var(--red)" if len(faults) >= 4 else "var(--text-dim)"
+            # Piros csak akkor, ha a játékos kipontozódott (≥5 fault)
+            color = "var(--red)" if len(faults) >= 5 else "var(--text-dim)"
             markers += f'<div class="foul-dot" style="left:{left_pct}%;background:{color};" title="Q{f["quarter"]} {m}p"></div>'
         foul_rows += f'''<div class="foul-row">
           <div class="foul-pname">{name}</div>
