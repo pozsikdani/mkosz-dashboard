@@ -132,8 +132,8 @@
       </div>
     </div>
     <div class="header-stats">
-      <div class="header-stat"><div class="val" id="pPpg" style="color:var(--text-dim)">29.0</div><div class="label">PPG</div></div>
-      <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">2</div><div class="label">Meccs</div></div>
+      <div class="header-stat"><div class="val" id="pPpg" style="color:var(--text-dim)">27.0</div><div class="label">PPG</div></div>
+      <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">3</div><div class="label">Meccs</div></div>
       <div class="header-stat"><div class="val" id="pFg3" style="color:var(--text-dim)">6</div><div class="label">3FG</div></div>
       <div class="header-stat"><div class="val" id="pMax" style="color:var(--green)">31</div><div class="label">Csúcs</div></div>
       
@@ -148,10 +148,10 @@
   </div>
 
   <div class="grid grid-4 mb20">
-    <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">58</div><div class="desc">Összes pont</div></div>
-    <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">73%</div><div class="desc" id="pFtDesc">FT% (8/11)</div></div>
-    <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">1.5</div><div class="desc">Fault / meccs</div></div>
-    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">33.9%</div><div class="desc">Csapat pont részesedés</div></div>
+    <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">81</div><div class="desc">Összes pont</div></div>
+    <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">71%</div><div class="desc" id="pFtDesc">FT% (15/21)</div></div>
+    <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">1.3</div><div class="desc">Fault / meccs</div></div>
+    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">33.5%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
   <div class="grid grid-2 mb20">
     <div class="card">
@@ -163,18 +163,18 @@
       <div style="margin-top:20px;">
         <div class="shot-row">
           <div class="shot-label" style="color:#c0c2ce">3FG</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:56%;background:#c0c2ce;color:#1a1b20;">6 db</div></div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:38%;background:#c0c2ce;color:#1a1b20;">6 db</div></div>
           <div class="shot-pct" style="color:#c0c2ce">18 pt</div>
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:#8b8da0">2FG</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:100%;background:#8b8da0;">16 db</div></div>
-          <div class="shot-pct" style="color:#8b8da0">32 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:100%;background:#8b8da0;">24 db</div></div>
+          <div class="shot-pct" style="color:#8b8da0">48 pt</div>
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:#5a5c6a">FT</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:25%;background:#5a5c6a;">8/11</div></div>
-          <div class="shot-pct" style="color:#5a5c6a">8 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:31%;background:#5a5c6a;">15/21</div></div>
+          <div class="shot-pct" style="color:#5a5c6a">15 pt</div>
         </div>
       </div>
       <div style="margin-top:20px;"><div class="chart-wrap" style="height:160px;"><canvas id="shotPie"></canvas></div></div>
@@ -205,13 +205,13 @@
       <div>
         <div style="color:var(--green);font-weight:700;margin-bottom:6px;">Erősségek</div>
         <ul style="padding-left:18px;color:var(--text-dim);">
-          <li><span style="color:#fff;font-weight:600;">Fegyelmezett: 1.5 fault/meccs</span></li><li><span style="color:#fff;font-weight:600;">Meghatározó pontszerző (29.0 PPG)</span></li><li><span style="color:#fff;font-weight:600;">Nagy meccsekre képes (csúcs: 31 pont)</span></li>
+          <li><span style="color:#fff;font-weight:600;">Fegyelmezett: 1.3 fault/meccs</span></li><li><span style="color:#fff;font-weight:600;">Meghatározó pontszerző (27.0 PPG)</span></li><li><span style="color:#fff;font-weight:600;">Nagy meccsekre képes (csúcs: 31 pont)</span></li>
         </ul>
       </div>
       <div>
         <div style="color:var(--red);font-weight:700;margin-bottom:6px;">Fejlesztendő területek</div>
         <ul style="padding-left:18px;color:var(--text-dim);">
-          <li><span style="color:#fff;font-weight:600;">Q3 a leggyengébb negyed (5.0 pont/meccs)</span></li><li><span style="color:#fff;font-weight:600;">19 meccsen nem kapott lehetőséget (DNP)</span></li>
+          <li><span style="color:#fff;font-weight:600;">19 meccsen nem kapott lehetőséget (DNP)</span></li>
         </ul>
       </div>
     </div>
@@ -222,10 +222,10 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.06", "opp": "Szentendrei Kse", "res": "W", "pts": null}, {"date": "10.13", "opp": "Mafc Kardinális", "res": "L", "pts": null}, {"date": "10.20", "opp": "Vashódok", "res": "W", "pts": null}, {"date": "11.17", "opp": "Monor Se", "res": "L", "pts": null}, {"date": "12.01", "opp": "E5Vös Okapik", "res": "W", "pts": null}, {"date": "12.08", "opp": "Zuglói Sasok", "res": "W", "pts": 27, "fg2": 10, "fg3": 1, "ft": "4/5", "pf": 2, "share": 29.3, "start": true}, {"date": "12.11", "opp": "Csepel Tc", "res": "W", "pts": null}, {"date": "12.15", "opp": "Mafc Martos", "res": "L", "pts": null}, {"date": "01.26", "opp": "Goldenhusz", "res": "L", "pts": null}, {"date": "02.04", "opp": "Szentendrei Kse", "res": "L", "pts": null}, {"date": "02.09", "opp": "Mafc Kardinális", "res": "L", "pts": null}, {"date": "02.13", "opp": "Vashódok", "res": "L", "pts": null}, {"date": "02.23", "opp": "Csepel Tc", "res": "L", "pts": null}, {"date": "03.02", "opp": "Ludovika Se", "res": "L", "pts": null}, {"date": "03.23", "opp": "Qpac", "res": "L", "pts": 31, "fg2": 6, "fg3": 5, "ft": "4/6", "pf": 1, "share": 39.2, "start": true}, {"date": "03.25", "opp": "Monor Se", "res": "L", "pts": null}, {"date": "03.29", "opp": "E5Vös Okapik", "res": "W", "pts": null}, {"date": "04.13", "opp": "Zuglói Sasok", "res": "W", "pts": null}, {"date": "04.17", "opp": "Mafc Martos", "res": "L", "pts": null}, {"date": "04.29", "opp": "Qpac", "res": "L", "pts": null}, {"date": "05.08", "opp": "Ludovika Se", "res": "L", "pts": null}];
+const games = [{"date": "10.06", "opp": "Szentendrei Kse", "res": "W", "pts": null}, {"date": "10.13", "opp": "Mafc Kardinális", "res": "L", "pts": null}, {"date": "10.20", "opp": "Vashódok", "res": "W", "pts": null}, {"date": "11.17", "opp": "Monor Se", "res": "L", "pts": null}, {"date": "12.01", "opp": "E5Vös Okapik", "res": "W", "pts": null}, {"date": "12.08", "opp": "Zuglói Sasok", "res": "W", "pts": 27, "fg2": 10, "fg3": 1, "ft": "4/5", "pf": 2, "share": 29.3, "start": true}, {"date": "12.11", "opp": "Csepel Tc", "res": "W", "pts": null}, {"date": "12.15", "opp": "Mafc Martos", "res": "L", "pts": null}, {"date": "01.26", "opp": "Goldenhusz", "res": "L", "pts": null}, {"date": "02.04", "opp": "Szentendrei Kse", "res": "L", "pts": null}, {"date": "02.09", "opp": "Mafc Kardinális", "res": "L", "pts": null}, {"date": "02.13", "opp": "Vashódok", "res": "L", "pts": null}, {"date": "02.23", "opp": "Csepel Tc", "res": "L", "pts": null}, {"date": "03.02", "opp": "Ludovika Se", "res": "L", "pts": null}, {"date": "03.23", "opp": "Qpac", "res": "L", "pts": 31, "fg2": 6, "fg3": 5, "ft": "4/6", "pf": 1, "share": 39.2, "start": true}, {"date": "03.25", "opp": "Monor Se", "res": "L", "pts": null}, {"date": "03.29", "opp": "E5Vös Okapik", "res": "W", "pts": null}, {"date": "04.13", "opp": "Zuglói Sasok", "res": "W", "pts": null}, {"date": "04.17", "opp": "Mafc Martos", "res": "L", "pts": null}, {"date": "04.29", "opp": "Qpac", "res": "L", "pts": null}, {"date": "05.08", "opp": "Ludovika Se", "res": "L", "pts": null}, {"date": "05.17", "opp": "Goldenhusz", "res": "W", "pts": 23, "fg2": 8, "fg3": 0, "ft": "7/10", "pf": 1, "share": 32.4, "start": true}];
 const maxPts = 31;
-const PVIEWS = {"all": {"games": 2, "total_pts": 58, "ppg": 29.0, "fg2": 16, "fg3": 6, "ft_m": 8, "ft_a": 11, "ft_pct": 73, "pf": 3, "pf_pg": 1.5, "max_pts": 31, "starts": 2, "share_pct": 33.9, "pts_3fg": 18, "pts_2fg": 32, "pts_ft": 8, "q_data": [21, 15, 10, 12], "q_3fg_data": [9, 4, 0, 1], "opp_labels": ["Qpac", "Zuglói Sasok"], "opp_ppg_data": [31.0, 27.0], "js_games": [{"date": "10.06", "opp": "Szentendrei Kse", "res": "W", "pts": null, "hv": "H"}, {"date": "10.13", "opp": "Mafc Kardinális", "res": "L", "pts": null, "hv": "V"}, {"date": "10.20", "opp": "Vashódok", "res": "W", "pts": null, "hv": "H"}, {"date": "11.17", "opp": "Monor Se", "res": "L", "pts": null, "hv": "H"}, {"date": "12.01", "opp": "E5Vös Okapik", "res": "W", "pts": null, "hv": "H"}, {"date": "12.08", "opp": "Zuglói Sasok", "res": "W", "pts": 27, "fg2": 10, "fg3": 1, "ft": "4/5", "pf": 2, "share": 29.3, "start": true, "hv": "V"}, {"date": "12.11", "opp": "Csepel Tc", "res": "W", "pts": null, "hv": "V"}, {"date": "12.15", "opp": "Mafc Martos", "res": "L", "pts": null, "hv": "H"}, {"date": "01.26", "opp": "Goldenhusz", "res": "L", "pts": null, "hv": "H"}, {"date": "02.04", "opp": "Szentendrei Kse", "res": "L", "pts": null, "hv": "V"}, {"date": "02.09", "opp": "Mafc Kardinális", "res": "L", "pts": null, "hv": "H"}, {"date": "02.13", "opp": "Vashódok", "res": "L", "pts": null, "hv": "V"}, {"date": "02.23", "opp": "Csepel Tc", "res": "L", "pts": null, "hv": "H"}, {"date": "03.02", "opp": "Ludovika Se", "res": "L", "pts": null, "hv": "H"}, {"date": "03.23", "opp": "Qpac", "res": "L", "pts": 31, "fg2": 6, "fg3": 5, "ft": "4/6", "pf": 1, "share": 39.2, "start": true, "hv": "H"}, {"date": "03.25", "opp": "Monor Se", "res": "L", "pts": null, "hv": "V"}, {"date": "03.29", "opp": "E5Vös Okapik", "res": "W", "pts": null, "hv": "V"}, {"date": "04.13", "opp": "Zuglói Sasok", "res": "W", "pts": null, "hv": "H"}, {"date": "04.17", "opp": "Mafc Martos", "res": "L", "pts": null, "hv": "V"}, {"date": "04.29", "opp": "Qpac", "res": "L", "pts": null, "hv": "V"}, {"date": "05.08", "opp": "Ludovika Se", "res": "L", "pts": null, "hv": "V"}], "tech": 0, "unsport": 0}, "home": {"games": 1, "total_pts": 31, "ppg": 31.0, "fg2": 6, "fg3": 5, "ft_m": 4, "ft_a": 6, "ft_pct": 67, "pf": 1, "pf_pg": 1.0, "max_pts": 31, "starts": 1, "share_pct": 39.2, "pts_3fg": 15, "pts_2fg": 12, "pts_ft": 4, "q_data": [16, 7, 6, 2], "q_3fg_data": [6, 2, 0, 0], "opp_labels": ["Qpac"], "opp_ppg_data": [31.0], "js_games": [{"date": "10.06", "opp": "Szentendrei Kse", "res": "W", "pts": null, "hv": "H"}, {"date": "10.20", "opp": "Vashódok", "res": "W", "pts": null, "hv": "H"}, {"date": "11.17", "opp": "Monor Se", "res": "L", "pts": null, "hv": "H"}, {"date": "12.01", "opp": "E5Vös Okapik", "res": "W", "pts": null, "hv": "H"}, {"date": "12.15", "opp": "Mafc Martos", "res": "L", "pts": null, "hv": "H"}, {"date": "01.26", "opp": "Goldenhusz", "res": "L", "pts": null, "hv": "H"}, {"date": "02.09", "opp": "Mafc Kardinális", "res": "L", "pts": null, "hv": "H"}, {"date": "02.23", "opp": "Csepel Tc", "res": "L", "pts": null, "hv": "H"}, {"date": "03.02", "opp": "Ludovika Se", "res": "L", "pts": null, "hv": "H"}, {"date": "03.23", "opp": "Qpac", "res": "L", "pts": 31, "fg2": 6, "fg3": 5, "ft": "4/6", "pf": 1, "share": 39.2, "start": true, "hv": "H"}, {"date": "04.13", "opp": "Zuglói Sasok", "res": "W", "pts": null, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 1, "total_pts": 27, "ppg": 27.0, "fg2": 10, "fg3": 1, "ft_m": 4, "ft_a": 5, "ft_pct": 80, "pf": 2, "pf_pg": 2.0, "max_pts": 27, "starts": 1, "share_pct": 29.3, "pts_3fg": 3, "pts_2fg": 20, "pts_ft": 4, "q_data": [5, 8, 4, 10], "q_3fg_data": [3, 2, 0, 1], "opp_labels": ["Zuglói Sasok"], "opp_ppg_data": [27.0], "js_games": [{"date": "10.13", "opp": "Mafc Kardinális", "res": "L", "pts": null, "hv": "V"}, {"date": "12.08", "opp": "Zuglói Sasok", "res": "W", "pts": 27, "fg2": 10, "fg3": 1, "ft": "4/5", "pf": 2, "share": 29.3, "start": true, "hv": "V"}, {"date": "12.11", "opp": "Csepel Tc", "res": "W", "pts": null, "hv": "V"}, {"date": "02.04", "opp": "Szentendrei Kse", "res": "L", "pts": null, "hv": "V"}, {"date": "02.13", "opp": "Vashódok", "res": "L", "pts": null, "hv": "V"}, {"date": "03.25", "opp": "Monor Se", "res": "L", "pts": null, "hv": "V"}, {"date": "03.29", "opp": "E5Vös Okapik", "res": "W", "pts": null, "hv": "V"}, {"date": "04.17", "opp": "Mafc Martos", "res": "L", "pts": null, "hv": "V"}, {"date": "04.29", "opp": "Qpac", "res": "L", "pts": null, "hv": "V"}, {"date": "05.08", "opp": "Ludovika Se", "res": "L", "pts": null, "hv": "V"}], "tech": 0, "unsport": 0}};
-const HIGHLIGHT_PTS = 44;
+const PVIEWS = {"all": {"games": 3, "total_pts": 81, "ppg": 27.0, "fg2": 24, "fg3": 6, "ft_m": 15, "ft_a": 21, "ft_pct": 71, "pf": 4, "pf_pg": 1.3, "max_pts": 31, "starts": 3, "share_pct": 33.5, "pts_3fg": 18, "pts_2fg": 48, "pts_ft": 15, "q_data": [27, 26, 14, 14], "q_3fg_data": [9, 4, 0, 1], "opp_labels": ["Qpac", "Zuglói Sasok", "Goldenhusz"], "opp_ppg_data": [31.0, 27.0, 23.0], "js_games": [{"date": "10.06", "opp": "Szentendrei Kse", "res": "W", "pts": null, "hv": "H"}, {"date": "10.13", "opp": "Mafc Kardinális", "res": "L", "pts": null, "hv": "V"}, {"date": "10.20", "opp": "Vashódok", "res": "W", "pts": null, "hv": "H"}, {"date": "11.17", "opp": "Monor Se", "res": "L", "pts": null, "hv": "H"}, {"date": "12.01", "opp": "E5Vös Okapik", "res": "W", "pts": null, "hv": "H"}, {"date": "12.08", "opp": "Zuglói Sasok", "res": "W", "pts": 27, "fg2": 10, "fg3": 1, "ft": "4/5", "pf": 2, "share": 29.3, "start": true, "hv": "V"}, {"date": "12.11", "opp": "Csepel Tc", "res": "W", "pts": null, "hv": "V"}, {"date": "12.15", "opp": "Mafc Martos", "res": "L", "pts": null, "hv": "H"}, {"date": "01.26", "opp": "Goldenhusz", "res": "L", "pts": null, "hv": "H"}, {"date": "02.04", "opp": "Szentendrei Kse", "res": "L", "pts": null, "hv": "V"}, {"date": "02.09", "opp": "Mafc Kardinális", "res": "L", "pts": null, "hv": "H"}, {"date": "02.13", "opp": "Vashódok", "res": "L", "pts": null, "hv": "V"}, {"date": "02.23", "opp": "Csepel Tc", "res": "L", "pts": null, "hv": "H"}, {"date": "03.02", "opp": "Ludovika Se", "res": "L", "pts": null, "hv": "H"}, {"date": "03.23", "opp": "Qpac", "res": "L", "pts": 31, "fg2": 6, "fg3": 5, "ft": "4/6", "pf": 1, "share": 39.2, "start": true, "hv": "H"}, {"date": "03.25", "opp": "Monor Se", "res": "L", "pts": null, "hv": "V"}, {"date": "03.29", "opp": "E5Vös Okapik", "res": "W", "pts": null, "hv": "V"}, {"date": "04.13", "opp": "Zuglói Sasok", "res": "W", "pts": null, "hv": "H"}, {"date": "04.17", "opp": "Mafc Martos", "res": "L", "pts": null, "hv": "V"}, {"date": "04.29", "opp": "Qpac", "res": "L", "pts": null, "hv": "V"}, {"date": "05.08", "opp": "Ludovika Se", "res": "L", "pts": null, "hv": "V"}, {"date": "05.17", "opp": "Goldenhusz", "res": "W", "pts": 23, "fg2": 8, "fg3": 0, "ft": "7/10", "pf": 1, "share": 32.4, "start": true, "hv": "V"}], "tech": 0, "unsport": 0}, "home": {"games": 1, "total_pts": 31, "ppg": 31.0, "fg2": 6, "fg3": 5, "ft_m": 4, "ft_a": 6, "ft_pct": 67, "pf": 1, "pf_pg": 1.0, "max_pts": 31, "starts": 1, "share_pct": 39.2, "pts_3fg": 15, "pts_2fg": 12, "pts_ft": 4, "q_data": [16, 7, 6, 2], "q_3fg_data": [6, 2, 0, 0], "opp_labels": ["Qpac"], "opp_ppg_data": [31.0], "js_games": [{"date": "10.06", "opp": "Szentendrei Kse", "res": "W", "pts": null, "hv": "H"}, {"date": "10.20", "opp": "Vashódok", "res": "W", "pts": null, "hv": "H"}, {"date": "11.17", "opp": "Monor Se", "res": "L", "pts": null, "hv": "H"}, {"date": "12.01", "opp": "E5Vös Okapik", "res": "W", "pts": null, "hv": "H"}, {"date": "12.15", "opp": "Mafc Martos", "res": "L", "pts": null, "hv": "H"}, {"date": "01.26", "opp": "Goldenhusz", "res": "L", "pts": null, "hv": "H"}, {"date": "02.09", "opp": "Mafc Kardinális", "res": "L", "pts": null, "hv": "H"}, {"date": "02.23", "opp": "Csepel Tc", "res": "L", "pts": null, "hv": "H"}, {"date": "03.02", "opp": "Ludovika Se", "res": "L", "pts": null, "hv": "H"}, {"date": "03.23", "opp": "Qpac", "res": "L", "pts": 31, "fg2": 6, "fg3": 5, "ft": "4/6", "pf": 1, "share": 39.2, "start": true, "hv": "H"}, {"date": "04.13", "opp": "Zuglói Sasok", "res": "W", "pts": null, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 2, "total_pts": 50, "ppg": 25.0, "fg2": 18, "fg3": 1, "ft_m": 11, "ft_a": 15, "ft_pct": 73, "pf": 3, "pf_pg": 1.5, "max_pts": 27, "starts": 2, "share_pct": 30.7, "pts_3fg": 3, "pts_2fg": 36, "pts_ft": 11, "q_data": [11, 19, 8, 12], "q_3fg_data": [3, 2, 0, 1], "opp_labels": ["Zuglói Sasok", "Goldenhusz"], "opp_ppg_data": [27.0, 23.0], "js_games": [{"date": "10.13", "opp": "Mafc Kardinális", "res": "L", "pts": null, "hv": "V"}, {"date": "12.08", "opp": "Zuglói Sasok", "res": "W", "pts": 27, "fg2": 10, "fg3": 1, "ft": "4/5", "pf": 2, "share": 29.3, "start": true, "hv": "V"}, {"date": "12.11", "opp": "Csepel Tc", "res": "W", "pts": null, "hv": "V"}, {"date": "02.04", "opp": "Szentendrei Kse", "res": "L", "pts": null, "hv": "V"}, {"date": "02.13", "opp": "Vashódok", "res": "L", "pts": null, "hv": "V"}, {"date": "03.25", "opp": "Monor Se", "res": "L", "pts": null, "hv": "V"}, {"date": "03.29", "opp": "E5Vös Okapik", "res": "W", "pts": null, "hv": "V"}, {"date": "04.17", "opp": "Mafc Martos", "res": "L", "pts": null, "hv": "V"}, {"date": "04.29", "opp": "Qpac", "res": "L", "pts": null, "hv": "V"}, {"date": "05.08", "opp": "Ludovika Se", "res": "L", "pts": null, "hv": "V"}, {"date": "05.17", "opp": "Goldenhusz", "res": "W", "pts": 23, "fg2": 8, "fg3": 0, "ft": "7/10", "pf": 1, "share": 32.4, "start": true, "hv": "V"}], "tech": 0, "unsport": 0}};
+const HIGHLIGHT_PTS = 40;
 
 function renderPlayerGameLog(gms) {
   const tbody = document.getElementById('gameLogBody');
@@ -273,7 +273,7 @@ new Chart(document.getElementById('scoringTrend').getContext('2d'), {
       pointBorderColor:played.map(g=>g.res==='W'?'#00b894':'#e17055'),
       pointRadius:6, pointHoverRadius:9, borderWidth:3,
     }, {
-      label:'Átlag (29.0)', data:played.map(()=>29.0),
+      label:'Átlag (27.0)', data:played.map(()=>27.0),
       borderColor:'rgba(255,255,255,0.2)', borderDash:[6,4],
       pointRadius:0, borderWidth:1, fill:false,
     }]
@@ -292,8 +292,8 @@ new Chart(document.getElementById('scoringTrend').getContext('2d'), {
 new Chart(document.getElementById('shotPie').getContext('2d'), {
   type:'doughnut',
   data: {
-    labels:['3FG (18 pt)','2FG (32 pt)','FT (8 pt)'],
-    datasets:[{ data:[18,32,8], backgroundColor:['#c0c2ce','#8b8da0','#5a5c6a'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
+    labels:['3FG (18 pt)','2FG (48 pt)','FT (15 pt)'],
+    datasets:[{ data:[18,48,15], backgroundColor:['#c0c2ce','#8b8da0','#5a5c6a'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
   },
   options: { responsive:true, maintainAspectRatio:false, cutout:'60%',
     plugins:{ legend:{ position:'right', labels:{ padding:12, usePointStyle:true, font:{size:11} } } }
@@ -305,7 +305,7 @@ new Chart(document.getElementById('quarterChart').getContext('2d'), {
   data: {
     labels:['Q1','Q2','Q3','Q4'],
     datasets:[{
-      label:'Összes pont', data:[21, 15, 10, 12],
+      label:'Összes pont', data:[27, 26, 14, 14],
       backgroundColor:['rgba(139,141,160,0.6)','rgba(139,141,160,0.6)','rgba(139,141,160,0.6)','rgba(139,141,160,0.6)'],
       borderColor:'#8b8da0', borderWidth:2, borderRadius:6,
     },{
@@ -323,11 +323,11 @@ new Chart(document.getElementById('quarterChart').getContext('2d'), {
 new Chart(document.getElementById('opponentChart').getContext('2d'), {
   type:'bar',
   data: {
-    labels:["Qpac", "Zuglói Sasok"],
+    labels:["Qpac", "Zuglói Sasok", "Goldenhusz"],
     datasets:[{
-      label:'PPG', data:[31.0, 27.0],
-      backgroundColor:["rgba(139,141,160,0.5)", "rgba(139,141,160,0.5)"],
-      borderColor:["#8b8da0", "#8b8da0"],
+      label:'PPG', data:[31.0, 27.0, 23.0],
+      backgroundColor:["rgba(139,141,160,0.5)", "rgba(139,141,160,0.5)", "rgba(139,141,160,0.5)"],
+      borderColor:["#8b8da0", "#8b8da0", "#8b8da0"],
       borderWidth:2, borderRadius:6,
     }]
   },
