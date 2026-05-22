@@ -474,11 +474,19 @@ def get_tech_unsport(conn, cfg, tp, player_id):
     return (rows[0] or 0, rows[1] or 0)
 
 
-def get_team_stats_pbp(conn, cfg, tp, hv_filter=None):
+def get_team_stats_pbp(conn, cfg, tp, hv_filter=None, phase_filter=None):
     """PBP-based team stats for competitions with pbp_events data.
     Uses pbp_events for scoring runs, shooting totals, top scorers.
-    Uses quarter_scores JSON from matches for quarter averages + scenarios."""
-    comps = _comp_list(cfg)
+    Uses quarter_scores JSON from matches for quarter averages + scenarios.
+    phase_filter: None=all, 'alap'=only main comp, 'play'=only extra comps."""
+    if phase_filter == 'alap':
+        comps = [cfg["comp_code"]]
+    elif phase_filter == 'play':
+        comps = list(cfg.get("mkosz_extra_comps", []))
+        if not comps:
+            comps = [cfg["comp_code"]]
+    else:
+        comps = _comp_list(cfg)
     _cph = ",".join("?" * len(comps))
     d = {}
 
@@ -1191,11 +1199,20 @@ new Chart(document.getElementById('opponentChart').getContext('2d'), {{
     return html
 
 
-def get_team_stats(conn, cfg, tp, hv_filter=None):
+def get_team_stats(conn, cfg, tp, hv_filter=None, phase_filter=None):
     """Gather all team-level statistics for the team dashboard (scoresheet-based).
     hv_filter: None=all, 'H'=home only, 'V'=away only.
+    phase_filter: None=all comps, 'alap'=only cfg.comp_code (alapszakasz),
+                  'play'=only cfg.mkosz_extra_comps (rájátszás).
     """
-    comps = _comp_list(cfg)
+    if phase_filter == 'alap':
+        comps = [cfg["comp_code"]]
+    elif phase_filter == 'play':
+        comps = list(cfg.get("mkosz_extra_comps", []))
+        if not comps:
+            comps = [cfg["comp_code"]]  # fallback
+    else:
+        comps = _comp_list(cfg)
     _cph = ",".join("?" * len(comps))
     d = {}
 
@@ -2006,8 +2023,10 @@ def _stats_to_js(d):
 
 
 def generate_team_dashboard(stats_all, cfg, team_key=None, att_data=None,
-                            stats_home=None, stats_away=None, match_urls=None):
+                            stats_home=None, stats_away=None, match_urls=None,
+                            stats_alap=None, stats_play=None):
     """Generate team-level dashboard HTML with Home/Away/All toggle.
+    Optionally Alapszakasz/Rájátszás toggle if stats_alap and stats_play given.
 
     match_urls: dict mapping gamecode -> relative match-page URL.
     When set, game log rows for those gamecodes become clickable.
@@ -2022,6 +2041,21 @@ def generate_team_dashboard(stats_all, cfg, team_key=None, att_data=None,
     js_all = _stats_to_js(stats_all)
     js_home = _stats_to_js(stats_home) if stats_home else js_all
     js_away = _stats_to_js(stats_away) if stats_away else js_all
+    js_alap = _stats_to_js(stats_alap) if stats_alap else None
+    js_play = _stats_to_js(stats_play) if stats_play else None
+    has_phase = js_alap is not None and js_play is not None
+    NL = "\n"  # f-string-ben backslash nem megengedett
+    _phase_stats_block = (
+        f",{NL}  alap: {json.dumps(js_alap, ensure_ascii=False)},"
+        f"{NL}  play: {json.dumps(js_play, ensure_ascii=False)}"
+        if has_phase else ""
+    )
+    _phase_buttons = (
+        '<span class="view-sep"></span>'
+        '<button class="view-btn" onclick="switchView(\'alap\')">Alapszakasz</button>'
+        '<button class="view-btn" onclick="switchView(\'play\')">Rájátszás</button>'
+        if has_phase else ""
+    )
     js_gamelog = js_all["game_log"]
 
     # Attendance chart data (Közgáz B only)
@@ -2228,6 +2262,14 @@ new Chart(attCtx, {{
   }}
   .view-btn:hover {{ color:var(--text); background:rgba(255,255,255,0.05); }}
   .view-btn.active {{ background:var(--accent); color:#fff; }}
+  .view-sep {{
+    display:inline-block; width:1px; align-self:stretch;
+    background:var(--border); margin:4px 6px;
+  }}
+  @media (max-width:600px) {{
+    .view-toggle {{ flex-wrap:wrap; max-width:100%; }}
+    .view-btn {{ padding:6px 12px; font-size:0.72rem; }}
+  }}
   {NAV_CSS}
   .mb20 {{ margin-bottom:20px; }}
   @media (max-width:900px) {{
@@ -2272,6 +2314,7 @@ new Chart(attCtx, {{
     <button class="view-btn active" onclick="switchView('all')">Összes</button>
     <button class="view-btn" onclick="switchView('home')">Hazai</button>
     <button class="view-btn" onclick="switchView('away')">Vendég</button>
+    {_phase_buttons}
   </div>
 
   <div class="grid grid-5 mb20">
@@ -2347,7 +2390,7 @@ Chart.defaults.font.family="'Inter',sans-serif";
 const STATS = {{
   all: {json.dumps(js_all, ensure_ascii=False)},
   home: {json.dumps(js_home, ensure_ascii=False)},
-  away: {json.dumps(js_away, ensure_ascii=False)}
+  away: {json.dumps(js_away, ensure_ascii=False)}{_phase_stats_block}
 }};
 const MATCH_URLS = {json.dumps(match_urls or {}, ensure_ascii=False)};
 
@@ -4806,6 +4849,12 @@ def generate_team(team_key):
         team_stats = _team_stats_fn(conn, cfg, tp)
         team_stats_home = _team_stats_fn(conn, cfg, tp, hv_filter='H')
         team_stats_away = _team_stats_fn(conn, cfg, tp, hv_filter='V')
+        # Alapszakasz / Rájátszás bontás csak ha van extra comp (NB2 A/B)
+        team_stats_alap = None
+        team_stats_play = None
+        if cfg.get("mkosz_extra_comps"):
+            team_stats_alap = _team_stats_fn(conn, cfg, tp, phase_filter='alap')
+            team_stats_play = _team_stats_fn(conn, cfg, tp, phase_filter='play')
 
         # Match-level pages — minden csapatra (tier-agnosztikus)
         # A generate_match_page() lekezeli ha hiányzik progression / scoring_events:
@@ -4843,6 +4892,7 @@ def generate_team(team_key):
 
         team_html = generate_team_dashboard(team_stats, cfg, team_key=team_key, att_data=att_data,
                                             stats_home=team_stats_home, stats_away=team_stats_away,
+                                            stats_alap=team_stats_alap, stats_play=team_stats_play,
                                             match_urls=generated_match_files)
         with open(os.path.join(out_dir, "csapat.html"), "w", encoding="utf-8") as f:
             f.write(team_html)
