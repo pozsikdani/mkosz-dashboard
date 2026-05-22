@@ -1860,11 +1860,13 @@ def get_league_comparison(conn, comp_code):
         ft_pct = round(100 * ftm_t / fta_t, 1) if fta_t else 0.0
         fg2_pg = round(fg2_t / games, 1) if games else 0.0
         fg3_pg = round(fg3_t / games, 1) if games else 0.0
+        ftm_pg = round(ftm_t / games, 1) if games else 0.0
         result.append({
             "name": name, "games": games,
             "wins": wins or 0, "losses": losses or 0,
             "ppg": ppg or 0.0, "oppg": oppg or 0.0,
             "ft_pct": ft_pct, "fg2_pg": fg2_pg, "fg3_pg": fg3_pg,
+            "fta_total": fta_t or 0, "ftm_pg": ftm_pg,
         })
     return result
 
@@ -2301,6 +2303,12 @@ def generate_league_comparison_page(cfg, alap_data, play_data, team_key=None):
         tables.append(_mini_table("3FG / meccs", data,
             sort_key=lambda d: d["fg3_pg"],
             fmt_val=lambda d: f'{d["fg3_pg"]:.1f}'))
+        tables.append(_mini_table("Dobott büntető / idény", data,
+            sort_key=lambda d: d["fta_total"],
+            fmt_val=lambda d: f'{d["fta_total"]}'))
+        tables.append(_mini_table("Büntető pont / meccs", data,
+            sort_key=lambda d: d["ftm_pg"],
+            fmt_val=lambda d: f'{d["ftm_pg"]:.1f}'))
         return '<div class="lg-grid">' + "".join(tables) + '</div>'
 
     alap_label = group_name  # pl. "NB2 Közép B" Közgáz A-hoz
