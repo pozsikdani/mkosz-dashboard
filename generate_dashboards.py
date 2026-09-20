@@ -5132,20 +5132,38 @@ def generate_homepage(team_summaries):
                 "lg_cfg": tcfg,
             })
 
+    # Edzések a homepage naptárba is (a Közgáz B config alapján, meccsnapokon kihagyva)
+    homepage_training_dates = {}
+    kg_b_cfg = TEAMS.get("kozgaz-b")
+    if kg_b_cfg and kg_b_cfg.get("training_schedule") and all_matches_by_date:
+        ts = kg_b_cfg["training_schedule"]
+        time_str = f"{ts['start_time'][0]:02d}:{ts['start_time'][1]:02d}"
+        match_dates_set = {f"{y}-{m:02d}-{d:02d}" for (y, m, d) in all_matches_by_date.keys()}
+        # Csak a meccs-tartományban (season_start .. utolsó meccs)
+        season_start = ts.get("season_start", min(match_dates_set))
+        max_d = max(match_dates_set)
+        for d, _dt in generate_training_dates(kg_b_cfg, match_dates=match_dates_set):
+            ds = d.strftime("%Y-%m-%d")
+            if season_start <= ds <= max_d:
+                homepage_training_dates[ds] = time_str
+
     calendar_section = ""
     if all_matches_by_date:
-        months_html, calendar_js = _build_calendar_grid(all_matches_by_date, multi_team=True)
+        months_html, calendar_js = _build_calendar_grid(
+            all_matches_by_date, multi_team=True, training_dates=homepage_training_dates
+        )
 
         legend_html = """
     <div class="cal-legend">
       <span class="legend-item"><span class="match-badge w" style="font-size:.65rem">W</span> Győzelem</span>
       <span class="legend-item"><span class="match-badge l" style="font-size:.65rem">L</span> Vereség</span>
+      <span class="legend-item" style="color:#fdcb6e;">▨ Edzés (kedd + csütörtök 20:00)</span>
       <span class="legend-item" style="opacity:.4">▪ Múltbeli</span>
       <span class="legend-item">@ = Idegen pálya</span>
     </div>"""
 
         calendar_section = f"""
-    <div class="section-title">MECCSNAPTÁR</div>
+    <div class="section-title">NAPTÁR</div>
     {legend_html}
     {months_html}
     {calendar_js}"""
