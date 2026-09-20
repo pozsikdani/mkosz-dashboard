@@ -10,6 +10,7 @@ import calendar as cal_module
 from datetime import datetime, timedelta
 import urllib.request
 import urllib.error
+import urllib.parse
 import csv
 import io
 
@@ -4483,10 +4484,15 @@ def _ics_subscribe_card(team_key):
     """Feliratkozás-kártya a naptár-oldalra. team_key → az .ics filenév."""
     ics_url_https = f"https://www.kozgazkosar.hu/{team_key}.ics"
     ics_url_webcal = f"webcal://www.kozgazkosar.hu/{team_key}.ics"
-    # Google Calendar "add by URL" — a cid= paraméterben az https:// URL kell
-    gcal_url = f"https://calendar.google.com/calendar/r?cid={ics_url_https}"
-    # Outlook.com — a rru=addsubscription forma
-    outlook_url = f"https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription&url={ics_url_https}&name=K%C3%B6zg%C3%A1z+B"
+    # Google Calendar "add by URL" — a cid= értéket URL-encode-elve, webcal:// URL-lel
+    # (Google Calendar így ismeri fel megbízhatóan)
+    gcal_url = "https://calendar.google.com/calendar/r?cid=" + urllib.parse.quote(ics_url_webcal, safe="")
+    # Outlook.com — a rru=addsubscription forma (URL-encode kell)
+    outlook_url = (
+        "https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription"
+        "&url=" + urllib.parse.quote(ics_url_https, safe="") +
+        "&name=" + urllib.parse.quote("Közgáz B", safe="")
+    )
     return f'''
   <div class="ics-card">
     <div class="ics-title">📅 Naptár feliratkozás</div>
