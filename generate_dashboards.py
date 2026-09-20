@@ -67,7 +67,10 @@ TEAMS = {
             "location": "Lónyay Utcai Református Gimnázium és Kollégium",
             "season_start": "2026-09-01",
             "season_end": "2027-06-30",
-            "exceptions": [],      # ide kerülnek kézi kihagyások (pl. "2026-09-17")
+            "exceptions": [       # kézi kihagyások (X-ek a hivatalos schedule-en)
+                "2026-09-17",     # csütörtök — nincs edzés (X a hivatalos naptárban)
+                "2026-11-05",     # csütörtök — nincs edzés (X a hivatalos naptárban)
+            ],
         },
         "color": "#C41E3A",  # Közgáz piros
     },
