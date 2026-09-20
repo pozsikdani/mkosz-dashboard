@@ -56,13 +56,16 @@ TEAMS = {
         "mkosz_comp": "hun3k",
         "mkosz_team_id": "9239",  # 2026/27: ellenőrizni kell az MKOSZ oldalán
         "mkosz_extra_comps": [],  # rájátszás (hun3_plya) csak az alapszakasz után
+        "mkosz_extra_cal_comps": [  # kizárólag naptár-scraping (nem stat-ba)
+            {"comp": "huna_cup", "label": "Hepp Kupa"},
+        ],
         "color": "#C41E3A",  # Közgáz piros
     },
 }
 
 # Navigation structure for the site — csak Közgáz B (2026/27 óta)
 NAV_TEAMS = [
-    {"key": "kozgaz-b", "label": "Öregek NB2", "href": "dashboards"},
+    {"key": "kozgaz-b", "label": "Közgáz SC és DSK/B", "href": "dashboards"},
 ]
 
 # ---- TRAINING ATTENDANCE (Közgáz B only, fetched from Google Sheets) ----
@@ -1539,6 +1542,10 @@ def _scrape_schedule_one(season, comp, team_id, team_name_upper):
     trs = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL)
     for tr in trs:
         tds = re.findall(r'<td[^>]*>(.*?)</td>', tr, re.DOTALL)
+        # NB bajnokság: 6 TD (hazai, vendég, dátum, idő, eredmény, helyszín)
+        # Kupa (pl. Hepp): 7 TD (extra "Csarnok" oszlop az elején)
+        if len(tds) == 7:
+            tds = tds[1:]  # skip "Csarnok" first column
         if len(tds) != 6:
             continue
 
@@ -1627,6 +1634,22 @@ def scrape_schedule(cfg):
                     matches.append(m)
                     existing.add(key)
             print(f"    + {len(extra)} rájátszás meccs ({extra_comp})")
+
+    # Also scrape extra CALENDAR-ONLY comps (e.g. Hepp Kupa) — nem kerül a stat-okba
+    for extra in cfg.get("mkosz_extra_cal_comps", []):
+        ec = extra["comp"]
+        label = extra.get("label", ec)
+        cal = _scrape_schedule_one(season, ec, team_id, team_name_upper)
+        if cal:
+            existing = {(m["date"], m["home_team"], m["away_team"]) for m in matches}
+            added = 0
+            for m in cal:
+                key = (m["date"], m["home_team"], m["away_team"])
+                if key not in existing:
+                    matches.append(m)
+                    existing.add(key)
+                    added += 1
+            print(f"    + {added} {label} meccs ({ec})")
 
     return matches if matches else None
 
