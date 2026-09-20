@@ -4990,12 +4990,12 @@ NAV_CSS = """
    itt csak a HÁZI (H) / IDEGEN (A) / KUPA (C) színeket adjuk hozzá,
    plus a világos téma override-okat. */
 :root {
-  --home-accent: #C41E3A;      /* hazai — Közgáz piros */
-  --home-accent-bg: rgba(196,30,58,0.15);
-  --away-accent: #17a2b8;      /* idegenbeli — sötét teal */
-  --away-accent-bg: rgba(23,162,184,0.15);
-  --cup-accent: #a855f7;       /* kupa — lila */
-  --cup-accent-bg: rgba(168,85,247,0.15);
+  --home-accent: #ff3b5c;      /* hazai — élénkebb Közgáz piros */
+  --home-accent-bg: rgba(255,59,92,0.28);
+  --away-accent: #22d3ee;      /* idegenbeli — élénkebb ciánkék */
+  --away-accent-bg: rgba(34,211,238,0.25);
+  --cup-accent: #c084fc;       /* kupa — élénkebb lila */
+  --cup-accent-bg: rgba(192,132,252,0.28);
 }
 :root[data-theme="light"] {
   --bg: #f4f5f7;
@@ -5004,10 +5004,12 @@ NAV_CSS = """
   --border: rgba(0,0,0,0.08);
   --text: #1c1c1e;
   --text-dim: #5c5f6e;
-  /* Az accent, green, red, accent2 marad — csak a felszíni tónusokat módosítjuk */
-  --home-accent-bg: rgba(196,30,58,0.10);
-  --away-accent-bg: rgba(23,162,184,0.12);
-  --cup-accent-bg: rgba(168,85,247,0.12);
+  --home-accent: #C41E3A;
+  --home-accent-bg: rgba(196,30,58,0.18);
+  --away-accent: #0284c7;
+  --away-accent-bg: rgba(2,132,199,0.15);
+  --cup-accent: #8b5cf6;
+  --cup-accent-bg: rgba(139,92,246,0.15);
 }
 
 /* Automatikus rendszer-preferencia (csak ha nincs kézi választás) */
@@ -5453,18 +5455,18 @@ def generate_homepage(team_summaries):
   .rp-l {{ color:var(--red); }}
   .rp-sep {{ color:var(--text-dim); }}
 
-  /* Következő meccs hero-kártya — 3 variáns: HAZAI (piros), IDEGEN (teal), KUPA (lila) */
+  /* Következő meccs hero-kártya — 3 variáns: HAZAI (piros), IDEGEN (kék), KUPA (lila) */
   .next-match-card {{
     border-radius:20px; padding:24px 28px; margin-bottom:28px;
-    border:1px solid var(--home-accent); background:var(--card);
-    background-image:linear-gradient(135deg, var(--home-accent-bg) 0%, transparent 100%);
-    box-shadow:0 6px 20px rgba(0,0,0,0.15);
+    border:2px solid var(--home-accent);
+    background:linear-gradient(135deg, var(--home-accent-bg) 0%, var(--card) 60%);
+    box-shadow:0 8px 24px rgba(0,0,0,0.2);
     position:relative; overflow:hidden;
   }}
   .next-match-card::before {{
     content:''; position:absolute; top:-30%; right:-15%;
-    width:280px; height:280px;
-    background:radial-gradient(circle, var(--home-accent-bg), transparent 65%);
+    width:320px; height:320px;
+    background:radial-gradient(circle, var(--home-accent-bg), transparent 60%);
     pointer-events:none;
   }}
   .next-match-card.nm-away {{
