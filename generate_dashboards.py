@@ -5776,12 +5776,6 @@ def generate_index(players, cfg, team_key=None):
     <div class="team-desc">Eredmények, negyedek, run-ok, forgatókönyvek, érdekességek</div></div>
     <div class="team-arrow">→</div>
   </a>
-  <a href="naptar.html" class="team-card">
-    <div class="team-icon">📅</div>
-    <div><div class="team-title">Menetrend / Naptár</div>
-    <div class="team-desc">Meccsek havi naptár nézetben, eredmények, hazai/idegen jelölés</div></div>
-    <div class="team-arrow">→</div>
-  </a>
   <div class="player-grid">{cards}
   </div>
 </div>
@@ -5954,10 +5948,7 @@ def generate_team(team_key):
         print(f"  ⚠ Scraping sikertelen, DB fallback...")
         cal_data = get_calendar_data_db(conn, cfg, tp)
     if cal_data:
-        cal_html = generate_calendar(cal_data, cfg, team_key=team_key)
-        with open(os.path.join(out_dir, "naptar.html"), "w", encoding="utf-8") as f:
-            f.write(cal_html)
-        print(f"  ✓ naptar.html (meccsnaptár, {len(cal_data)} meccs)")
+        # naptar.html eltávolítva 2026-09: a homepage NAPTÁR szekció ugyanezt mutatja
 
         # ICS naptár-feed (feliratkozáshoz)
         ics_content = generate_ics(cal_data, cfg)
