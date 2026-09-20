@@ -7,7 +7,7 @@ import json
 import re
 import sys
 import calendar as cal_module
-from datetime import datetime
+from datetime import datetime, timedelta
 import urllib.request
 import urllib.error
 import csv
@@ -59,6 +59,16 @@ TEAMS = {
         "mkosz_extra_cal_comps": [  # kizárólag naptár-scraping (nem stat-ba)
             {"comp": "huna_cup", "label": "Hepp Kupa"},
         ],
+        "training_schedule": {
+            # Heti edzésrend — a naptár és az ICS-be automatikusan generálódik
+            "days": [1, 3],       # 0=Hétfő … 6=Vasárnap → 1=Kedd, 3=Csütörtök
+            "start_time": (20, 0),  # 20:00
+            "duration_min": 90,    # 1.5 óra
+            "location": "Lónyay Utcai Református Gimnázium és Kollégium",
+            "season_start": "2026-09-01",
+            "season_end": "2027-06-30",
+            "exceptions": [],      # ide kerülnek kézi kihagyások (pl. "2026-09-17")
+        },
         "color": "#C41E3A",  # Közgáz piros
     },
 }
@@ -2988,6 +2998,16 @@ CALENDAR_CSS = """
 .cal-day.empty { background:transparent; min-height:0; }
 .day-num { font-size:.68rem; color:var(--text-dim); font-weight:500; }
 .cal-day.has-match { border:1px solid rgba(255,255,255,0.08); }
+.cal-day.training-day {
+  background:repeating-linear-gradient(45deg,rgba(253,203,110,0.10) 0 6px,rgba(253,203,110,0.04) 6px 12px);
+  border:1px dashed rgba(253,203,110,0.3);
+}
+.training-info { margin-top:2px; display:flex; flex-direction:column; gap:1px; }
+.training-label {
+  font-size:.55rem; text-transform:uppercase; letter-spacing:0.5px;
+  color:#fdcb6e; font-weight:700;
+}
+.training-time { font-size:.62rem; color:var(--text-dim); font-weight:600; }
 .cal-day.past { opacity:0.35; }
 .cal-day.past:hover { opacity:0.65; }
 .cal-day.today { border:1.5px solid #f39c12 !important; background:rgba(243,156,18,0.08); position:relative; }
@@ -3035,7 +3055,7 @@ CALENDAR_CSS = """
 """
 
 
-def _build_calendar_grid(matches_by_date, multi_team=False):
+def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None):
     """Build shared calendar grid HTML + JS.
 
     Args:
@@ -3123,6 +3143,13 @@ def _build_calendar_grid(matches_by_date, multi_team=False):
     </div>
     <span class="match-time">{mi["time"]}</span>
   </div>
+</div>'''
+            elif training_dates and date_str in training_dates:
+                # Edzés napja (meccs nincs ezen a napon)
+                t = training_dates[date_str]
+                cells += f'''<div class="cal-day training-day" data-date="{date_str}">
+  <span class="day-num">{day}</span>
+  <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">{t}</span></div>
 </div>'''
             else:
                 cells += f'<div class="cal-day" data-date="{date_str}"><span class="day-num">{day}</span></div>'
@@ -4523,6 +4550,37 @@ def _ics_escape(s):
                     .replace("\r", ""))
 
 
+def generate_training_dates(cfg, match_dates=None):
+    """Visszaad egy list-et (date, datetime_start) tuple-ökkel az edzés-alkalmakra.
+
+    A cfg['training_schedule']['days'] alapján (heti napok), season_start-tól season_end-ig,
+    kihagyva az exceptions dátumokat ÉS azokat a napokat amikor meccs van (match_dates).
+    """
+    ts = cfg.get("training_schedule")
+    if not ts:
+        return []
+    try:
+        d_start = datetime.strptime(ts["season_start"], "%Y-%m-%d").date()
+        d_end = datetime.strptime(ts["season_end"], "%Y-%m-%d").date()
+    except (KeyError, ValueError):
+        return []
+    days = set(ts.get("days", []))
+    start_h, start_m = ts.get("start_time", (20, 0))
+    exceptions = set(ts.get("exceptions", []))
+    match_dates = set(match_dates or [])
+
+    results = []
+    d = d_start
+    while d <= d_end:
+        if d.weekday() in days:
+            date_str = d.strftime("%Y-%m-%d")
+            if date_str not in exceptions and date_str not in match_dates:
+                dt_start = datetime(d.year, d.month, d.day, start_h, start_m)
+                results.append((d, dt_start))
+        d += timedelta(days=1)
+    return results
+
+
 def generate_ics(matches, cfg):
     """Egy .ics naptár-fájlt generál a csapat meccseiből (RFC 5545).
     A naptár-appok (Apple / Google / Outlook) automatikusan frissítik ha
@@ -4628,6 +4686,30 @@ def generate_ics(matches, cfg):
         lines.append("STATUS:CONFIRMED")
         lines.append("END:VEVENT")
 
+    # --- EDZÉSEK ---
+    ts = cfg.get("training_schedule")
+    if ts:
+        match_dates = {m.get("date") for m in matches if m.get("date")}
+        dur_min = ts.get("duration_min", 90)
+        loc = ts.get("location", "")
+        for d, dt_start in generate_training_dates(cfg, match_dates=match_dates):
+            dt_end = dt_start + timedelta(minutes=dur_min)
+            uid = f"training-{d.strftime('%Y%m%d')}-{team_short.replace(' ','')}@kozgazkosar.hu"
+            lines.extend([
+                "BEGIN:VEVENT",
+                f"UID:{uid}",
+                f"DTSTAMP:{now_utc}",
+                f"DTSTART;TZID=Europe/Budapest:{dt_start.strftime('%Y%m%dT%H%M%S')}",
+                f"DTEND;TZID=Europe/Budapest:{dt_end.strftime('%Y%m%dT%H%M%S')}",
+                f"SUMMARY:🏋️ {_ics_escape(team_short)} edzés",
+            ])
+            if loc:
+                lines.append(f"LOCATION:{_ics_escape(loc)}")
+            lines.append("DESCRIPTION:Heti edzés (kedd + csütörtök).\\nMeccsnapokon automatikusan lemondva.")
+            lines.append("STATUS:CONFIRMED")
+            lines.append("TRANSP:OPAQUE")
+            lines.append("END:VEVENT")
+
     lines.append("END:VCALENDAR")
     return "\r\n".join(lines) + "\r\n"
 
@@ -4661,8 +4743,26 @@ def generate_calendar(matches, cfg, team_key=None):
             "played": m["played"],
         }
 
+    # Edzések (kedd + csütörtök, meccsnapokon automatikusan kihagyva).
+    # Csak a meccs-hónap tartományon belül jelenítjük meg, hogy ne lógjunk
+    # hónapokkal a legutolsó meccs után egy üres tervezett szezon-végig.
+    match_dates_set = {m["date"] for m in matches if m.get("date")}
+    training_dates = {}
+    ts = cfg.get("training_schedule")
+    if ts and match_dates_set:
+        time_str = f"{ts['start_time'][0]:02d}:{ts['start_time'][1]:02d}"
+        # Az edzés-tartomány: season_start-tól az utolsó meccsig
+        # (így minden edzés meglátszik a szezon elejétől, még ha az első meccs
+        # csak pár héttel később van)
+        season_start = ts.get("season_start", min(match_dates_set))
+        max_d = max(match_dates_set)
+        for d, _dt in generate_training_dates(cfg, match_dates=match_dates_set):
+            ds = d.strftime("%Y-%m-%d")
+            if season_start <= ds <= max_d:
+                training_dates[ds] = time_str
+
     # Use shared calendar builder
-    months_html, calendar_js = _build_calendar_grid(match_by_date, multi_team=False)
+    months_html, calendar_js = _build_calendar_grid(match_by_date, multi_team=False, training_dates=training_dates)
 
     # Summary stats
     played = [m for m in matches if m["played"] and m["home_score"] is not None]

@@ -198,6 +198,16 @@
 .cal-day.empty { background:transparent; min-height:0; }
 .day-num { font-size:.68rem; color:var(--text-dim); font-weight:500; }
 .cal-day.has-match { border:1px solid rgba(255,255,255,0.08); }
+.cal-day.training-day {
+  background:repeating-linear-gradient(45deg,rgba(253,203,110,0.10) 0 6px,rgba(253,203,110,0.04) 6px 12px);
+  border:1px dashed rgba(253,203,110,0.3);
+}
+.training-info { margin-top:2px; display:flex; flex-direction:column; gap:1px; }
+.training-label {
+  font-size:.55rem; text-transform:uppercase; letter-spacing:0.5px;
+  color:#fdcb6e; font-weight:700;
+}
+.training-time { font-size:.62rem; color:var(--text-dim); font-weight:600; }
 .cal-day.past { opacity:0.35; }
 .cal-day.past:hover { opacity:0.65; }
 .cal-day.today { border:1.5px solid #f39c12 !important; background:rgba(243,156,18,0.08); position:relative; }

@@ -25,7 +25,7 @@ END:DAYLIGHT
 END:VTIMEZONE
 BEGIN:VEVENT
 UID:2026-10-01-KözgázS-BKGPRIM@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261001T201500
 DTEND;TZID=Europe/Budapest:20261001T221500
 SUMMARY:🏀 KÖZGÁZ B vs BKG PRIMA Akadémia II.
@@ -35,7 +35,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-10-13-KözgázS-Pénzügyő@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261013T201500
 DTEND;TZID=Europe/Budapest:20261013T221500
 SUMMARY:🏀 KÖZGÁZ B vs Pénzügyőr Sportegyesület
@@ -45,7 +45,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-10-31-FKE-KözgázS@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261031T180000
 DTEND;TZID=Europe/Budapest:20261031T200000
 SUMMARY:🏀 KÖZGÁZ B @ FKE
@@ -55,7 +55,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-11-07-BLFSE-KözgázS@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261107T121500
 DTEND;TZID=Europe/Budapest:20261107T141500
 SUMMARY:🏀 KÖZGÁZ B @ BLF SE
@@ -65,7 +65,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-11-17-KözgázS-BKG-Vere@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261117T201500
 DTEND;TZID=Europe/Budapest:20261117T221500
 SUMMARY:🏀 KÖZGÁZ B vs BKG-Veresegyház
@@ -75,7 +75,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-11-20-SUNSHINE-KözgázS@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261120T190000
 DTEND;TZID=Europe/Budapest:20261120T210000
 SUMMARY:🏀 KÖZGÁZ B @ SUNSHINE-NYÍKSE
@@ -85,7 +85,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-11-26-KözgázS-VBWCEKK@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261126T201500
 DTEND;TZID=Europe/Budapest:20261126T221500
 SUMMARY:🏀 KÖZGÁZ B vs VBW CEKK Cegléd
@@ -95,7 +95,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-12-03-KözgázS-Szerencs@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261203T201500
 DTEND;TZID=Europe/Budapest:20261203T221500
 SUMMARY:🏀 KÖZGÁZ B vs Szerencs VSE
@@ -105,7 +105,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-12-10-BKGPRIM-KözgázS@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20261210T201500
 DTEND;TZID=Europe/Budapest:20261210T221500
 SUMMARY:🏀 KÖZGÁZ B @ BKG PRIMA Akadémia II.
@@ -115,7 +115,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2027-01-07-KözgázS-FKE@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20270107T201500
 DTEND;TZID=Europe/Budapest:20270107T221500
 SUMMARY:🏀 KÖZGÁZ B vs FKE
@@ -125,7 +125,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2027-01-16-Pénzügyő-KözgázS@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20270116T190000
 DTEND;TZID=Europe/Budapest:20270116T210000
 SUMMARY:🏀 KÖZGÁZ B @ Pénzügyőr Sportegyesület
@@ -135,7 +135,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2027-01-28-KözgázS-BLFSE@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20270128T201500
 DTEND;TZID=Europe/Budapest:20270128T221500
 SUMMARY:🏀 KÖZGÁZ B vs BLF SE
@@ -145,7 +145,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2027-02-07-BKG-Vere-KözgázS@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20270207T180000
 DTEND;TZID=Europe/Budapest:20270207T200000
 SUMMARY:🏀 KÖZGÁZ B @ BKG-Veresegyház
@@ -155,7 +155,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2027-02-11-KözgázS-SUNSHINE@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20270211T184500
 DTEND;TZID=Europe/Budapest:20270211T204500
 SUMMARY:🏀 KÖZGÁZ B vs SUNSHINE-NYÍKSE
@@ -165,7 +165,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2027-02-19-VBWCEKK-KözgázS@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20270219T203000
 DTEND;TZID=Europe/Budapest:20270219T223000
 SUMMARY:🏀 KÖZGÁZ B @ VBW CEKK Cegléd
@@ -175,7 +175,7 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2027-02-27-Szerencs-KözgázS@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20270227T180000
 DTEND;TZID=Europe/Budapest:20270227T200000
 SUMMARY:🏀 KÖZGÁZ B @ Szerencs VSE
@@ -185,12 +185,859 @@ STATUS:CONFIRMED
 END:VEVENT
 BEGIN:VEVENT
 UID:2026-09-24-KözgázS-MAFC@kozgazkosar.hu
-DTSTAMP:20260920T100711Z
+DTSTAMP:20260920T102006Z
 DTSTART;TZID=Europe/Budapest:20260924T201500
 DTEND;TZID=Europe/Budapest:20260924T221500
 SUMMARY:🏀 KÖZGÁZ B vs MAFC
 LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
 DESCRIPTION:Közgáz SC és DSK/B vs MAFC\nRészletek: https://www.kozgazkosar.hu/dashboards/
 STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20260901-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20260901T200000
+DTEND;TZID=Europe/Budapest:20260901T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20260903-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20260903T200000
+DTEND;TZID=Europe/Budapest:20260903T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20260908-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20260908T200000
+DTEND;TZID=Europe/Budapest:20260908T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20260910-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20260910T200000
+DTEND;TZID=Europe/Budapest:20260910T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20260915-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20260915T200000
+DTEND;TZID=Europe/Budapest:20260915T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20260917-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20260917T200000
+DTEND;TZID=Europe/Budapest:20260917T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20260922-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20260922T200000
+DTEND;TZID=Europe/Budapest:20260922T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20260929-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20260929T200000
+DTEND;TZID=Europe/Budapest:20260929T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261006-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261006T200000
+DTEND;TZID=Europe/Budapest:20261006T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261008-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261008T200000
+DTEND;TZID=Europe/Budapest:20261008T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261015-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261015T200000
+DTEND;TZID=Europe/Budapest:20261015T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261020-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261020T200000
+DTEND;TZID=Europe/Budapest:20261020T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261022-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261022T200000
+DTEND;TZID=Europe/Budapest:20261022T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261027-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261027T200000
+DTEND;TZID=Europe/Budapest:20261027T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261029-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261029T200000
+DTEND;TZID=Europe/Budapest:20261029T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261103-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261103T200000
+DTEND;TZID=Europe/Budapest:20261103T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261105-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261105T200000
+DTEND;TZID=Europe/Budapest:20261105T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261110-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261110T200000
+DTEND;TZID=Europe/Budapest:20261110T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261112-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261112T200000
+DTEND;TZID=Europe/Budapest:20261112T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261119-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261119T200000
+DTEND;TZID=Europe/Budapest:20261119T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261124-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261124T200000
+DTEND;TZID=Europe/Budapest:20261124T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261201-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261201T200000
+DTEND;TZID=Europe/Budapest:20261201T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261208-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261208T200000
+DTEND;TZID=Europe/Budapest:20261208T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261215-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261215T200000
+DTEND;TZID=Europe/Budapest:20261215T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261217-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261217T200000
+DTEND;TZID=Europe/Budapest:20261217T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261222-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261222T200000
+DTEND;TZID=Europe/Budapest:20261222T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261224-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261224T200000
+DTEND;TZID=Europe/Budapest:20261224T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261229-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261229T200000
+DTEND;TZID=Europe/Budapest:20261229T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20261231-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20261231T200000
+DTEND;TZID=Europe/Budapest:20261231T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270105-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270105T200000
+DTEND;TZID=Europe/Budapest:20270105T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270112-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270112T200000
+DTEND;TZID=Europe/Budapest:20270112T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270114-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270114T200000
+DTEND;TZID=Europe/Budapest:20270114T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270119-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270119T200000
+DTEND;TZID=Europe/Budapest:20270119T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270121-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270121T200000
+DTEND;TZID=Europe/Budapest:20270121T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270126-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270126T200000
+DTEND;TZID=Europe/Budapest:20270126T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270202-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270202T200000
+DTEND;TZID=Europe/Budapest:20270202T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270204-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270204T200000
+DTEND;TZID=Europe/Budapest:20270204T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270209-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270209T200000
+DTEND;TZID=Europe/Budapest:20270209T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270216-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270216T200000
+DTEND;TZID=Europe/Budapest:20270216T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270218-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270218T200000
+DTEND;TZID=Europe/Budapest:20270218T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270223-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270223T200000
+DTEND;TZID=Europe/Budapest:20270223T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270225-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270225T200000
+DTEND;TZID=Europe/Budapest:20270225T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270302-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270302T200000
+DTEND;TZID=Europe/Budapest:20270302T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270304-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270304T200000
+DTEND;TZID=Europe/Budapest:20270304T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270309-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270309T200000
+DTEND;TZID=Europe/Budapest:20270309T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270311-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270311T200000
+DTEND;TZID=Europe/Budapest:20270311T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270316-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270316T200000
+DTEND;TZID=Europe/Budapest:20270316T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270318-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270318T200000
+DTEND;TZID=Europe/Budapest:20270318T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270323-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270323T200000
+DTEND;TZID=Europe/Budapest:20270323T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270325-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270325T200000
+DTEND;TZID=Europe/Budapest:20270325T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270330-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270330T200000
+DTEND;TZID=Europe/Budapest:20270330T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270401-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270401T200000
+DTEND;TZID=Europe/Budapest:20270401T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270406-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270406T200000
+DTEND;TZID=Europe/Budapest:20270406T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270408-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270408T200000
+DTEND;TZID=Europe/Budapest:20270408T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270413-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270413T200000
+DTEND;TZID=Europe/Budapest:20270413T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270415-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270415T200000
+DTEND;TZID=Europe/Budapest:20270415T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270420-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270420T200000
+DTEND;TZID=Europe/Budapest:20270420T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270422-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270422T200000
+DTEND;TZID=Europe/Budapest:20270422T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270427-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270427T200000
+DTEND;TZID=Europe/Budapest:20270427T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270429-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270429T200000
+DTEND;TZID=Europe/Budapest:20270429T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270504-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270504T200000
+DTEND;TZID=Europe/Budapest:20270504T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270506-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270506T200000
+DTEND;TZID=Europe/Budapest:20270506T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270511-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270511T200000
+DTEND;TZID=Europe/Budapest:20270511T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270513-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270513T200000
+DTEND;TZID=Europe/Budapest:20270513T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270518-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270518T200000
+DTEND;TZID=Europe/Budapest:20270518T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270520-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270520T200000
+DTEND;TZID=Europe/Budapest:20270520T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270525-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270525T200000
+DTEND;TZID=Europe/Budapest:20270525T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270527-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270527T200000
+DTEND;TZID=Europe/Budapest:20270527T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270601-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270601T200000
+DTEND;TZID=Europe/Budapest:20270601T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270603-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270603T200000
+DTEND;TZID=Europe/Budapest:20270603T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270608-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270608T200000
+DTEND;TZID=Europe/Budapest:20270608T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270610-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270610T200000
+DTEND;TZID=Europe/Budapest:20270610T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270615-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270615T200000
+DTEND;TZID=Europe/Budapest:20270615T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270617-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270617T200000
+DTEND;TZID=Europe/Budapest:20270617T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270622-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270622T200000
+DTEND;TZID=Europe/Budapest:20270622T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270624-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270624T200000
+DTEND;TZID=Europe/Budapest:20270624T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+UID:training-20270629-KÖZGÁZB@kozgazkosar.hu
+DTSTAMP:20260920T102006Z
+DTSTART;TZID=Europe/Budapest:20270629T200000
+DTEND;TZID=Europe/Budapest:20270629T213000
+SUMMARY:🏋️ KÖZGÁZ B edzés
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Heti edzés (kedd + csütörtök).\nMeccsnapokon automatikusan lemondva.
+STATUS:CONFIRMED
+TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR
