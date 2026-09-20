@@ -5015,44 +5015,57 @@ def generate_homepage(team_summaries):
             grouped[lg] = []
         grouped[lg].append(ts)
 
-    # Build team cards grouped by league
+    # KÖVETKEZŐ MECCS hero-kártya + kompakt W-L jelvény (egy csapatra: Közgáz B)
     cards_html = ""
-    for lg, teams in grouped.items():
-        if not teams:
-            continue
-        lg_cfg = LEAGUES.get(lg, LEAGUES["nb2"])
-        cards_html += f"""
-    <div class="league-section">
-      <div class="league-header">
-        <span class="league-badge" style="background:{lg_cfg['bg']};color:{lg_cfg['color']};border-color:{lg_cfg['border']}">{lg_cfg['label']}</span>
-      </div>
-      <div class="home-cards">"""
-        for ts in teams:
-            w = ts.get("wins", 0)
-            l = ts.get("losses", 0)
-            upcoming = ts.get("upcoming", [])
-            next_match = ""
-            if upcoming:
-                nm = upcoming[0]
-                opp = nm["away_team"] if nm["is_home"] else nm["home_team"]
-                next_match = f'<div class="next-match">Következő: <strong>{calendar_short_name(opp)}</strong> — {nm["date"][5:].replace("-",".")} {nm.get("time","")}</div>'
+    if team_summaries:
+        ts = team_summaries[0]  # Csak Közgáz B van (2026/27 óta)
+        w = ts.get("wins", 0)
+        l = ts.get("losses", 0)
+        upcoming = ts.get("upcoming", [])
+        record_pill = ""
+        if w or l:
+            record_pill = f'<div class="record-pill"><span class="rp-w">{w}W</span><span class="rp-sep">–</span><span class="rp-l">{l}L</span></div>'
 
-            record_html = f'<span class="rec-w">{w}W</span> – <span class="rec-l">{l}L</span>'
-            tcfg = _team_color_cfg(TEAMS.get(ts.get("team_key", ""), {}).get("color", lg_cfg["color"]))
-
-            cards_html += f"""
-        <a href="{ts['href']}/index.html" class="home-card" style="border-color:{tcfg['border']}">
-          <div class="home-card-header">
-            <div class="home-card-title">{ts['label']}</div>
-            <div class="home-card-group">{ts['group']}</div>
-          </div>
-          <div class="home-card-record">{record_html}</div>
-          {next_match}
-          <div class="home-card-arrow">&rarr;</div>
-        </a>"""
-        cards_html += """
+        next_html = ""
+        if upcoming:
+            nm = upcoming[0]
+            opp = nm["away_team"] if nm["is_home"] else nm["home_team"]
+            opp_short = calendar_short_name(opp)
+            # Magyar dátum
+            try:
+                dt = datetime.strptime(nm["date"], "%Y-%m-%d")
+                weekdays = ["hétfő","kedd","szerda","csütörtök","péntek","szombat","vasárnap"]
+                date_hu = f'{dt.year}. {MONTH_NAMES_HU[dt.month].lower()} {dt.day}. ({weekdays[dt.weekday()]})'
+            except Exception:
+                date_hu = nm["date"]
+            time_str = nm.get("time", "")
+            venue = nm.get("venue", "")
+            hv_label = "HAZAI" if nm["is_home"] else "IDEGENBELI"
+            hv_class = "nm-home" if nm["is_home"] else "nm-away"
+            # Kupa vagy bajnoki? A match_id-ből döntjük el (heurisztika)
+            comp_tag = ""
+            mid = (nm.get("match_id") or "")
+            if "cup" in mid.lower() or opp.upper() == "MAFC":  # Hepp kupa 1. forduló ellenfele MAFC volt
+                # Ellenőrizzük a home_team/away_team nevét vs Közgáz bajnoki csoport
+                # Egyszerűbb: hasonlítsuk a jelenlegi bajnoki csoport tag-jével
+                pass
+            # Heurisztikánál pontosabb: minden kupa esemény venue-ja Lónyay hazai (nem használható 100%-ra),
+            # de az MKOSZ scrape most nem passzol comp_code-ot. Egyelőre nincs kupa-tag jelzés a nm-en.
+            # Ha később kell, generate_dashboards.py-ban a match dict-be tehetünk `comp` mezőt.
+            venue_html = f'<div class="nm-venue">📍 {venue}</div>' if venue else ""
+            next_html = f'''
+    <div class="next-match-card {hv_class}">
+      <div class="nm-label">KÖVETKEZŐ MECCS · <span class="nm-hv">{hv_label}</span></div>
+      <div class="nm-date">{date_hu}</div>
+      <div class="nm-matchup">
+        <span class="nm-time">{time_str}</span>
+        <span class="nm-vs">{"vs" if nm["is_home"] else "@"}</span>
+        <span class="nm-opp">{opp_short}</span>
       </div>
-    </div>"""
+      {venue_html}
+    </div>'''
+
+        cards_html = record_pill + next_html
 
     # Build ALL match rows (all teams), JS will pick the right 5+5 per filter
     all_matches = []
@@ -5203,38 +5216,23 @@ def generate_homepage(team_summaries):
 
     matches_section = ""
     if match_rows:
+        # 1 csapatra nincs értelme a filter — az összes meccs egyszerűen jön
         matches_section = f"""
     <div class="section-title">MECCSEK</div>
-    <div class="match-filters">{filter_buttons}</div>
     <div class="matches-list">{match_rows}
     </div>
     <script>
     (function(){{
-      var btns = document.querySelectorAll('.match-filter');
       var allRows = Array.from(document.querySelectorAll('.match-row'));
-      function applyFilter(team) {{
-        // Hide all
-        allRows.forEach(function(r){{ r.style.display = 'none'; }});
-        // Filter by team
-        var pool = team === 'all' ? allRows : allRows.filter(function(r){{ return r.dataset.team === team; }});
-        // Split played (newest first) and upcoming (soonest first)
-        var played = pool.filter(function(r){{ return r.dataset.type === 'played'; }});
-        var upcoming = pool.filter(function(r){{ return r.dataset.type === 'upcoming'; }});
-        played.sort(function(a,b){{ return b.dataset.date.localeCompare(a.dataset.date); }});
-        upcoming.sort(function(a,b){{ return a.dataset.date.localeCompare(b.dataset.date); }});
-        // Take last 5 played (show chronologically) + next 5 upcoming
-        var last5 = played.slice(0,5).reverse();
-        var next5 = upcoming.slice(0,5);
-        last5.concat(next5).forEach(function(r){{ r.style.display = ''; }});
-      }}
-      applyFilter('all');
-      btns.forEach(function(btn){{
-        btn.addEventListener('click', function(){{
-          btns.forEach(function(b){{ b.classList.remove('active'); }});
-          btn.classList.add('active');
-          applyFilter(btn.dataset.team);
-        }});
-      }});
+      // Hide all, then show last 5 played + next 5 upcoming (single team, no filter)
+      allRows.forEach(function(r){{ r.style.display = 'none'; }});
+      var played = allRows.filter(function(r){{ return r.dataset.type === 'played'; }});
+      var upcoming = allRows.filter(function(r){{ return r.dataset.type === 'upcoming'; }});
+      played.sort(function(a,b){{ return b.dataset.date.localeCompare(a.dataset.date); }});
+      upcoming.sort(function(a,b){{ return a.dataset.date.localeCompare(b.dataset.date); }});
+      var last5 = played.slice(0,5).reverse();
+      var next5 = upcoming.slice(0,5);
+      last5.concat(next5).forEach(function(r){{ r.style.display = ''; }});
     }})();
     </script>"""
 
@@ -5352,41 +5350,67 @@ def generate_homepage(team_summaries):
     letter-spacing:0.5px;
   }}
 
-  .league-section {{ margin-bottom:32px; }}
-  .league-header {{ margin-bottom:14px; }}
-  .league-badge {{
-    display:inline-block; font-size:0.72rem; font-weight:700; text-transform:uppercase;
-    letter-spacing:1.2px; padding:5px 14px; border-radius:20px;
-    border:1px solid; background:rgba(255,255,255,0.05);
+  /* Record pill: W-L kompakt jelvény a hero alá */
+  .record-pill {{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 14px; border-radius:20px;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+    font-size:0.9rem; font-weight:800; margin:0 auto 20px; letter-spacing:1px;
   }}
-  .home-cards {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; }}
-  .home-card {{
-    background:linear-gradient(135deg,#1c1820 0%,#151518 100%);
-    border-radius:16px; padding:24px; text-decoration:none; color:var(--text);
-    border:1px solid rgba(255,255,255,0.08);
-    transition:all .25s; position:relative; overflow:hidden;
+  .rp-w {{ color:var(--green); }}
+  .rp-l {{ color:var(--red); }}
+  .rp-sep {{ color:var(--text-dim); }}
+
+  /* Következő meccs hero-kártya */
+  .next-match-card {{
+    background:linear-gradient(135deg,#2a1218 0%,#1a1518 100%);
+    border-radius:20px; padding:24px 28px; margin-bottom:28px;
+    border:1px solid rgba(196,30,58,0.35);
+    box-shadow:0 8px 24px rgba(196,30,58,0.15);
+    position:relative; overflow:hidden;
   }}
-  .home-card:hover {{
-    transform:translateY(-3px);
-    box-shadow:0 12px 32px rgba(0,0,0,0.3);
+  .next-match-card::before {{
+    content:''; position:absolute; top:-30%; right:-15%;
+    width:280px; height:280px;
+    background:radial-gradient(circle,rgba(196,30,58,0.25),transparent 65%);
+    pointer-events:none;
   }}
-  .home-card-header {{ margin-bottom:16px; }}
-  .home-card-title {{ font-size:1.3rem; font-weight:800; }}
-  .home-card-group {{ font-size:0.78rem; color:var(--text-dim); margin-top:4px; }}
-  .home-card-record {{ font-size:1.5rem; font-weight:800; margin-bottom:12px; }}
-  .rec-w {{ color:var(--green); }}
-  .rec-l {{ color:var(--red); }}
-  .next-match {{
+  .next-match-card.nm-away {{ background:linear-gradient(135deg,#1a1e2a 0%,#151518 100%); border-color:rgba(0,206,201,0.3); }}
+  .next-match-card.nm-away::before {{ background:radial-gradient(circle,rgba(0,206,201,0.15),transparent 65%); }}
+  .nm-label {{
+    font-size:0.7rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:1.5px; color:var(--text-dim); margin-bottom:10px;
+    position:relative; z-index:1;
+  }}
+  .nm-hv {{ color:var(--accent); }}
+  .nm-away .nm-hv {{ color:var(--accent2); }}
+  .nm-date {{
+    font-size:0.95rem; color:var(--text); font-weight:600;
+    margin-bottom:8px; position:relative; z-index:1;
+  }}
+  .nm-matchup {{
+    display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+    margin:14px 0 10px; position:relative; z-index:1;
+  }}
+  .nm-time {{ font-size:2.2rem; font-weight:900; color:#fff; letter-spacing:-1px; }}
+  .nm-vs {{ font-size:1.1rem; color:var(--text-dim); font-weight:600; }}
+  .nm-opp {{ font-size:1.6rem; font-weight:800; color:#fff; letter-spacing:-0.5px; }}
+  .nm-venue {{
+    font-size:0.85rem; color:var(--text-dim); margin-top:12px;
+    position:relative; z-index:1;
+  }}
+
+  /* Footer */
+  .site-footer {{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    flex-wrap:wrap; margin:40px 0 8px; padding-top:20px;
+    border-top:1px solid rgba(255,255,255,0.06);
     font-size:0.8rem; color:var(--text-dim);
-    padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:8px;
   }}
-  .next-match strong {{ color:var(--text); }}
-  .home-card-arrow {{
-    position:absolute; top:24px; right:24px;
-    font-size:1.4rem; color:var(--accent); opacity:0.4;
-    transition:opacity .2s, transform .2s;
-  }}
-  .home-card:hover .home-card-arrow {{ opacity:1; transform:translateX(4px); }}
+  .footer-link {{ color:var(--text-dim); text-decoration:none; font-weight:600; }}
+  .footer-link:hover {{ color:var(--accent); }}
+  .footer-sep {{ opacity:0.4; }}
+  .footer-brand {{ opacity:0.5; }}
 
   .section-title {{
     font-size:0.75rem; font-weight:700; text-transform:uppercase;
@@ -5447,14 +5471,23 @@ def generate_homepage(team_summaries):
 
   {CALENDAR_CSS}
 
+  /* Hero CTA (record pill + next match card container) */
+  .hero-cta {{ text-align:center; margin-bottom:8px; }}
+  .hero-cta .next-match-card {{ text-align:left; }}
+
   @media(max-width:600px) {{
     body {{ padding:10px; }}
     .container {{ overflow-x:hidden; }}
-    .hero h1 {{ font-size:1.8rem; }}
-    .home-cards {{ grid-template-columns:1fr; }}
+    .hero {{ padding:24px 16px; }}
+    .hero-logo {{ width:70px; height:70px; margin-bottom:14px; }}
+    .hero h1 {{ font-size:1.6rem; letter-spacing:1.2px; }}
+    .hero .sub {{ font-size:0.82rem; }}
+    /* Next match card mobilon */
+    .next-match-card {{ padding:20px 18px; }}
+    .nm-time {{ font-size:1.9rem; }}
+    .nm-opp {{ font-size:1.35rem; }}
+    .nm-date {{ font-size:0.88rem; }}
     .up-row, .res-row {{ font-size:0.78rem; gap:4px; padding:10px 12px; }}
-    .match-filters {{ gap:5px; }}
-    .match-filter {{ font-size:0.65rem; padding:4px 9px; letter-spacing:0; }}
     .matches-list {{ padding:4px; overflow:hidden; }}
     .match-row {{ grid-template-columns:48px 22px 1fr auto 32px; padding:10px 8px; gap:5px; font-size:0.78rem; }}
     .row-league-tag {{ display:none; }}
@@ -5463,6 +5496,8 @@ def generate_homepage(team_summaries):
     .m-badge {{ font-size:0.62rem; padding:2px 6px; min-width:24px; }}
     .m-time {{ font-size:0.7rem; }}
     .section-title {{ font-size:0.68rem; letter-spacing:1px; }}
+    .site-footer {{ flex-direction:column; gap:8px; }}
+    .footer-sep {{ display:none; }}
   }}
 </style>
 </head>
@@ -5472,20 +5507,22 @@ def generate_homepage(team_summaries):
   <div class="hero">
     <img src="kozgaz_logo.png" alt="Közgáz Basketball" class="hero-logo">
     <h1>KÖZGÁZ BASKETBALL</h1>
-    <div class="sub">2026/27 szezon</div>
+    <div class="sub">Közgáz SC és DSK/B &middot; NB2 Kelet &middot; 2026/27 szezon</div>
   </div>
-  <div class="home-cards">
+  <div class="hero-cta">
     {cards_html}
   </div>
-  {_ics_subscribe_card('kozgaz-b')}
   {standings_section}
   {matches_section}
   {calendar_section}
-  <div class="archive-link-wrap" style="margin:32px 0 8px;text-align:center;">
-    <a href="dashboards/2025-26/" style="display:inline-block;padding:12px 24px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:var(--text-dim);text-decoration:none;font-size:0.9rem;font-weight:600;">
-      📁 Korábbi szezonok archívuma &mdash; <span style="color:var(--accent);">2025/26 szezon</span> &rarr;
-    </a>
-  </div>
+  {_ics_subscribe_card('kozgaz-b')}
+  <footer class="site-footer">
+    <a href="dashboards/2025-26/" class="footer-link">📁 2025/26 szezon archívum</a>
+    <div class="footer-sep">·</div>
+    <a href="dashboards/csapat.html" class="footer-link">Csapat dashboard</a>
+    <div class="footer-sep">·</div>
+    <span class="footer-brand">www.kozgazkosar.hu</span>
+  </footer>
 </div>
 </body>
 </html>"""
