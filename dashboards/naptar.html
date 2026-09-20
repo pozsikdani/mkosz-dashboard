@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="/kozgaz_logo.png">
 <link rel="apple-touch-icon" href="/kozgaz_logo.png">
-<title>KÖZGÁZ B — Menetrend 2025/26</title>
+<title>KÖZGÁZ B — Menetrend 2026/27</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 :root {
@@ -185,7 +185,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   <div class="header">
     <div>
       <h1>Menetrend</h1>
-      <div class="subtitle">KÖZGÁZ SC ÉS DSK/B &nbsp;|&nbsp; <span>NB2 Kelet</span> &nbsp;|&nbsp; 2025/26 szezon</div>
+      <div class="subtitle">KÖZGÁZ SC ÉS DSK/B &nbsp;|&nbsp; <span>NB2 Kelet</span> &nbsp;|&nbsp; 2026/27 szezon</div>
     </div>
     <div class="header-stats">
       <div class="header-stat"><div class="val green">0</div><div class="label">Győzelem</div></div>
@@ -198,6 +198,59 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
     <div class="record-badge">Hazai <span class="rval green">0W</span>–<span class="rval red">0L</span></div>
     <div class="record-badge">Idegen <span class="rval green">0W</span>–<span class="rval red">0L</span></div>
   </div>
+  
+  <div class="ics-card">
+    <div class="ics-title">📅 Naptár feliratkozás</div>
+    <div class="ics-desc">Kösd össze a naptárad — új meccsek automatikusan felkerülnek. Egy kattintás:</div>
+    <div class="ics-btns">
+      <a class="ics-btn ics-apple" href="webcal://www.kozgazkosar.hu/kozgaz-b.ics" title="iPhone / Mac / Apple Calendar">🍎 Apple Calendar</a>
+      <a class="ics-btn ics-google" href="https://calendar.google.com/calendar/r?cid=https://www.kozgazkosar.hu/kozgaz-b.ics" target="_blank" rel="noopener" title="Google Calendar">🅶 Google Calendar</a>
+      <a class="ics-btn ics-outlook" href="https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription&url=https://www.kozgazkosar.hu/kozgaz-b.ics&name=K%C3%B6zg%C3%A1z+B" target="_blank" rel="noopener" title="Outlook.com">🅾 Outlook</a>
+    </div>
+    <div class="ics-manual">
+      Vagy manuális URL <span class="ics-hint">(Feliratkozás / Subscribe funkcióval)</span>:
+      <div class="ics-url-row">
+        <code class="ics-url" id="icsUrl">https://www.kozgazkosar.hu/kozgaz-b.ics</code>
+        <button class="ics-copy" onclick="navigator.clipboard.writeText('https://www.kozgazkosar.hu/kozgaz-b.ics');this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)" title="Másolás">📋</button>
+      </div>
+    </div>
+  </div>
+  <style>
+    .ics-card {
+      background:linear-gradient(135deg,rgba(196,30,58,0.08) 0%,rgba(0,206,201,0.04) 100%);
+      border:1px solid rgba(196,30,58,0.25); border-radius:14px;
+      padding:18px 22px; margin:16px 0;
+    }
+    .ics-title { font-weight:800; font-size:1.05rem; margin-bottom:4px; color:#fff; }
+    .ics-desc { font-size:0.85rem; color:var(--text-dim); margin-bottom:12px; }
+    .ics-btns { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .ics-btn {
+      display:inline-block; padding:9px 14px; border-radius:8px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+      color:var(--text); text-decoration:none; font-size:0.85rem; font-weight:600;
+      transition:all 0.15s;
+    }
+    .ics-btn:hover { background:var(--accent); border-color:var(--accent); color:#fff; transform:translateY(-1px); }
+    .ics-manual { font-size:0.75rem; color:var(--text-dim); }
+    .ics-hint { opacity:0.7; font-style:italic; }
+    .ics-url-row {
+      display:flex; align-items:center; gap:6px; margin-top:6px;
+      background:rgba(0,0,0,0.3); border-radius:6px; padding:6px 10px;
+    }
+    .ics-url {
+      flex:1; font-family:'SF Mono',Menlo,Consolas,monospace; font-size:0.72rem;
+      color:var(--accent2); overflow-x:auto; white-space:nowrap;
+    }
+    .ics-copy {
+      background:transparent; border:none; cursor:pointer; font-size:1rem; padding:2px 8px;
+    }
+    .ics-copy:hover { background:rgba(255,255,255,0.08); border-radius:4px; }
+    @media (max-width:600px) {
+      .ics-btns { flex-direction:column; }
+      .ics-btn { width:100%; text-align:center; }
+    }
+  </style>
+
   <div class="cal-legend">
     <span class="legend-item"><span class="match-badge w" style="font-size:.65rem">W</span> Győzelem</span>
     <span class="legend-item"><span class="match-badge l" style="font-size:.65rem">L</span> Vereség</span>

@@ -4449,6 +4449,189 @@ document.querySelectorAll('#chartLegend .legend-item').forEach(el => {{
     return html
 
 
+def _ics_subscribe_card(team_key):
+    """Feliratkozás-kártya a naptár-oldalra. team_key → az .ics filenév."""
+    ics_url_https = f"https://www.kozgazkosar.hu/{team_key}.ics"
+    ics_url_webcal = f"webcal://www.kozgazkosar.hu/{team_key}.ics"
+    # Google Calendar "add by URL" — a cid= paraméterben az https:// URL kell
+    gcal_url = f"https://calendar.google.com/calendar/r?cid={ics_url_https}"
+    # Outlook.com — a rru=addsubscription forma
+    outlook_url = f"https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription&url={ics_url_https}&name=K%C3%B6zg%C3%A1z+B"
+    return f'''
+  <div class="ics-card">
+    <div class="ics-title">📅 Naptár feliratkozás</div>
+    <div class="ics-desc">Kösd össze a naptárad — új meccsek automatikusan felkerülnek. Egy kattintás:</div>
+    <div class="ics-btns">
+      <a class="ics-btn ics-apple" href="{ics_url_webcal}" title="iPhone / Mac / Apple Calendar">🍎 Apple Calendar</a>
+      <a class="ics-btn ics-google" href="{gcal_url}" target="_blank" rel="noopener" title="Google Calendar">🅶 Google Calendar</a>
+      <a class="ics-btn ics-outlook" href="{outlook_url}" target="_blank" rel="noopener" title="Outlook.com">🅾 Outlook</a>
+    </div>
+    <div class="ics-manual">
+      Vagy manuális URL <span class="ics-hint">(Feliratkozás / Subscribe funkcióval)</span>:
+      <div class="ics-url-row">
+        <code class="ics-url" id="icsUrl">{ics_url_https}</code>
+        <button class="ics-copy" onclick="navigator.clipboard.writeText('{ics_url_https}');this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)" title="Másolás">📋</button>
+      </div>
+    </div>
+  </div>
+  <style>
+    .ics-card {{
+      background:linear-gradient(135deg,rgba(196,30,58,0.08) 0%,rgba(0,206,201,0.04) 100%);
+      border:1px solid rgba(196,30,58,0.25); border-radius:14px;
+      padding:18px 22px; margin:16px 0;
+    }}
+    .ics-title {{ font-weight:800; font-size:1.05rem; margin-bottom:4px; color:#fff; }}
+    .ics-desc {{ font-size:0.85rem; color:var(--text-dim); margin-bottom:12px; }}
+    .ics-btns {{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }}
+    .ics-btn {{
+      display:inline-block; padding:9px 14px; border-radius:8px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+      color:var(--text); text-decoration:none; font-size:0.85rem; font-weight:600;
+      transition:all 0.15s;
+    }}
+    .ics-btn:hover {{ background:var(--accent); border-color:var(--accent); color:#fff; transform:translateY(-1px); }}
+    .ics-manual {{ font-size:0.75rem; color:var(--text-dim); }}
+    .ics-hint {{ opacity:0.7; font-style:italic; }}
+    .ics-url-row {{
+      display:flex; align-items:center; gap:6px; margin-top:6px;
+      background:rgba(0,0,0,0.3); border-radius:6px; padding:6px 10px;
+    }}
+    .ics-url {{
+      flex:1; font-family:'SF Mono',Menlo,Consolas,monospace; font-size:0.72rem;
+      color:var(--accent2); overflow-x:auto; white-space:nowrap;
+    }}
+    .ics-copy {{
+      background:transparent; border:none; cursor:pointer; font-size:1rem; padding:2px 8px;
+    }}
+    .ics-copy:hover {{ background:rgba(255,255,255,0.08); border-radius:4px; }}
+    @media (max-width:600px) {{
+      .ics-btns {{ flex-direction:column; }}
+      .ics-btn {{ width:100%; text-align:center; }}
+    }}
+  </style>
+'''
+
+
+def _ics_escape(s):
+    """Escape a string for iCalendar TEXT fields (RFC 5545)."""
+    if s is None:
+        return ""
+    return (str(s).replace("\\", "\\\\")
+                    .replace(";", "\\;")
+                    .replace(",", "\\,")
+                    .replace("\n", "\\n")
+                    .replace("\r", ""))
+
+
+def generate_ics(matches, cfg):
+    """Egy .ics naptár-fájlt generál a csapat meccseiből (RFC 5545).
+    A naptár-appok (Apple / Google / Outlook) automatikusan frissítik ha
+    'feliratkozás'-ként adják hozzá a webcal:// URL-t.
+    """
+    team_short = cfg["team_short"]
+    team_name = cfg["team_name"]
+    now_utc = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+
+    lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        f"PRODID:-//kozgazkosar.hu//{team_short} Naptár//HU",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        f"X-WR-CALNAME:{_ics_escape(team_name)} — meccsek",
+        "X-WR-TIMEZONE:Europe/Budapest",
+        f"X-WR-CALDESC:{_ics_escape(team_name)} bajnoki + kupa meccsek. Napi frissítés a kozgazkosar.hu-ról.",
+        # Európai időzóna definíció (Apple/Google elfogadja e nélkül is, de biztos ami biztos)
+        "BEGIN:VTIMEZONE",
+        "TZID:Europe/Budapest",
+        "BEGIN:STANDARD",
+        "DTSTART:19701025T030000",
+        "TZOFFSETFROM:+0200",
+        "TZOFFSETTO:+0100",
+        "TZNAME:CET",
+        "RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10",
+        "END:STANDARD",
+        "BEGIN:DAYLIGHT",
+        "DTSTART:19700329T020000",
+        "TZOFFSETFROM:+0100",
+        "TZOFFSETTO:+0200",
+        "TZNAME:CEST",
+        "RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3",
+        "END:DAYLIGHT",
+        "END:VTIMEZONE",
+    ]
+
+    for m in matches:
+        date_str = m.get("date")
+        if not date_str:
+            continue
+        try:
+            d = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            continue
+
+        # Időpont — ha nincs, alapból 18:00
+        time_str = (m.get("time") or "").strip()
+        try:
+            if ":" in time_str:
+                hh, mm = time_str.split(":")[:2]
+                start_h, start_m = int(hh), int(mm)
+            else:
+                start_h, start_m = 18, 0
+        except (ValueError, TypeError):
+            start_h, start_m = 18, 0
+
+        dt_start = datetime(d.year, d.month, d.day, start_h, start_m)
+        # 2 óra alapértelmezett hossz
+        dt_end = dt_start.replace(hour=(start_h + 2) % 24)
+        if start_h + 2 >= 24:
+            dt_end = dt_end.replace(day=d.day + 1) if d.day < 28 else dt_start
+
+        home_team = m.get("home_team") or ""
+        away_team = m.get("away_team") or ""
+        is_home = m.get("is_home", False)
+        venue = m.get("venue") or ""
+        played = m.get("played", False)
+        hs = m.get("home_score")
+        as_ = m.get("away_score")
+
+        # SUMMARY: 🏀 team_short vs/@ opp (score if played)
+        opp = away_team if is_home else home_team
+        if is_home:
+            matchup = f"{team_short} vs {opp}"
+        else:
+            matchup = f"{team_short} @ {opp}"
+        summary_parts = ["🏀", matchup]
+        if played and hs is not None and as_ is not None:
+            summary_parts.append(f"({hs}-{as_})")
+        summary = " ".join(summary_parts)
+
+        # UID egyedi (deterministic: date + teams)
+        uid_seed = f"{date_str}-{home_team[:8]}-{away_team[:8]}".replace(" ", "").replace("/", "")
+        uid = f"{uid_seed}@kozgazkosar.hu"
+
+        lines.extend([
+            "BEGIN:VEVENT",
+            f"UID:{uid}",
+            f"DTSTAMP:{now_utc}",
+            f"DTSTART;TZID=Europe/Budapest:{dt_start.strftime('%Y%m%dT%H%M%S')}",
+            f"DTEND;TZID=Europe/Budapest:{dt_end.strftime('%Y%m%dT%H%M%S')}",
+            f"SUMMARY:{_ics_escape(summary)}",
+        ])
+        if venue:
+            lines.append(f"LOCATION:{_ics_escape(venue)}")
+        desc = f"{home_team} vs {away_team}"
+        if played and hs is not None:
+            desc += f"\\nEredmény: {hs}-{as_}"
+        desc += "\\nRészletek: https://www.kozgazkosar.hu/dashboards/"
+        lines.append(f"DESCRIPTION:{desc}")
+        lines.append("STATUS:CONFIRMED")
+        lines.append("END:VEVENT")
+
+    lines.append("END:VCALENDAR")
+    return "\r\n".join(lines) + "\r\n"
+
+
 def generate_calendar(matches, cfg, team_key=None):
     """Generate calendar HTML page. matches = list of dicts from scrape or DB."""
     # Parse matches into dict keyed by (year, month, day)
@@ -4502,7 +4685,7 @@ def generate_calendar(matches, cfg, team_key=None):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" href="/kozgaz_logo.png">
 <link rel="apple-touch-icon" href="/kozgaz_logo.png">
-<title>{cfg["team_short"]} — Menetrend 2025/26</title>
+<title>{cfg["team_short"]} — Menetrend 2026/27</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 :root {{
@@ -4573,7 +4756,7 @@ body{{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:va
   <div class="header">
     <div>
       <h1>Menetrend</h1>
-      <div class="subtitle">{cfg["team_name"]} &nbsp;|&nbsp; <span>{cfg["group_name"]}</span> &nbsp;|&nbsp; 2025/26 szezon</div>
+      <div class="subtitle">{cfg["team_name"]} &nbsp;|&nbsp; <span>{cfg["group_name"]}</span> &nbsp;|&nbsp; 2026/27 szezon</div>
     </div>
     <div class="header-stats">
       <div class="header-stat"><div class="val green">{wins}</div><div class="label">Győzelem</div></div>
@@ -4586,6 +4769,7 @@ body{{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:va
     <div class="record-badge">Hazai <span class="rval green">{home_w}W</span>–<span class="rval red">{home_l}L</span></div>
     <div class="record-badge">Idegen <span class="rval green">{away_w}W</span>–<span class="rval red">{away_l}L</span></div>
   </div>
+  {_ics_subscribe_card(team_key or 'kozgaz-b')}
   <div class="cal-legend">
     <span class="legend-item"><span class="match-badge w" style="font-size:.65rem">W</span> Győzelem</span>
     <span class="legend-item"><span class="match-badge l" style="font-size:.65rem">L</span> Vereség</span>
@@ -5033,6 +5217,7 @@ def generate_homepage(team_summaries):
   <div class="home-cards">
     {cards_html}
   </div>
+  {_ics_subscribe_card('kozgaz-b')}
   {matches_section}
   {calendar_section}
   <div class="archive-link-wrap" style="margin:32px 0 8px;text-align:center;">
@@ -5331,6 +5516,14 @@ def generate_team(team_key):
         with open(os.path.join(out_dir, "naptar.html"), "w", encoding="utf-8") as f:
             f.write(cal_html)
         print(f"  ✓ naptar.html (meccsnaptár, {len(cal_data)} meccs)")
+
+        # ICS naptár-feed (feliratkozáshoz)
+        ics_content = generate_ics(cal_data, cfg)
+        # A repo gyökerébe rakjuk hogy a webcal://www.kozgazkosar.hu/{team_key}.ics stimmeljen
+        ics_path = os.path.join(BASE_DIR, f"{team_key}.ics")
+        with open(ics_path, "w", encoding="utf-8") as f:
+            f.write(ics_content)
+        print(f"  ✓ {team_key}.ics ({len(cal_data)} esemény)")
 
     index_html = generate_index(generated, cfg, team_key=team_key)
     with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:

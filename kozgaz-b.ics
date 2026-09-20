@@ -1,0 +1,196 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//kozgazkosar.hu//KÖZGÁZ B Naptár//HU
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:KÖZGÁZ SC ÉS DSK/B — meccsek
+X-WR-TIMEZONE:Europe/Budapest
+X-WR-CALDESC:KÖZGÁZ SC ÉS DSK/B bajnoki + kupa meccsek. Napi frissítés a kozgazkosar.hu-ról.
+BEGIN:VTIMEZONE
+TZID:Europe/Budapest
+BEGIN:STANDARD
+DTSTART:19701025T030000
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19700329T020000
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3
+END:DAYLIGHT
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:2026-10-01-KözgázS-BKGPRIM@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261001T201500
+DTEND;TZID=Europe/Budapest:20261001T221500
+SUMMARY:🏀 KÖZGÁZ B vs BKG PRIMA Akadémia II.
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs BKG PRIMA Akadémia II.\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-10-13-KözgázS-Pénzügyő@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261013T201500
+DTEND;TZID=Europe/Budapest:20261013T221500
+SUMMARY:🏀 KÖZGÁZ B vs Pénzügyőr Sportegyesület
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs Pénzügyőr Sportegyesület\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-10-31-FKE-KözgázS@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261031T180000
+DTEND;TZID=Europe/Budapest:20261031T200000
+SUMMARY:🏀 KÖZGÁZ B @ FKE
+LOCATION:REGI Kosárlabdacsarnok
+DESCRIPTION:FKE vs Közgáz SC és DSK/B\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-11-07-BLFSE-KözgázS@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261107T121500
+DTEND;TZID=Europe/Budapest:20261107T141500
+SUMMARY:🏀 KÖZGÁZ B @ BLF SE
+LOCATION:REGI Kosárlabdacsarnok
+DESCRIPTION:BLF SE vs Közgáz SC és DSK/B\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-11-17-KözgázS-BKG-Vere@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261117T201500
+DTEND;TZID=Europe/Budapest:20261117T221500
+SUMMARY:🏀 KÖZGÁZ B vs BKG-Veresegyház
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs BKG-Veresegyház\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-11-20-SUNSHINE-KözgázS@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261120T190000
+DTEND;TZID=Europe/Budapest:20261120T210000
+SUMMARY:🏀 KÖZGÁZ B @ SUNSHINE-NYÍKSE
+LOCATION:Nyíregyházi Zrínyi Ilona Gimnázium
+DESCRIPTION:SUNSHINE-NYÍKSE vs Közgáz SC és DSK/B\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-11-26-KözgázS-VBWCEKK@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261126T201500
+DTEND;TZID=Europe/Budapest:20261126T221500
+SUMMARY:🏀 KÖZGÁZ B vs VBW CEKK Cegléd
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs VBW CEKK Cegléd\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-12-03-KözgázS-Szerencs@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261203T201500
+DTEND;TZID=Europe/Budapest:20261203T221500
+SUMMARY:🏀 KÖZGÁZ B vs Szerencs VSE
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs Szerencs VSE\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-12-10-BKGPRIM-KözgázS@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20261210T201500
+DTEND;TZID=Europe/Budapest:20261210T221500
+SUMMARY:🏀 KÖZGÁZ B @ BKG PRIMA Akadémia II.
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:BKG PRIMA Akadémia II. vs Közgáz SC és DSK/B\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-01-07-KözgázS-FKE@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20270107T201500
+DTEND;TZID=Europe/Budapest:20270107T221500
+SUMMARY:🏀 KÖZGÁZ B vs FKE
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs FKE\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-01-16-Pénzügyő-KözgázS@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20270116T190000
+DTEND;TZID=Europe/Budapest:20270116T210000
+SUMMARY:🏀 KÖZGÁZ B @ Pénzügyőr Sportegyesület
+LOCATION:Pénzügyőr Kosárlabda Csarnok
+DESCRIPTION:Pénzügyőr Sportegyesület vs Közgáz SC és DSK/B\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-01-28-KözgázS-BLFSE@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20270128T201500
+DTEND;TZID=Europe/Budapest:20270128T221500
+SUMMARY:🏀 KÖZGÁZ B vs BLF SE
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs BLF SE\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-02-07-BKG-Vere-KözgázS@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20270207T180000
+DTEND;TZID=Europe/Budapest:20270207T200000
+SUMMARY:🏀 KÖZGÁZ B @ BKG-Veresegyház
+LOCATION:Veresegyházi Kosárlabda Csarnok
+DESCRIPTION:BKG-Veresegyház vs Közgáz SC és DSK/B\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-02-11-KözgázS-SUNSHINE@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20270211T184500
+DTEND;TZID=Europe/Budapest:20270211T204500
+SUMMARY:🏀 KÖZGÁZ B vs SUNSHINE-NYÍKSE
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs SUNSHINE-NYÍKSE\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-02-19-VBWCEKK-KözgázS@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20270219T203000
+DTEND;TZID=Europe/Budapest:20270219T223000
+SUMMARY:🏀 KÖZGÁZ B @ VBW CEKK Cegléd
+LOCATION:Ceglédi Kosárlabda Csarnok
+DESCRIPTION:VBW CEKK Cegléd vs Közgáz SC és DSK/B\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-02-27-Szerencs-KözgázS@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20270227T180000
+DTEND;TZID=Europe/Budapest:20270227T200000
+SUMMARY:🏀 KÖZGÁZ B @ Szerencs VSE
+LOCATION:Szerencsi Hunyadi Sportcsarnok
+DESCRIPTION:Szerencs VSE vs Közgáz SC és DSK/B\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-09-24-KözgázS-MAFC@kozgazkosar.hu
+DTSTAMP:20260920T100711Z
+DTSTART;TZID=Europe/Budapest:20260924T201500
+DTEND;TZID=Europe/Budapest:20260924T221500
+SUMMARY:🏀 KÖZGÁZ B vs MAFC
+LOCATION:Lónyay Utcai Református Gimnázium és Kollégium
+DESCRIPTION:Közgáz SC és DSK/B vs MAFC\nRészletek: https://www.kozgazkosar.hu/dashboards/
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR
