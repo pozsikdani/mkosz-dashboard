@@ -1,12 +1,20 @@
 # MKOSZ Dashboard — Project Documentation (kozgazkosar.hu)
 
-> Last updated: 2026-05-13. Ez a fájl teljes kontextust ad a `mkosz-dashboard` repóhoz.
+> Last updated: 2026-09-20. Ez a fájl teljes kontextust ad a `mkosz-dashboard` repóhoz.
 
 ## Mi ez a projekt?
 
 A **kozgazkosar.hu** weboldal generátora. HTML-eket állít elő a központi `mkosz-stats/mkosz_stats.sqlite` adatbázisból, és GitHub Pages-en hostolja.
 
 **Tulajdonos**: KÖZGÁZ SC ÉS DSK kosárlabda klub.
+
+## Aktív szezon (2026-09 óta): 2026/27
+
+A weblap **2026/27 óta már csak a Közgáz SC és DSK/B (Öregek NB2)** csapatot szolgálja. Előző szezon (2025/26) **statikus archívumként** él a `/dashboards/2025-26/` subdir alatt (az összes akkori játékos + meccs oldal + a 6 csapat közül csak a B). A többi 5 csapat (Közgáz A, Női, Leftoverz, MEFOB Női/Férfi) oldalai törlődtek — a git történetben visszahozhatók, ha később szükség van rájuk.
+
+- `SEASON = "x2627"` a `generate_dashboards.py`-ban
+- `SEASON = "x2627"` és redukált `SCORESHEET_COMPS = [hun3k, hun3_plya]` a `mkosz-scoresheet/ci_update.py`-ban
+- A `mkosz_stats.sqlite` DB továbbra is tartja az összes 2025/26 csapat adatait (nem töröltük), de csak az élő szezont regeneráljuk.
 
 ## Repo struktúra (külön repók 2026-04 óta)
 
@@ -44,17 +52,15 @@ gh workflow run "Napi import" --repo pozsikdani/mkosz-stats   # ~12-13 perc!
 gh workflow run "Napi dashboard frissítés" --repo pozsikdani/mkosz-dashboard
 ```
 
-## Csapatok (TEAMS dict)
+## Csapatok (TEAMS dict) — 2026/27 óta csak 1
+
 | Kulcs | comp_code | mkosz_extra_comps | output | szín | Adat-tier |
 |---|---|---|---|---|---|
-| `kozgaz-b` | hun3k | hun3_plya | dashboards/ | `#C41E3A` piros | **1. Jegyzőkönyv** (NB2) |
-| `kozgaz-a` | hun3kob | hun3_plya | dashboards-a/ | `#e17055` narancs | **1. Jegyzőkönyv** (NB2) |
-| `kozgaz-noi` | whun_bud_na | — | dashboards-noi/ | `#6c5ce7` lila | **1. Jegyzőkönyv** (Bp. megyei) |
-| `leftoverz` | hun_bud_rkfb | — | leftoverz/ | `#fdcb6e` sárga | **1. Jegyzőkönyv** (Bp. megyei) |
-| `kozgaz-mefob` | whun_univn | — | dashboards-mefob/ | `#00cec9` teal | **2. + PBP** (MEFOB) |
-| `kozgaz-mefob-ferfi` | hun_univn | — | dashboards-mefob-ferfi/ | `#a0a0b0` szürke | **2. + PBP** (MEFOB) |
+| `kozgaz-b` | hun3k | (üres, később hun3_plya) | dashboards/ | `#C41E3A` piros | **1. Jegyzőkönyv** (NB2) |
 
-A `mkosz_extra_comps` listája extra `comp_code`-okat ad a stat query-khez (pl. NB2 alapszakasz + rájátszás összevontan).
+A `mkosz_extra_comps` mostanra üres — a rájátszás csoportot (`hun3_plya`) csak akkor rakjuk vissza a config-ba, ha az alapszakasz vége felé Közgáz B rájátszásba jut.
+
+**Archívum** — a 2025/26 szezon összesen **6 csapat** oldala él statikusan (a `dashboards/2025-26/` alatt csak a B; a többi (A/Női/Leftoverz/MEFOB Női/MEFOB Férfi) törölve). A régi TEAMS config git történetben visszakereshető, `commit ^HEAD` a törlési commit előtt.
 
 **Adat-tier hierarchia** (lásd `DB_SCHEMA.md` "Három adatszint" szekció) — magasabb szint tartalmazza az alacsonyabbat:
 - **1. Jegyzőkönyv-szint** (NB2 `hun3*` + Bp. megyei `*_bud_*`): pts/FGM/FTM/FTA/PF + scoring_events (csak made=1) + quarter_scores + faultok + timeouts. **Nincs FGA/3PA**, ezért nincs eFG%/TS%/Pace/Possessions. Bp. megyei képes PDF-nél web fallback (`WEB-*` match-id) → ott scoring_events sincs.
@@ -65,9 +71,8 @@ A `mkosz_extra_comps` listája extra `comp_code`-okat ad a stat query-khez (pl. 
 
 ## Generálás
 ```bash
-python3 generate_dashboards.py site             # teljes site (mind a 6 csapat + főoldal)
-python3 generate_dashboards.py kozgaz-a         # csak Közgáz A
-python3 generate_dashboards.py kozgaz-b
+python3 generate_dashboards.py site             # teljes site (Közgáz B + főoldal)
+python3 generate_dashboards.py kozgaz-b         # csak Közgáz B
 python3 update_attendance.py                    # csak edzéslátogatás (no SQLite)
 ```
 

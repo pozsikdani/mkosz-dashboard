@@ -19,7 +19,7 @@ STATS_DB_PATH = os.environ.get(
 )
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-SEASON = "x2526"
+SEASON = "x2627"
 
 # Competitions that have PBP event data (for scoring runs, quarter stats from events, etc.)
 PBP_COMPS = {"hun2a", "hun2b", "hun_univn", "whun_univn"}
@@ -52,95 +52,17 @@ TEAMS = {
         "group_name": "NB2 Kelet",
         "league": "nb2",
         "out_dir": "dashboards",
-        "mkosz_season": "x2526",
+        "mkosz_season": "x2627",
         "mkosz_comp": "hun3k",
-        "mkosz_team_id": "9239",
-        "mkosz_extra_comps": ["hun3_plya"],
+        "mkosz_team_id": "9239",  # 2026/27: ellenőrizni kell az MKOSZ oldalán
+        "mkosz_extra_comps": [],  # rájátszás (hun3_plya) csak az alapszakasz után
         "color": "#C41E3A",  # Közgáz piros
-    },
-    "kozgaz-a": {
-        "team_pattern": "%KÖZGÁZ%DSK/A%",
-        "team_pattern_broad": "%KÖZGÁZ%",
-        "comp_code": "hun3kob",
-        "team_name": "KÖZGÁZ SC ÉS DSK/A",
-        "team_short": "KÖZGÁZ A",
-        "group_name": "NB2 Közép B",
-        "league": "nb2",
-        "out_dir": "dashboards-a",
-        "mkosz_season": "x2526",
-        "mkosz_comp": "hun3kob",
-        "mkosz_team_id": "9219",
-        "mkosz_extra_comps": ["hun3_plya"],
-        "color": "#e17055",  # narancs-piros
-    },
-    "kozgaz-noi": {
-        "team_pattern": "%KÖZGÁZ%",
-        "team_pattern_broad": "%KÖZGÁZ%",
-        "comp_code": "whun_bud_na",
-        "team_name": "KÖZGÁZ",
-        "team_short": "Közgáz Női",
-        "group_name": "Női A - Cziffra Mihály",
-        "league": "budapesti",
-        "out_dir": "dashboards-noi",
-        "mkosz_season": "x2526",
-        "mkosz_comp": "whun_bud_na",
-        "mkosz_team_id": "79078",
-        "county": "budapest",
-        "color": "#6c5ce7",  # lila
-    },
-    "leftoverz": {
-        "team_pattern": "%LEFTOVER%",
-        "team_pattern_broad": "%LEFTOVER%",
-        "comp_code": "hun_bud_rkfb",
-        "team_name": "KÖZGÁZ LEFTOVERZ",
-        "team_short": "Leftoverz",
-        "group_name": "Regionális Kiemelt Férfi - Cziffra Mihály",
-        "league": "budapesti",
-        "out_dir": "leftoverz",
-        "mkosz_season": "x2526",
-        "mkosz_comp": "hun_bud_rkfb",
-        "mkosz_team_id": "79359",
-        "county": "budapest",
-        "color": "#fdcb6e",  # sárga
-    },
-    "kozgaz-mefob": {
-        "team_pattern": "%KÖZGÁZ SC ÉS DSK%",
-        "team_pattern_broad": "%KÖZGÁZ%",
-        "comp_code": "whun_univn",
-        "team_name": "Közgáz SC és DSK",
-        "team_short": "MEFOB Női",
-        "group_name": "Leány egyetemi Nyugat",
-        "league": "mefob",
-        "out_dir": "dashboards-mefob",
-        "mkosz_season": "x2526",
-        "mkosz_comp": "whun_univn",
-        "mkosz_team_id": "25113",
-        "color": "#00cec9",  # teal
-    },
-    "kozgaz-mefob-ferfi": {
-        "team_pattern": "%KÖZGÁZ SC ÉS DSK%",
-        "team_pattern_broad": "%KÖZGÁZ%",
-        "comp_code": "hun_univn",
-        "team_name": "Közgáz SC és DSK",
-        "team_short": "MEFOB Férfi",
-        "group_name": "Fiú egyetemi Nyugat",
-        "league": "mefob",
-        "out_dir": "dashboards-mefob-ferfi",
-        "mkosz_season": "x2526",
-        "mkosz_comp": "hun_univn",
-        "mkosz_team_id": "25102",
-        "color": "#a0a0b0",  # szürke
     },
 }
 
-# Navigation structure for the site
+# Navigation structure for the site — csak Közgáz B (2026/27 óta)
 NAV_TEAMS = [
     {"key": "kozgaz-b", "label": "Öregek NB2", "href": "dashboards"},
-    {"key": "kozgaz-a", "label": "Fiatalok NB2", "href": "dashboards-a"},
-    {"key": "kozgaz-noi", "label": "Közgáz Női", "href": "dashboards-noi"},
-    {"key": "leftoverz", "label": "Leftoverz", "href": "leftoverz"},
-    {"key": "kozgaz-mefob", "label": "MEFOB Női", "href": "dashboards-mefob"},
-    {"key": "kozgaz-mefob-ferfi", "label": "MEFOB Férfi", "href": "dashboards-mefob-ferfi"},
 ]
 
 # ---- TRAINING ATTENDANCE (Közgáz B only, fetched from Google Sheets) ----
@@ -5083,13 +5005,18 @@ def generate_homepage(team_summaries):
   <div class="hero">
     <img src="kozgaz_logo.png" alt="Közgáz Basketball" class="hero-logo">
     <h1>KÖZGÁZ BASKETBALL</h1>
-    <div class="sub">2025/26 szezon</div>
+    <div class="sub">2026/27 szezon</div>
   </div>
   <div class="home-cards">
     {cards_html}
   </div>
   {matches_section}
   {calendar_section}
+  <div class="archive-link-wrap" style="margin:32px 0 8px;text-align:center;">
+    <a href="dashboards/2025-26/" style="display:inline-block;padding:12px 24px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:var(--text-dim);text-decoration:none;font-size:0.9rem;font-weight:600;">
+      📁 Korábbi szezonok archívuma &mdash; <span style="color:var(--accent);">2025/26 szezon</span> &rarr;
+    </a>
+  </div>
 </div>
 </body>
 </html>"""
