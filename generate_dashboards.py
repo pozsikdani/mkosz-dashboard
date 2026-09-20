@@ -1625,6 +1625,71 @@ def _scrape_schedule_one(season, comp, team_id, team_name_upper):
     return matches
 
 
+def scrape_standings(cfg):
+    """Scrape the MKOSZ bajnoki tabella (standings) for a team's competition.
+
+    Visszaad egy list-et dict-ekkel: {rank, name, games, wins, losses, pts,
+    scored, allowed, form}. Ha még nincs meccs (0 sor), None.
+    """
+    season = cfg.get("mkosz_season")
+    comp = cfg.get("mkosz_comp")
+    if not season or not comp:
+        return None
+    url = f"https://mkosz.hu/bajnoksag/{season}/{comp}"
+    req = urllib.request.Request(url, headers={"User-Agent": MKOSZ_USER_AGENT})
+    try:
+        html = urllib.request.urlopen(req, timeout=15).read().decode("utf-8")
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+        print(f"  ⚠ MKOSZ tabella scrape hiba: {e}")
+        return None
+
+    m = re.search(r'<table class="champ_tabella responsive">(.*?)</table>', html, re.DOTALL)
+    if not m:
+        return None
+    tabella = m.group(1)
+
+    results = []
+    trs = re.findall(r'<tr[^>]*>(.*?)</tr>', tabella, re.DOTALL)
+    for tr in trs:
+        tds = re.findall(r'<td[^>]*>(.*?)</td>', tr, re.DOTALL)
+        if len(tds) < 10:
+            continue
+
+        def _clean(s):
+            return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', s)).strip()
+
+        rank_str = _clean(tds[0]).rstrip('.')
+        try:
+            rank = int(rank_str)
+        except ValueError:
+            continue
+
+        # Csapatnév a title attribútumból (biztosabb) vagy a szövegből
+        name_td = tds[2]
+        name_m = re.search(r'title="([^"]+)"', name_td)
+        name = (name_m.group(1) if name_m else _clean(name_td)).strip()
+
+        def _int(idx):
+            try:
+                return int(_clean(tds[idx]))
+            except (ValueError, TypeError):
+                return 0
+
+        results.append({
+            "rank": rank,
+            "name": name,
+            "games": _int(3),
+            "pts": _int(5),
+            "wins": _int(6),
+            "losses": _int(7),
+            "scored": _int(8),
+            "allowed": _int(9),
+            "form": _clean(tds[10]) if len(tds) > 10 else "",
+        })
+
+    return results if results else None
+
+
 def scrape_schedule(cfg):
     """Scrape match schedule from MKOSZ website. Returns list of dicts."""
     season = cfg.get("mkosz_season")
@@ -5023,6 +5088,74 @@ def generate_homepage(team_summaries):
     # Sort: played desc by date, then upcoming asc — but we render all and let JS pick
     all_matches.sort(key=lambda x: (x["date"], 0 if x["type"] == "played" else 1))
 
+    # Bajnoki tabella szekció (MKOSZ-ról scraped)
+    standings_section = ""
+    for ts in team_summaries:
+        st = ts.get("standings")
+        if not st:
+            continue
+        pat = (ts.get("team_pattern") or "").replace("%", "").upper()
+        rows_html = ""
+        for row in st:
+            is_kg = pat and pat in (row["name"] or "").upper()
+            # Rövidítés
+            short_name = calendar_short_name(row["name"])
+            row_class = "st-row st-kg" if is_kg else "st-row"
+            diff = row["scored"] - row["allowed"]
+            diff_str = f"+{diff}" if diff > 0 else str(diff)
+            diff_color = "var(--green)" if diff > 0 else ("var(--red)" if diff < 0 else "var(--text-dim)")
+            rows_html += (
+                f'<tr class="{row_class}">'
+                f'<td class="st-rank">{row["rank"]}.</td>'
+                f'<td class="st-name">{short_name}</td>'
+                f'<td class="st-num">{row["games"]}</td>'
+                f'<td class="st-num st-w">{row["wins"]}</td>'
+                f'<td class="st-num st-l">{row["losses"]}</td>'
+                f'<td class="st-num" style="color:{diff_color};font-weight:600;">{diff_str}</td>'
+                f'<td class="st-num st-pts">{row["pts"]}</td>'
+                f'</tr>'
+            )
+        standings_section = f'''
+    <div class="section-title">TABELLA — {ts["group"]}</div>
+    <div class="standings-wrap">
+      <table class="standings-tbl">
+        <thead><tr>
+          <th class="st-rank">H</th>
+          <th class="st-name">Csapat</th>
+          <th class="st-num" title="Meccsek száma">M</th>
+          <th class="st-num st-w" title="Győzelem">Gy</th>
+          <th class="st-num st-l" title="Vereség">V</th>
+          <th class="st-num" title="Pont-különbség">+/-</th>
+          <th class="st-num st-pts" title="Pont">Pt</th>
+        </tr></thead>
+        <tbody>{rows_html}</tbody>
+      </table>
+      <div class="st-note">Forrás: MKOSZ · napi frissítés</div>
+    </div>
+    <style>
+      .standings-wrap {{ margin-top:12px; margin-bottom:24px; overflow-x:auto; }}
+      .standings-tbl {{ width:100%; border-collapse:collapse; font-size:0.85rem; }}
+      .standings-tbl th {{
+        text-align:left; padding:8px 10px; font-size:0.7rem;
+        text-transform:uppercase; letter-spacing:0.6px;
+        color:var(--text-dim); font-weight:600;
+        border-bottom:1px solid var(--border);
+      }}
+      .standings-tbl th.st-num, .standings-tbl td.st-num {{ text-align:right; font-variant-numeric:tabular-nums; }}
+      .standings-tbl td {{ padding:6px 10px; border-bottom:1px solid rgba(255,255,255,0.04); }}
+      .standings-tbl .st-row:hover {{ background:rgba(255,255,255,0.02); }}
+      .standings-tbl .st-rank {{ color:var(--text-dim); font-weight:600; width:32px; }}
+      .standings-tbl .st-name {{ font-weight:600; }}
+      .standings-tbl .st-w {{ color:var(--green); }}
+      .standings-tbl .st-l {{ color:var(--red); }}
+      .standings-tbl .st-pts {{ font-weight:800; color:#fff; }}
+      .standings-tbl tr.st-kg {{ background:rgba(196,30,58,0.18); }}
+      .standings-tbl tr.st-kg td {{ color:#fff; }}
+      .standings-tbl tr.st-kg .st-rank {{ color:#fff; }}
+      .st-note {{ text-align:right; margin-top:6px; font-size:0.7rem; color:var(--text-dim); font-style:italic; }}
+    </style>'''
+        break  # csak az első csapat tabelláját mutatjuk (Közgáz B)
+
     # Collect unique team names for filter
     team_names = []
     seen_teams = set()
@@ -5345,6 +5478,7 @@ def generate_homepage(team_summaries):
     {cards_html}
   </div>
   {_ics_subscribe_card('kozgaz-b')}
+  {standings_section}
   {matches_section}
   {calendar_section}
   <div class="archive-link-wrap" style="margin:32px 0 8px;text-align:center;">
@@ -5692,6 +5826,11 @@ def generate_site():
 
         recent = sorted(played, key=lambda x: x["date"])
 
+        # Standings scrape (bajnoki tabella)
+        standings = scrape_standings(cfg)
+        if standings:
+            print(f"  ✓ Tabella scraped ({len(standings)} csapat)")
+
         summaries.append({
             "key": key,
             "label": t["label"],
@@ -5700,11 +5839,13 @@ def generate_site():
             "short": cfg["team_short"],
             "league": cfg.get("league", "nb2"),
             "team_key": key,
+            "team_pattern": cfg.get("team_pattern", ""),
             "wins": wins,
             "losses": losses,
             "upcoming": upcoming,
             "recent": recent,
             "cal_data": matches,
+            "standings": standings,
         })
 
     hp = generate_homepage(summaries)
