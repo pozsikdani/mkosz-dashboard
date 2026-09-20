@@ -1720,6 +1720,10 @@ def scrape_schedule(cfg):
         label = extra.get("label", ec)
         cal = _scrape_schedule_one(season, ec, team_id, team_name_upper)
         if cal:
+            # Kupa meccsek megjelölése
+            for m in cal:
+                m["comp_label"] = label
+                m["is_cup"] = True
             existing = {(m["date"], m["home_team"], m["away_team"]) for m in matches}
             added = 0
             for m in cal:
@@ -4969,15 +4973,63 @@ def _nav_html(active_key=None, depth=0):
             items += f'<span class="nav-link disabled">{t["label"]}</span>'
         else:
             items += f'<a href="{href}"{cls}>{t["label"]}</a>'
+    # Téma-váltó gomb (sötét/világos)
+    items += (
+        '<button type="button" class="theme-toggle" title="Világos / sötét mód" aria-label="Téma váltás">'
+        '<span class="theme-icon-dark">🌙</span>'
+        '<span class="theme-icon-light">☀️</span>'
+        '</button>'
+    )
     items += '</div>'
-    return f'<nav class="site-nav">{items}</nav>'
+    return f'<nav class="site-nav">{items}</nav>{NAV_THEME_JS}'
 
 
 NAV_CSS = """
+/* ============ TÉMA VÁLTÓ (világos / sötét) ============ */
+/* Alap (sötét) — a :root már definiálja a --bg, --card, --text stb.
+   itt csak a HÁZI (H) / IDEGEN (A) / KUPA (C) színeket adjuk hozzá,
+   plus a világos téma override-okat. */
+:root {
+  --home-accent: #C41E3A;      /* hazai — Közgáz piros */
+  --home-accent-bg: rgba(196,30,58,0.15);
+  --away-accent: #17a2b8;      /* idegenbeli — sötét teal */
+  --away-accent-bg: rgba(23,162,184,0.15);
+  --cup-accent: #a855f7;       /* kupa — lila */
+  --cup-accent-bg: rgba(168,85,247,0.15);
+}
+:root[data-theme="light"] {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --card-hover: #f8f9fa;
+  --border: rgba(0,0,0,0.08);
+  --text: #1c1c1e;
+  --text-dim: #5c5f6e;
+  /* Az accent, green, red, accent2 marad — csak a felszíni tónusokat módosítjuk */
+  --home-accent-bg: rgba(196,30,58,0.10);
+  --away-accent-bg: rgba(23,162,184,0.12);
+  --cup-accent-bg: rgba(168,85,247,0.12);
+}
+
+/* Automatikus rendszer-preferencia (csak ha nincs kézi választás) */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --card-hover: #f8f9fa;
+    --border: rgba(0,0,0,0.08);
+    --text: #1c1c1e;
+    --text-dim: #5c5f6e;
+    --home-accent-bg: rgba(196,30,58,0.10);
+    --away-accent-bg: rgba(23,162,184,0.12);
+    --cup-accent-bg: rgba(168,85,247,0.12);
+  }
+}
+
+/* ============ NAV ============ */
 .site-nav {
   display:flex; align-items:center; justify-content:space-between;
   margin:0 auto 28px; padding:14px 0;
-  border-bottom:1px solid rgba(255,255,255,0.06);
+  border-bottom:1px solid var(--border);
 }
 .nav-logo {
   font-weight:900; font-size:1rem; letter-spacing:1.5px;
@@ -4985,7 +5037,7 @@ NAV_CSS = """
   transition:opacity .2s;
 }
 .nav-logo:hover { opacity:0.8; }
-.nav-links { display:flex; gap:24px; }
+.nav-links { display:flex; gap:24px; align-items:center; }
 .nav-links a, .nav-links .nav-link {
   font-size:0.82rem; font-weight:600; color:var(--text-dim);
   text-decoration:none; text-transform:uppercase; letter-spacing:0.8px;
@@ -4994,10 +5046,54 @@ NAV_CSS = """
 .nav-links a:hover { color:var(--text); }
 .nav-links a.active { color:var(--accent); }
 .nav-links .disabled { opacity:0.3; cursor:default; }
+
+/* Téma-váltó gomb */
+.theme-toggle {
+  background:transparent; border:1px solid var(--border);
+  color:var(--text-dim); cursor:pointer;
+  width:36px; height:36px; border-radius:10px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:1rem; transition:all .2s;
+}
+.theme-toggle:hover { background:var(--card-hover); color:var(--text); }
+.theme-toggle .theme-icon-light { display:none; }
+.theme-toggle .theme-icon-dark { display:inline; }
+:root[data-theme="light"] .theme-toggle .theme-icon-light { display:inline; }
+:root[data-theme="light"] .theme-toggle .theme-icon-dark { display:none; }
+
 @media(max-width:600px) {
   .site-nav { flex-direction:column; gap:12px; text-align:center; }
   .nav-links { gap:16px; flex-wrap:wrap; justify-content:center; }
 }
+"""
+
+# JS: téma init és toggle. Minden oldalon inline egyszer.
+NAV_THEME_JS = """
+<script>
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('theme'); } catch(e) {}
+  if (saved === 'light' || saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', saved);
+  }
+  function toggleTheme() {
+    var cur = document.documentElement.getAttribute('data-theme');
+    if (!cur) {
+      // rendszer-preferencia szerint volt — ellenkezőjére állítjuk
+      var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      cur = prefersLight ? 'light' : 'dark';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch(e) {}
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.theme-toggle').forEach(function(btn){
+      btn.addEventListener('click', toggleTheme);
+    });
+  });
+})();
+</script>
 """
 
 
@@ -5040,18 +5136,14 @@ def generate_homepage(team_summaries):
                 date_hu = nm["date"]
             time_str = nm.get("time", "")
             venue = nm.get("venue", "")
-            hv_label = "HAZAI" if nm["is_home"] else "IDEGENBELI"
-            hv_class = "nm-home" if nm["is_home"] else "nm-away"
-            # Kupa vagy bajnoki? A match_id-ből döntjük el (heurisztika)
-            comp_tag = ""
-            mid = (nm.get("match_id") or "")
-            if "cup" in mid.lower() or opp.upper() == "MAFC":  # Hepp kupa 1. forduló ellenfele MAFC volt
-                # Ellenőrizzük a home_team/away_team nevét vs Közgáz bajnoki csoport
-                # Egyszerűbb: hasonlítsuk a jelenlegi bajnoki csoport tag-jével
-                pass
-            # Heurisztikánál pontosabb: minden kupa esemény venue-ja Lónyay hazai (nem használható 100%-ra),
-            # de az MKOSZ scrape most nem passzol comp_code-ot. Egyelőre nincs kupa-tag jelzés a nm-en.
-            # Ha később kell, generate_dashboards.py-ban a match dict-be tehetünk `comp` mezőt.
+            is_cup = nm.get("is_cup", False)
+            # Card class + label — kupa mindig felülírja a hazai/idegen színt
+            if is_cup:
+                hv_class = "nm-cup"
+                hv_label = nm.get("comp_label", "KUPA").upper()
+            else:
+                hv_class = "nm-home" if nm["is_home"] else "nm-away"
+                hv_label = "HAZAI" if nm["is_home"] else "IDEGENBELI"
             venue_html = f'<div class="nm-venue">📍 {venue}</div>' if venue else ""
             next_html = f'''
     <div class="next-match-card {hv_class}">
@@ -5361,29 +5453,38 @@ def generate_homepage(team_summaries):
   .rp-l {{ color:var(--red); }}
   .rp-sep {{ color:var(--text-dim); }}
 
-  /* Következő meccs hero-kártya */
+  /* Következő meccs hero-kártya — 3 variáns: HAZAI (piros), IDEGEN (teal), KUPA (lila) */
   .next-match-card {{
-    background:linear-gradient(135deg,#2a1218 0%,#1a1518 100%);
     border-radius:20px; padding:24px 28px; margin-bottom:28px;
-    border:1px solid rgba(196,30,58,0.35);
-    box-shadow:0 8px 24px rgba(196,30,58,0.15);
+    border:1px solid var(--home-accent); background:var(--card);
+    background-image:linear-gradient(135deg, var(--home-accent-bg) 0%, transparent 100%);
+    box-shadow:0 6px 20px rgba(0,0,0,0.15);
     position:relative; overflow:hidden;
   }}
   .next-match-card::before {{
     content:''; position:absolute; top:-30%; right:-15%;
     width:280px; height:280px;
-    background:radial-gradient(circle,rgba(196,30,58,0.25),transparent 65%);
+    background:radial-gradient(circle, var(--home-accent-bg), transparent 65%);
     pointer-events:none;
   }}
-  .next-match-card.nm-away {{ background:linear-gradient(135deg,#1a1e2a 0%,#151518 100%); border-color:rgba(0,206,201,0.3); }}
-  .next-match-card.nm-away::before {{ background:radial-gradient(circle,rgba(0,206,201,0.15),transparent 65%); }}
+  .next-match-card.nm-away {{
+    border-color:var(--away-accent);
+    background-image:linear-gradient(135deg, var(--away-accent-bg) 0%, transparent 100%);
+  }}
+  .next-match-card.nm-away::before {{ background:radial-gradient(circle, var(--away-accent-bg), transparent 65%); }}
+  .next-match-card.nm-cup {{
+    border-color:var(--cup-accent);
+    background-image:linear-gradient(135deg, var(--cup-accent-bg) 0%, transparent 100%);
+  }}
+  .next-match-card.nm-cup::before {{ background:radial-gradient(circle, var(--cup-accent-bg), transparent 65%); }}
   .nm-label {{
     font-size:0.7rem; font-weight:700; text-transform:uppercase;
     letter-spacing:1.5px; color:var(--text-dim); margin-bottom:10px;
     position:relative; z-index:1;
   }}
-  .nm-hv {{ color:var(--accent); }}
-  .nm-away .nm-hv {{ color:var(--accent2); }}
+  .nm-hv {{ color:var(--home-accent); }}
+  .nm-away .nm-hv {{ color:var(--away-accent); }}
+  .nm-cup .nm-hv {{ color:var(--cup-accent); }}
   .nm-date {{
     font-size:0.95rem; color:var(--text); font-weight:600;
     margin-bottom:8px; position:relative; z-index:1;
@@ -5392,9 +5493,9 @@ def generate_homepage(team_summaries):
     display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
     margin:14px 0 10px; position:relative; z-index:1;
   }}
-  .nm-time {{ font-size:2.2rem; font-weight:900; color:#fff; letter-spacing:-1px; }}
+  .nm-time {{ font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px; }}
   .nm-vs {{ font-size:1.1rem; color:var(--text-dim); font-weight:600; }}
-  .nm-opp {{ font-size:1.6rem; font-weight:800; color:#fff; letter-spacing:-0.5px; }}
+  .nm-opp {{ font-size:1.6rem; font-weight:800; color:var(--text); letter-spacing:-0.5px; }}
   .nm-venue {{
     font-size:0.85rem; color:var(--text-dim); margin-top:12px;
     position:relative; z-index:1;
