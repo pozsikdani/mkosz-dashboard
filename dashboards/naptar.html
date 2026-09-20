@@ -177,7 +177,23 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 }
 .cal-day.empty { background:transparent; min-height:0; }
 .day-num { font-size:.68rem; color:var(--text-dim); font-weight:500; }
-.cal-day.has-match { border:1px solid rgba(255,255,255,0.08); }
+.cal-day.has-match { border:1px solid var(--border); }
+/* Szín-differenciálás: hazai (piros) / idegen (kék) / kupa (lila) */
+.cal-day.has-match.home {
+  background:linear-gradient(180deg, var(--home-accent-bg) 0%, transparent 80%);
+  border-color:var(--home-accent);
+  border-left:3px solid var(--home-accent);
+}
+.cal-day.has-match.away {
+  background:linear-gradient(180deg, var(--away-accent-bg) 0%, transparent 80%);
+  border-color:var(--away-accent);
+  border-left:3px solid var(--away-accent);
+}
+.cal-day.has-match.cup {
+  background:linear-gradient(180deg, var(--cup-accent-bg) 0%, transparent 80%);
+  border-color:var(--cup-accent);
+  border-left:3px solid var(--cup-accent);
+}
 .cal-day.training-day {
   background:repeating-linear-gradient(45deg,rgba(253,203,110,0.10) 0 6px,rgba(253,203,110,0.04) 6px 12px);
   border:1px dashed rgba(253,203,110,0.3);
@@ -346,11 +362,19 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
   </style>
 
   <div class="cal-legend">
+    <span class="legend-item"><span class="lgn-swatch" style="background:var(--home-accent)"></span> Hazai</span>
+    <span class="legend-item"><span class="lgn-swatch" style="background:var(--away-accent)"></span> Idegen</span>
+    <span class="legend-item"><span class="lgn-swatch" style="background:var(--cup-accent)"></span> Kupa</span>
+    <span class="legend-item" style="color:#fdcb6e;">▨ Edzés</span>
     <span class="legend-item"><span class="match-badge w" style="font-size:.65rem">W</span> Győzelem</span>
     <span class="legend-item"><span class="match-badge l" style="font-size:.65rem">L</span> Vereség</span>
-    <span class="legend-item" style="opacity:.4">▪ Múltbeli</span>
-    <span class="legend-item">@ = Idegen pálya</span>
   </div>
+  <style>
+    .lgn-swatch {
+      display:inline-block; width:12px; height:12px; border-radius:3px;
+      vertical-align:middle; margin-right:4px;
+    }
+  </style>
   
       <div class="cal-month" data-month="2026-09">
         <h3>SZEPTEMBER 2026 <span class="cal-toggle">▾</span></h3>
@@ -374,7 +398,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2026-09-16"><span class="day-num">16</span></div><div class="cal-day" data-date="2026-09-17"><span class="day-num">17</span></div><div class="cal-day" data-date="2026-09-18"><span class="day-num">18</span></div><div class="cal-day" data-date="2026-09-19"><span class="day-num">19</span></div><div class="cal-day" data-date="2026-09-20"><span class="day-num">20</span></div><div class="cal-day" data-date="2026-09-21"><span class="day-num">21</span></div><div class="cal-day training-day" data-date="2026-09-22">
   <span class="day-num">22</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2026-09-23"><span class="day-num">23</span></div><div class="cal-day has-match" data-date="2026-09-24">
+</div><div class="cal-day" data-date="2026-09-23"><span class="day-num">23</span></div><div class="cal-day has-match cup" data-date="2026-09-24">
   <span class="day-num">24</span>
   <div class="match-info">
     <div class="cal-match">
@@ -394,7 +418,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
         <h3>OKTÓBER 2026 <span class="cal-toggle">▾</span></h3>
         <div class="cal-grid">
           <div class="cal-hd">HÉT</div><div class="cal-hd">KED</div><div class="cal-hd">SZE</div><div class="cal-hd">CSÜ</div><div class="cal-hd">PÉN</div><div class="cal-hd">SZO</div><div class="cal-hd">VAS</div>
-          <div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day has-match" data-date="2026-10-01">
+          <div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day has-match home" data-date="2026-10-01">
   <span class="day-num">1</span>
   <div class="match-info">
     <div class="cal-match">
@@ -410,7 +434,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2026-10-07"><span class="day-num">7</span></div><div class="cal-day training-day" data-date="2026-10-08">
   <span class="day-num">8</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2026-10-09"><span class="day-num">9</span></div><div class="cal-day" data-date="2026-10-10"><span class="day-num">10</span></div><div class="cal-day" data-date="2026-10-11"><span class="day-num">11</span></div><div class="cal-day" data-date="2026-10-12"><span class="day-num">12</span></div><div class="cal-day has-match" data-date="2026-10-13">
+</div><div class="cal-day" data-date="2026-10-09"><span class="day-num">9</span></div><div class="cal-day" data-date="2026-10-10"><span class="day-num">10</span></div><div class="cal-day" data-date="2026-10-11"><span class="day-num">11</span></div><div class="cal-day" data-date="2026-10-12"><span class="day-num">12</span></div><div class="cal-day has-match home" data-date="2026-10-13">
   <span class="day-num">13</span>
   <div class="match-info">
     <div class="cal-match">
@@ -435,7 +459,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2026-10-28"><span class="day-num">28</span></div><div class="cal-day training-day" data-date="2026-10-29">
   <span class="day-num">29</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2026-10-30"><span class="day-num">30</span></div><div class="cal-day has-match" data-date="2026-10-31">
+</div><div class="cal-day" data-date="2026-10-30"><span class="day-num">30</span></div><div class="cal-day has-match away" data-date="2026-10-31">
   <span class="day-num">31</span>
   <div class="match-info">
     <div class="cal-match">
@@ -455,7 +479,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
           <div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day" data-date="2026-11-01"><span class="day-num">1</span></div><div class="cal-day" data-date="2026-11-02"><span class="day-num">2</span></div><div class="cal-day training-day" data-date="2026-11-03">
   <span class="day-num">3</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2026-11-04"><span class="day-num">4</span></div><div class="cal-day" data-date="2026-11-05"><span class="day-num">5</span></div><div class="cal-day" data-date="2026-11-06"><span class="day-num">6</span></div><div class="cal-day has-match" data-date="2026-11-07">
+</div><div class="cal-day" data-date="2026-11-04"><span class="day-num">4</span></div><div class="cal-day" data-date="2026-11-05"><span class="day-num">5</span></div><div class="cal-day" data-date="2026-11-06"><span class="day-num">6</span></div><div class="cal-day has-match away" data-date="2026-11-07">
   <span class="day-num">7</span>
   <div class="match-info">
     <div class="cal-match">
@@ -471,7 +495,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2026-11-11"><span class="day-num">11</span></div><div class="cal-day training-day" data-date="2026-11-12">
   <span class="day-num">12</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2026-11-13"><span class="day-num">13</span></div><div class="cal-day" data-date="2026-11-14"><span class="day-num">14</span></div><div class="cal-day" data-date="2026-11-15"><span class="day-num">15</span></div><div class="cal-day" data-date="2026-11-16"><span class="day-num">16</span></div><div class="cal-day has-match" data-date="2026-11-17">
+</div><div class="cal-day" data-date="2026-11-13"><span class="day-num">13</span></div><div class="cal-day" data-date="2026-11-14"><span class="day-num">14</span></div><div class="cal-day" data-date="2026-11-15"><span class="day-num">15</span></div><div class="cal-day" data-date="2026-11-16"><span class="day-num">16</span></div><div class="cal-day has-match home" data-date="2026-11-17">
   <span class="day-num">17</span>
   <div class="match-info">
     <div class="cal-match">
@@ -484,7 +508,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2026-11-18"><span class="day-num">18</span></div><div class="cal-day training-day" data-date="2026-11-19">
   <span class="day-num">19</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day has-match" data-date="2026-11-20">
+</div><div class="cal-day has-match away" data-date="2026-11-20">
   <span class="day-num">20</span>
   <div class="match-info">
     <div class="cal-match">
@@ -497,7 +521,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2026-11-21"><span class="day-num">21</span></div><div class="cal-day" data-date="2026-11-22"><span class="day-num">22</span></div><div class="cal-day" data-date="2026-11-23"><span class="day-num">23</span></div><div class="cal-day training-day" data-date="2026-11-24">
   <span class="day-num">24</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2026-11-25"><span class="day-num">25</span></div><div class="cal-day has-match" data-date="2026-11-26">
+</div><div class="cal-day" data-date="2026-11-25"><span class="day-num">25</span></div><div class="cal-day has-match home" data-date="2026-11-26">
   <span class="day-num">26</span>
   <div class="match-info">
     <div class="cal-match">
@@ -517,7 +541,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
           <div class="cal-day empty"></div><div class="cal-day training-day" data-date="2026-12-01">
   <span class="day-num">1</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2026-12-02"><span class="day-num">2</span></div><div class="cal-day has-match" data-date="2026-12-03">
+</div><div class="cal-day" data-date="2026-12-02"><span class="day-num">2</span></div><div class="cal-day has-match home" data-date="2026-12-03">
   <span class="day-num">3</span>
   <div class="match-info">
     <div class="cal-match">
@@ -530,7 +554,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2026-12-04"><span class="day-num">4</span></div><div class="cal-day" data-date="2026-12-05"><span class="day-num">5</span></div><div class="cal-day" data-date="2026-12-06"><span class="day-num">6</span></div><div class="cal-day" data-date="2026-12-07"><span class="day-num">7</span></div><div class="cal-day training-day" data-date="2026-12-08">
   <span class="day-num">8</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2026-12-09"><span class="day-num">9</span></div><div class="cal-day has-match" data-date="2026-12-10">
+</div><div class="cal-day" data-date="2026-12-09"><span class="day-num">9</span></div><div class="cal-day has-match away" data-date="2026-12-10">
   <span class="day-num">10</span>
   <div class="match-info">
     <div class="cal-match">
@@ -568,7 +592,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
           <div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day" data-date="2027-01-01"><span class="day-num">1</span></div><div class="cal-day" data-date="2027-01-02"><span class="day-num">2</span></div><div class="cal-day" data-date="2027-01-03"><span class="day-num">3</span></div><div class="cal-day" data-date="2027-01-04"><span class="day-num">4</span></div><div class="cal-day training-day" data-date="2027-01-05">
   <span class="day-num">5</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2027-01-06"><span class="day-num">6</span></div><div class="cal-day has-match" data-date="2027-01-07">
+</div><div class="cal-day" data-date="2027-01-06"><span class="day-num">6</span></div><div class="cal-day has-match home" data-date="2027-01-07">
   <span class="day-num">7</span>
   <div class="match-info">
     <div class="cal-match">
@@ -584,7 +608,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2027-01-13"><span class="day-num">13</span></div><div class="cal-day training-day" data-date="2027-01-14">
   <span class="day-num">14</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2027-01-15"><span class="day-num">15</span></div><div class="cal-day has-match" data-date="2027-01-16">
+</div><div class="cal-day" data-date="2027-01-15"><span class="day-num">15</span></div><div class="cal-day has-match away" data-date="2027-01-16">
   <span class="day-num">16</span>
   <div class="match-info">
     <div class="cal-match">
@@ -603,7 +627,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2027-01-22"><span class="day-num">22</span></div><div class="cal-day" data-date="2027-01-23"><span class="day-num">23</span></div><div class="cal-day" data-date="2027-01-24"><span class="day-num">24</span></div><div class="cal-day" data-date="2027-01-25"><span class="day-num">25</span></div><div class="cal-day training-day" data-date="2027-01-26">
   <span class="day-num">26</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2027-01-27"><span class="day-num">27</span></div><div class="cal-day has-match" data-date="2027-01-28">
+</div><div class="cal-day" data-date="2027-01-27"><span class="day-num">27</span></div><div class="cal-day has-match home" data-date="2027-01-28">
   <span class="day-num">28</span>
   <div class="match-info">
     <div class="cal-match">
@@ -626,7 +650,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2027-02-03"><span class="day-num">3</span></div><div class="cal-day training-day" data-date="2027-02-04">
   <span class="day-num">4</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2027-02-05"><span class="day-num">5</span></div><div class="cal-day" data-date="2027-02-06"><span class="day-num">6</span></div><div class="cal-day has-match" data-date="2027-02-07">
+</div><div class="cal-day" data-date="2027-02-05"><span class="day-num">5</span></div><div class="cal-day" data-date="2027-02-06"><span class="day-num">6</span></div><div class="cal-day has-match away" data-date="2027-02-07">
   <span class="day-num">7</span>
   <div class="match-info">
     <div class="cal-match">
@@ -639,7 +663,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2027-02-08"><span class="day-num">8</span></div><div class="cal-day training-day" data-date="2027-02-09">
   <span class="day-num">9</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2027-02-10"><span class="day-num">10</span></div><div class="cal-day has-match" data-date="2027-02-11">
+</div><div class="cal-day" data-date="2027-02-10"><span class="day-num">10</span></div><div class="cal-day has-match home" data-date="2027-02-11">
   <span class="day-num">11</span>
   <div class="match-info">
     <div class="cal-match">
@@ -655,7 +679,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2027-02-17"><span class="day-num">17</span></div><div class="cal-day training-day" data-date="2027-02-18">
   <span class="day-num">18</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day has-match" data-date="2027-02-19">
+</div><div class="cal-day has-match away" data-date="2027-02-19">
   <span class="day-num">19</span>
   <div class="match-info">
     <div class="cal-match">
@@ -671,7 +695,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 </div><div class="cal-day" data-date="2027-02-24"><span class="day-num">24</span></div><div class="cal-day training-day" data-date="2027-02-25">
   <span class="day-num">25</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">20:00</span></div>
-</div><div class="cal-day" data-date="2027-02-26"><span class="day-num">26</span></div><div class="cal-day has-match" data-date="2027-02-27">
+</div><div class="cal-day" data-date="2027-02-26"><span class="day-num">26</span></div><div class="cal-day has-match away" data-date="2027-02-27">
   <span class="day-num">27</span>
   <div class="match-info">
     <div class="cal-match">

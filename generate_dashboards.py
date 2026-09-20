@@ -3070,7 +3070,23 @@ CALENDAR_CSS = """
 }
 .cal-day.empty { background:transparent; min-height:0; }
 .day-num { font-size:.68rem; color:var(--text-dim); font-weight:500; }
-.cal-day.has-match { border:1px solid rgba(255,255,255,0.08); }
+.cal-day.has-match { border:1px solid var(--border); }
+/* Szín-differenciálás: hazai (piros) / idegen (kék) / kupa (lila) */
+.cal-day.has-match.home {
+  background:linear-gradient(180deg, var(--home-accent-bg) 0%, transparent 80%);
+  border-color:var(--home-accent);
+  border-left:3px solid var(--home-accent);
+}
+.cal-day.has-match.away {
+  background:linear-gradient(180deg, var(--away-accent-bg) 0%, transparent 80%);
+  border-color:var(--away-accent);
+  border-left:3px solid var(--away-accent);
+}
+.cal-day.has-match.cup {
+  background:linear-gradient(180deg, var(--cup-accent-bg) 0%, transparent 80%);
+  border-color:var(--cup-accent);
+  border-left:3px solid var(--cup-accent);
+}
 .cal-day.training-day {
   background:repeating-linear-gradient(45deg,rgba(253,203,110,0.10) 0 6px,rgba(253,203,110,0.04) 6px 12px);
   border:1px dashed rgba(253,203,110,0.3);
@@ -3171,13 +3187,19 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
 
             if key in matches_by_date:
                 if multi_team:
-                    # Multi-team: list of matches per day
                     day_matches = matches_by_date[key]
+                    # Egy nap első meccse határozza meg a cella szín-osztályát
+                    first = day_matches[0]
+                    if first.get("is_cup"):
+                        color_cls = " cup"
+                    elif first.get("home"):
+                        color_cls = " home"
+                    else:
+                        color_cls = " away"
                     match_items = ""
                     for idx, mi in enumerate(day_matches):
                         lcfg = mi["lg_cfg"]
                         tag = f'<span class="cal-team-tag" style="color:{lcfg["color"]};background:{lcfg["bg"]};border-color:{lcfg["border"]}">{mi["team_short"]}</span>'
-
                         if mi["played"] and mi["win"] is not None:
                             badge_letter = "W" if mi["win"] else "L"
                             bc = "w" if mi["win"] else "l"
@@ -3185,17 +3207,20 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
                             detail = f'<span class="match-opp">{mi["opp"]}</span><span class="match-score {sc_cls}">{mi["score"]}</span><span class="match-badge {bc}">{badge_letter}</span>'
                         else:
                             detail = f'<span class="match-opp">{mi["opp"]}</span><span class="match-time">{mi["time"]}</span>'
-
                         sep = '<div class="cal-match-sep"></div>' if idx > 0 else ''
                         match_items += f'{sep}<div class="cal-match">{tag}{detail}</div>'
-
-                    cells += f'''<div class="cal-day has-match" data-date="{date_str}">
+                    cells += f'''<div class="cal-day has-match{color_cls}" data-date="{date_str}">
   <span class="day-num">{day}</span>
   <div class="match-info">{match_items}</div>
 </div>'''
                 else:
-                    # Single-team: one match per day
                     mi = matches_by_date[key]
+                    if mi.get("is_cup"):
+                        color_cls = " cup"
+                    elif mi.get("home"):
+                        color_cls = " home"
+                    else:
+                        color_cls = " away"
                     if mi["played"] and mi["win"] is not None:
                         badge_letter = "W" if mi["win"] else "L"
                         bc = "w" if mi["win"] else "l"
@@ -3205,8 +3230,7 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
                     else:
                         score_line = ""
                         badge_html = ""
-
-                    cells += f'''<div class="cal-day has-match" data-date="{date_str}">
+                    cells += f'''<div class="cal-day has-match{color_cls}" data-date="{date_str}">
   <span class="day-num">{day}</span>
   <div class="match-info">
     <div class="cal-match">
@@ -4819,6 +4843,7 @@ def generate_calendar(matches, cfg, team_key=None):
             "win": is_win,
             "home": is_home,
             "played": m["played"],
+            "is_cup": m.get("is_cup", False),
         }
 
     # Edzések (kedd + csütörtök, meccsnapokon automatikusan kihagyva).
@@ -4949,11 +4974,19 @@ body{{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:va
   </div>
   {_ics_subscribe_card(team_key or 'kozgaz-b')}
   <div class="cal-legend">
+    <span class="legend-item"><span class="lgn-swatch" style="background:var(--home-accent)"></span> Hazai</span>
+    <span class="legend-item"><span class="lgn-swatch" style="background:var(--away-accent)"></span> Idegen</span>
+    <span class="legend-item"><span class="lgn-swatch" style="background:var(--cup-accent)"></span> Kupa</span>
+    <span class="legend-item" style="color:#fdcb6e;">▨ Edzés</span>
     <span class="legend-item"><span class="match-badge w" style="font-size:.65rem">W</span> Győzelem</span>
     <span class="legend-item"><span class="match-badge l" style="font-size:.65rem">L</span> Vereség</span>
-    <span class="legend-item" style="opacity:.4">▪ Múltbeli</span>
-    <span class="legend-item">@ = Idegen pálya</span>
   </div>
+  <style>
+    .lgn-swatch {{
+      display:inline-block; width:12px; height:12px; border-radius:3px;
+      vertical-align:middle; margin-right:4px;
+    }}
+  </style>
   {months_html}
   {calendar_js}
 </div>
@@ -5361,6 +5394,7 @@ def generate_homepage(team_summaries):
                 "win": is_win,
                 "home": is_home,
                 "played": m["played"],
+                "is_cup": m.get("is_cup", False),
                 "team_short": ts["short"],
                 "league": lg,
                 "lg_cfg": tcfg,
@@ -5389,12 +5423,19 @@ def generate_homepage(team_summaries):
 
         legend_html = """
     <div class="cal-legend">
+      <span class="legend-item"><span class="lgn-swatch" style="background:var(--home-accent)"></span>Hazai</span>
+      <span class="legend-item"><span class="lgn-swatch" style="background:var(--away-accent)"></span>Idegen</span>
+      <span class="legend-item"><span class="lgn-swatch" style="background:var(--cup-accent)"></span>Kupa</span>
+      <span class="legend-item" style="color:#fdcb6e;">▨ Edzés</span>
       <span class="legend-item"><span class="match-badge w" style="font-size:.65rem">W</span> Győzelem</span>
       <span class="legend-item"><span class="match-badge l" style="font-size:.65rem">L</span> Vereség</span>
-      <span class="legend-item" style="color:#fdcb6e;">▨ Edzés (kedd + csütörtök 20:00)</span>
-      <span class="legend-item" style="opacity:.4">▪ Múltbeli</span>
-      <span class="legend-item">@ = Idegen pálya</span>
-    </div>"""
+    </div>
+    <style>
+      .lgn-swatch {
+        display:inline-block; width:12px; height:12px; border-radius:3px;
+        vertical-align:middle; margin-right:4px;
+      }
+    </style>"""
 
         calendar_section = f"""
     <div class="section-title">NAPTÁR</div>
