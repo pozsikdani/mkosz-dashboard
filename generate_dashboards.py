@@ -4994,18 +4994,27 @@ body{{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:va
 </html>"""
 
 
-def _nav_html(active_key=None, depth=0):
-    """Generate navigation bar HTML. depth=0 root, 1=team subdir, 2=match subpage."""
+def _nav_html(active_key=None, depth=0, home=False):
+    """Generate navigation bar HTML.
+    depth=0 root, 1=team subdir, 2=match subpage.
+    home=True: single-page anchor-link mode (a homepage saját szekcióira ugrik).
+    """
     prefix = "../" * depth
     items = f'<a href="{prefix}index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links">'
-    for t in NAV_TEAMS:
-        href = f'{prefix}{t["href"]}/index.html'
-        cls = ' class="active"' if t["key"] == active_key else ''
-        # Disable nav items that don't have a TEAMS config (placeholder)
-        if t["key"] not in TEAMS:
-            items += f'<span class="nav-link disabled">{t["label"]}</span>'
-        else:
-            items += f'<a href="{href}"{cls}>{t["label"]}</a>'
+    if home:
+        # Homepage single-page navigation: anchor scroll a szekciókhoz
+        anchors = [
+            ("#kovetkezo", "Következő"),
+            ("#tabella", "Tabella"),
+            ("#meccsek", "Meccsek"),
+            ("#naptar", "Naptár"),
+            ("#feliratkozas", "Feliratkozás"),
+        ]
+        for href, label in anchors:
+            items += f'<a href="{href}" class="nav-anchor">{label}</a>'
+    else:
+        # Subpages: "Vissza a főoldalra" link (mert a nav 1 csapatra tervezve)
+        items += f'<a href="{prefix}index.html">← Főoldal</a>'
     # Téma-váltó gomb (sötét/világos)
     items += (
         '<button type="button" class="theme-toggle" title="Világos / sötét mód" aria-label="Téma váltás">'
@@ -5060,12 +5069,22 @@ NAV_CSS = """
   }
 }
 
+/* ============ SMOOTH SCROLL (single-page nav) ============ */
+html { scroll-behavior:smooth; scroll-padding-top:80px; }
+.anchor-section { scroll-margin-top:80px; }
+
 /* ============ NAV ============ */
 .site-nav {
   display:flex; align-items:center; justify-content:space-between;
   margin:0 auto 28px; padding:14px 0;
   border-bottom:1px solid var(--border);
 }
+.nav-anchor {
+  font-size:0.75rem; font-weight:600; color:var(--text-dim);
+  text-decoration:none; text-transform:uppercase; letter-spacing:0.6px;
+  padding:6px 10px; border-radius:8px; transition:all .18s;
+}
+.nav-anchor:hover { color:var(--text); background:var(--card-hover); }
 .nav-logo {
   font-weight:900; font-size:1rem; letter-spacing:1.5px;
   color:var(--accent); text-decoration:none;
@@ -5647,23 +5666,23 @@ def generate_homepage(team_summaries):
 </head>
 <body>
 <div class="container">
-  {_nav_html(depth=0)}
+  {_nav_html(depth=0, home=True)}
   <div class="hero">
     <img src="kozgaz_logo.png" alt="Közgáz Basketball" class="hero-logo">
     <h1>KÖZGÁZ BASKETBALL</h1>
     <div class="sub">Közgáz SC és DSK/B &middot; NB2 Kelet &middot; 2026/27 szezon</div>
   </div>
+  <section id="kovetkezo" class="anchor-section">
   <div class="hero-cta">
     {cards_html}
   </div>
-  {standings_section}
-  {matches_section}
-  {calendar_section}
-  {_ics_subscribe_card('kozgaz-b')}
+  </section>
+  <section id="tabella" class="anchor-section">{standings_section}</section>
+  <section id="meccsek" class="anchor-section">{matches_section}</section>
+  <section id="naptar" class="anchor-section">{calendar_section}</section>
+  <section id="feliratkozas" class="anchor-section">{_ics_subscribe_card('kozgaz-b')}</section>
   <footer class="site-footer">
     <a href="dashboards/2025-26/" class="footer-link">📁 2025/26 szezon archívum</a>
-    <div class="footer-sep">·</div>
-    <a href="dashboards/csapat.html" class="footer-link">Csapat dashboard</a>
     <div class="footer-sep">·</div>
     <span class="footer-brand">www.kozgazkosar.hu</span>
   </footer>
@@ -5958,10 +5977,13 @@ def generate_team(team_key):
             f.write(ics_content)
         print(f"  ✓ {team_key}.ics ({len(cal_data)} esemény)")
 
-    index_html = generate_index(generated, cfg, team_key=team_key)
-    with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
-        f.write(index_html)
-    print(f"  ✓ index.html")
+    # dashboards/index.html csak akkor generálódik, ha van roster (van értelme
+    # a játékos-grid oldalnak). 2026/27 elején üres → skip.
+    if generated:
+        index_html = generate_index(generated, cfg, team_key=team_key)
+        with open(os.path.join(out_dir, "index.html"), "w", encoding="utf-8") as f:
+            f.write(index_html)
+        print(f"  ✓ index.html")
 
     conn.close()
     print(f"  Összesen {len(generated)} játékos + 1 csapat dashboard → {cfg['out_dir']}/")

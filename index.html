@@ -60,12 +60,22 @@
   }
 }
 
+/* ============ SMOOTH SCROLL (single-page nav) ============ */
+html { scroll-behavior:smooth; scroll-padding-top:80px; }
+.anchor-section { scroll-margin-top:80px; }
+
 /* ============ NAV ============ */
 .site-nav {
   display:flex; align-items:center; justify-content:space-between;
   margin:0 auto 28px; padding:14px 0;
   border-bottom:1px solid var(--border);
 }
+.nav-anchor {
+  font-size:0.75rem; font-weight:600; color:var(--text-dim);
+  text-decoration:none; text-transform:uppercase; letter-spacing:0.6px;
+  padding:6px 10px; border-radius:8px; transition:all .18s;
+}
+.nav-anchor:hover { color:var(--text); background:var(--card-hover); }
 .nav-logo {
   font-weight:900; font-size:1rem; letter-spacing:1.5px;
   color:var(--accent); text-decoration:none;
@@ -395,7 +405,7 @@
 </head>
 <body>
 <div class="container">
-  <nav class="site-nav"><a href="index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links"><a href="dashboards/index.html">Közgáz SC és DSK/B</a><button type="button" class="theme-toggle" title="Világos / sötét mód" aria-label="Téma váltás"><span class="theme-icon-dark">🌙</span><span class="theme-icon-light">☀️</span></button></div></nav>
+  <nav class="site-nav"><a href="index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links"><a href="#kovetkezo" class="nav-anchor">Következő</a><a href="#tabella" class="nav-anchor">Tabella</a><a href="#meccsek" class="nav-anchor">Meccsek</a><a href="#naptar" class="nav-anchor">Naptár</a><a href="#feliratkozas" class="nav-anchor">Feliratkozás</a><button type="button" class="theme-toggle" title="Világos / sötét mód" aria-label="Téma váltás"><span class="theme-icon-dark">🌙</span><span class="theme-icon-light">☀️</span></button></div></nav>
 <script>
 (function(){
   var saved = null;
@@ -427,6 +437,7 @@
     <h1>KÖZGÁZ BASKETBALL</h1>
     <div class="sub">Közgáz SC és DSK/B &middot; NB2 Kelet &middot; 2026/27 szezon</div>
   </div>
+  <section id="kovetkezo" class="anchor-section">
   <div class="hero-cta">
     
     <div class="next-match-card nm-cup">
@@ -440,8 +451,9 @@
       <div class="nm-venue">📍 Lónyay Utcai Református Gimnázium és Kollégium</div>
     </div>
   </div>
-  
-  
+  </section>
+  <section id="tabella" class="anchor-section"></section>
+  <section id="meccsek" class="anchor-section">
     <div class="section-title">MECCSEK</div>
     <div class="matches-list">
         <div class="match-row upcoming" data-team="KÖZGÁZ B" data-type="upcoming" data-date="2026-09-24" style="display:none">
@@ -594,8 +606,8 @@
       var next5 = upcoming.slice(0,5);
       last5.concat(next5).forEach(function(r){ r.style.display = ''; });
     })();
-    </script>
-  
+    </script></section>
+  <section id="naptar" class="anchor-section">
     <div class="section-title">NAPTÁR</div>
     
     <div class="cal-legend">
@@ -843,8 +855,8 @@
         });
       });
     })();
-    </script>
-  
+    </script></section>
+  <section id="feliratkozas" class="anchor-section">
   <div class="ics-card">
     <div class="ics-title">📅 Naptár feliratkozás</div>
     <div class="ics-desc">Kösd össze a naptárad — új meccsek automatikusan felkerülnek. Egy kattintás:</div>
@@ -896,11 +908,9 @@
       .ics-btn { width:100%; text-align:center; }
     }
   </style>
-
+</section>
   <footer class="site-footer">
     <a href="dashboards/2025-26/" class="footer-link">📁 2025/26 szezon archívum</a>
-    <div class="footer-sep">·</div>
-    <a href="dashboards/csapat.html" class="footer-link">Csapat dashboard</a>
     <div class="footer-sep">·</div>
     <span class="footer-brand">www.kozgazkosar.hu</span>
   </footer>
