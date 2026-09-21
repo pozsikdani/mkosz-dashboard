@@ -85,7 +85,7 @@ NAV_TEAMS = [
 # ---- TRAINING ATTENDANCE (Közgáz B only, fetched from Google Sheets) ----
 ATTENDANCE_SHEET_URL = (
     "https://docs.google.com/spreadsheets/d/"
-    "1CY9OV_JY4C5uzTcA621zs0-rd5gPO7ELau5yvrSsA-0/export?format=csv&gid=1405052111"
+    "17q59OExN1s5StgqL0ab6yLP1qVpt7eko55F5LyrDWhI/export?format=csv&gid=1405052111"
 )
 ATTENDANCE_NAME_MAP = {
     "Fodor András": "FODOR ANDRÁS",
@@ -111,27 +111,61 @@ ATTENDANCE_NAME_MAP = {
 
 ATTENDANCE_COACH = "POZSIK DÁNIEL"
 
-def fetch_training_attendance():
-    """Fetch training attendance from Google Sheets CSV. Returns {DB_NAME: 'X/Y', ...}."""
+def _fetch_attendance_raw():
+    """Fetch raw CSV rows: [{name, ratio, pct}, ...] minden aki szerepel a spreadsheet-en.
+    Ha a fetch sikertelen (pl. spreadsheet nem publikus), üres listát ad vissza.
+    """
     req = urllib.request.Request(ATTENDANCE_SHEET_URL, headers={"User-Agent": MKOSZ_USER_AGENT})
     try:
         raw = urllib.request.urlopen(req, timeout=15).read().decode("utf-8")
     except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
         print(f"  ⚠ Edzéslátogatás fetch hiba: {e}")
-        return {}
+        return []
+    # HTML-t ad vissza ha nem publikus a spreadsheet
+    if raw.strip().startswith("<"):
+        print(f"  ⚠ Az edzéslátogatás spreadsheet nem publikus (Google login-védett)")
+        return []
 
-    result = {}
+    result = []
     reader = csv.reader(io.StringIO(raw))
     for i, row in enumerate(reader):
-        if i < 2 or len(row) < 5:
+        if i < 2 or len(row) < 6:
             continue
         name = row[2].strip()
         ratio = row[4].strip()
+        pct = row[5].strip()
         if not name or not ratio or "/" not in ratio:
             continue
-        db_name = ATTENDANCE_NAME_MAP.get(name)
+        if name.upper() == ATTENDANCE_COACH:
+            continue  # edző kihagyva
+        try:
+            pct_val = float(pct.replace("%", "").replace(",", "."))
+        except ValueError:
+            pct_val = 0.0
+        try:
+            attended, total = ratio.split("/")
+            attended = int(attended)
+            total = int(total)
+        except ValueError:
+            attended = total = 0
+        result.append({
+            "name": name,
+            "ratio": ratio,
+            "pct": pct_val,
+            "attended": attended,
+            "total": total,
+        })
+    return result
+
+
+def fetch_training_attendance():
+    """Fetch training attendance from Google Sheets CSV. Returns {DB_NAME: 'X/Y', ...}."""
+    raw_rows = _fetch_attendance_raw()
+    result = {}
+    for row in raw_rows:
+        db_name = ATTENDANCE_NAME_MAP.get(row["name"])
         if db_name:
-            result[db_name] = ratio
+            result[db_name] = row["ratio"]
     return result
 
 # ---- HUNGARIAN CALENDAR CONSTANTS ----
@@ -5008,6 +5042,7 @@ def _nav_html(active_key=None, depth=0, home=False):
             ("#tabella", "Tabella"),
             ("#meccsek", "Meccsek"),
             ("#naptar", "Naptár"),
+            ("#edzeslatogatas", "Edzés"),
             ("#feliratkozas", "Feliratkozás"),
         ]
         for href, label in anchors:
@@ -5502,6 +5537,49 @@ def generate_homepage(team_summaries):
     {months_html}
     {calendar_js}"""
 
+    # ── EDZÉSLÁTOGATÁS szekció (raw Google Sheets fetch) ──
+    attendance_section = ""
+    att_rows = _fetch_attendance_raw()
+    if att_rows:
+        # Rendezés: százalék csökkenő, tie-break névvel
+        att_rows.sort(key=lambda r: (-r["pct"], r["name"]))
+        rows_html = ""
+        for i, r in enumerate(att_rows, 1):
+            pct = r["pct"]
+            # Szín-fokozás: 80%+ zöld, 50-79 semleges, <50 halványabb
+            if pct >= 80:
+                pct_color = "var(--green)"
+            elif pct >= 50:
+                pct_color = "var(--text)"
+            else:
+                pct_color = "var(--text-dim)"
+            rows_html += (
+                f'<tr>'
+                f'<td class="att-rank">{i}.</td>'
+                f'<td class="att-name">{r["name"]}</td>'
+                f'<td class="att-ratio">{r["ratio"]}</td>'
+                f'<td class="att-pct" style="color:{pct_color};">{pct:.0f}%</td>'
+                f'</tr>'
+            )
+        attendance_section = f'''
+    <div class="section-title">EDZÉSLÁTOGATÁS</div>
+    <div class="att-wrap">
+      <table class="att-tbl"><tbody>{rows_html}</tbody></table>
+      <div class="att-note">Forrás: klubbelső Google Sheet · napi frissítés</div>
+    </div>
+    <style>
+      .att-wrap {{ margin-top:8px; margin-bottom:24px; }}
+      .att-tbl {{ width:100%; border-collapse:collapse; font-size:0.85rem; }}
+      .att-tbl tr {{ transition:background 0.15s; }}
+      .att-tbl tr:hover {{ background:rgba(255,255,255,0.02); }}
+      .att-tbl td {{ padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); }}
+      .att-rank {{ color:var(--text-dim); font-weight:600; width:32px; font-size:0.75rem; }}
+      .att-name {{ font-weight:600; }}
+      .att-ratio {{ text-align:right; color:var(--text-dim); font-variant-numeric:tabular-nums; }}
+      .att-pct {{ text-align:right; font-weight:700; font-variant-numeric:tabular-nums; min-width:52px; }}
+      .att-note {{ text-align:right; margin-top:6px; font-size:0.7rem; color:var(--text-dim); font-style:italic; }}
+    </style>'''
+
     return f"""<!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -5745,6 +5823,7 @@ def generate_homepage(team_summaries):
   <section id="tabella" class="anchor-section">{standings_section}</section>
   <section id="meccsek" class="anchor-section">{matches_section}</section>
   <section id="naptar" class="anchor-section">{calendar_section}</section>
+  <section id="edzeslatogatas" class="anchor-section">{attendance_section}</section>
   <section id="feliratkozas" class="anchor-section">{_ics_subscribe_card('kozgaz-b')}</section>
   <footer class="site-footer">
     <a href="dashboards/2025-26/" class="footer-link">📁 2025/26 szezon archívum</a>
