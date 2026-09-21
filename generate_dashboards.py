@@ -3072,25 +3072,33 @@ CALENDAR_CSS = """
   margin-bottom:20px; font-size:.78rem; color:var(--text-dim);
 }
 .legend-item { display:flex; align-items:center; gap:6px; }
+/* Hónap-lapozó pager (nyilak + hónap-title) */
+.cal-pager {
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  margin:6px 0 10px;
+}
+.cal-nav {
+  background:var(--card); border:1px solid var(--border);
+  color:var(--text); cursor:pointer;
+  width:38px; height:38px; border-radius:10px;
+  font-size:1.4rem; font-weight:700; line-height:1;
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.cal-nav:hover:not(:disabled) { background:var(--card-hover); border-color:var(--accent); color:var(--accent); }
+.cal-nav:disabled { opacity:0.25; cursor:default; }
+.cal-title {
+  font-size:0.95rem; font-weight:800; letter-spacing:1px;
+  min-width:180px; text-align:center; color:var(--accent);
+  text-transform:uppercase;
+}
+.cal-months { position:relative; }
 .cal-month {
-  background:var(--card); border-radius:16px; padding:20px;
+  display:none;
+  background:var(--card); border-radius:16px; padding:16px;
   border:1px solid var(--border); margin-bottom:16px;
 }
-.cal-month h3 {
-  font-size:.85rem; text-transform:uppercase; letter-spacing:2.5px;
-  color:var(--accent); margin-bottom:14px; font-weight:700; text-align:center;
-  cursor:pointer; user-select:none; transition:color .2s;
-}
-.cal-month h3:hover { color:#e8e8f0; }
-.cal-toggle {
-  font-size:.7rem; display:inline-block; transition:transform .2s;
-  margin-left:6px; opacity:.6;
-}
-.cal-month.collapsed { padding:14px 20px; }
-.cal-month.collapsed h3 { margin-bottom:0; opacity:.5; }
-.cal-month.collapsed h3:hover { opacity:.8; }
-.cal-month.collapsed .cal-grid { display:none; }
-.cal-month.collapsed .cal-toggle { transform:rotate(-90deg); }
+.cal-month.active { display:block; }
 .cal-grid {
   display:grid; grid-template-columns:repeat(7,1fr); gap:3px;
 }
@@ -3289,13 +3297,22 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
         cells += '<div class="cal-day empty"></div>' * trailing
 
         months_html += f'''
-      <div class="cal-month" data-month="{year}-{month:02d}">
-        <h3>{month_name} {year} <span class="cal-toggle">▾</span></h3>
+      <div class="cal-month" data-month="{year}-{month:02d}" data-label="{month_name} {year}">
         <div class="cal-grid">
           {headers}
           {cells}
         </div>
       </div>'''
+
+    # Csomagoljuk egy pager-wrapperbe: nyilak + hónap-title + swipe-able container
+    months_html = f'''
+    <div class="cal-pager">
+      <button type="button" class="cal-nav cal-prev" aria-label="Előző hónap">‹</button>
+      <div class="cal-title" id="calTitle">—</div>
+      <button type="button" class="cal-nav cal-next" aria-label="Következő hónap">›</button>
+    </div>
+    <div class="cal-months">{months_html}
+    </div>'''
 
     calendar_js = """
     <script>
@@ -3303,16 +3320,56 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
       var today = new Date(); today.setHours(0,0,0,0);
       var todayStr = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
       var curMonth = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0');
+      // Múlt/mai napok jelzése
       document.querySelectorAll('.cal-day[data-date]').forEach(function(el){
         if(el.dataset.date < todayStr) el.classList.add('past');
         else if(el.dataset.date === todayStr) el.classList.add('today');
       });
-      document.querySelectorAll('.cal-month[data-month]').forEach(function(el){
-        if(el.dataset.month < curMonth) el.classList.add('collapsed');
-        el.querySelector('h3').addEventListener('click', function(){
-          el.classList.toggle('collapsed');
+      // Hónap-lapozó (pager)
+      var months = Array.from(document.querySelectorAll('.cal-month[data-month]'));
+      if (!months.length) return;
+      var titleEl = document.getElementById('calTitle');
+      // Kezdő hónap: aktuális hónap ha benne van, különben első jövőbeli
+      var startIdx = months.findIndex(function(m){ return m.dataset.month === curMonth; });
+      if (startIdx < 0) {
+        startIdx = months.findIndex(function(m){ return m.dataset.month > curMonth; });
+      }
+      if (startIdx < 0) startIdx = months.length - 1;
+      var idx = startIdx;
+      function render(){
+        months.forEach(function(m, i){
+          m.classList.toggle('active', i === idx);
         });
+        if (titleEl) titleEl.textContent = months[idx].dataset.label;
+        // Prev/next gomb disabled state
+        document.querySelectorAll('.cal-prev').forEach(function(b){ b.disabled = (idx === 0); });
+        document.querySelectorAll('.cal-next').forEach(function(b){ b.disabled = (idx === months.length - 1); });
+      }
+      document.querySelectorAll('.cal-prev').forEach(function(b){
+        b.addEventListener('click', function(){ if (idx > 0) { idx--; render(); } });
       });
+      document.querySelectorAll('.cal-next').forEach(function(b){
+        b.addEventListener('click', function(){ if (idx < months.length - 1) { idx++; render(); } });
+      });
+      // Swipe (érintőkijelzős): touchstart/touchend a cal-months-en
+      var container = document.querySelector('.cal-months');
+      if (container) {
+        var sx = 0, sy = 0, active = false;
+        container.addEventListener('touchstart', function(e){
+          if (e.touches.length !== 1) return;
+          sx = e.touches[0].clientX; sy = e.touches[0].clientY; active = true;
+        }, {passive: true});
+        container.addEventListener('touchend', function(e){
+          if (!active) return; active = false;
+          var t = e.changedTouches[0];
+          var dx = t.clientX - sx, dy = t.clientY - sy;
+          if (Math.abs(dx) > 50 && Math.abs(dy) < 40) {
+            if (dx < 0 && idx < months.length - 1) { idx++; render(); }
+            else if (dx > 0 && idx > 0) { idx--; render(); }
+          }
+        }, {passive: true});
+      }
+      render();
     })();
     </script>"""
 
