@@ -377,6 +377,30 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
   .hero-cta { text-align:center; margin-bottom:8px; }
   .hero-cta .next-match-card { text-align:left; }
 
+  /* Vékony edzés-sor a Következő Események közé */
+  .event-training {
+    display:flex; align-items:center; gap:12px;
+    padding:8px 14px; margin-bottom:10px;
+    background:rgba(253,203,110,0.06);
+    border-left:3px solid rgba(253,203,110,0.5);
+    border-radius:8px;
+    font-size:0.82rem; text-align:left;
+  }
+  .event-training .et-label {
+    color:#fdcb6e; font-weight:700; text-transform:uppercase;
+    font-size:0.7rem; letter-spacing:0.5px; white-space:nowrap;
+  }
+  .event-training .et-date { color:var(--text); font-weight:600; }
+  .event-training .et-time {
+    color:var(--text-dim); margin-left:auto;
+    font-variant-numeric:tabular-nums; font-weight:600;
+  }
+  .event-training .et-venue { color:var(--text-dim); font-size:0.75rem; opacity:0.7; }
+  @media(max-width:600px) {
+    .event-training { font-size:0.78rem; padding:7px 12px; gap:8px; }
+    .event-training .et-venue { display:none; }
+  }
+
   @media(max-width:600px) {
     body { padding:10px; }
     .container { overflow-x:hidden; }
@@ -405,7 +429,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
 </head>
 <body>
 <div class="container">
-  <nav class="site-nav"><a href="index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links"><a href="#kovetkezo" class="nav-anchor">Következő</a><a href="#tabella" class="nav-anchor">Tabella</a><a href="#meccsek" class="nav-anchor">Meccsek</a><a href="#naptar" class="nav-anchor">Naptár</a><a href="#feliratkozas" class="nav-anchor">Feliratkozás</a><button type="button" class="theme-toggle" title="Világos / sötét mód" aria-label="Téma váltás"><span class="theme-icon-dark">🌙</span><span class="theme-icon-light">☀️</span></button></div></nav>
+  <nav class="site-nav"><a href="index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links"><a href="#kovetkezo" class="nav-anchor">Események</a><a href="#tabella" class="nav-anchor">Tabella</a><a href="#meccsek" class="nav-anchor">Meccsek</a><a href="#naptar" class="nav-anchor">Naptár</a><a href="#feliratkozas" class="nav-anchor">Feliratkozás</a><button type="button" class="theme-toggle" title="Világos / sötét mód" aria-label="Téma váltás"><span class="theme-icon-dark">🌙</span><span class="theme-icon-light">☀️</span></button></div></nav>
 <script>
 (function(){
   var saved = null;
@@ -438,10 +462,17 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
     <div class="sub">Közgáz SC és DSK/B &middot; NB2 Kelet &middot; 2026/27 szezon</div>
   </div>
   <section id="kovetkezo" class="anchor-section">
-  <div class="hero-cta">
-    
+    <div class="section-title">KÖVETKEZŐ ESEMÉNYEK</div>
+    <div class="hero-cta">
+      
+    <div class="event-training">
+      <span class="et-label">🏋️ Edzés</span>
+      <span class="et-date">szep. 22. (ked)</span>
+      <span class="et-time">20:00</span>
+      <span class="et-venue">📍 Lónyay</span>
+    </div>
     <div class="next-match-card nm-cup">
-      <div class="nm-label">KÖVETKEZŐ MECCS · <span class="nm-hv">HEPP KUPA</span></div>
+      <div class="nm-label"><span class="nm-hv">HEPP KUPA</span></div>
       <div class="nm-date">2026. szeptember 24. (csütörtök)</div>
       <div class="nm-matchup">
         <span class="nm-time">20:15</span>
@@ -450,7 +481,29 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
       </div>
       <div class="nm-venue">📍 Lónyay Utcai Református Gimnázium és Kollégium</div>
     </div>
-  </div>
+    <div class="event-training">
+      <span class="et-label">🏋️ Edzés</span>
+      <span class="et-date">szep. 29. (ked)</span>
+      <span class="et-time">20:00</span>
+      <span class="et-venue">📍 Lónyay</span>
+    </div>
+    <div class="next-match-card nm-home">
+      <div class="nm-label"><span class="nm-hv">HAZAI</span></div>
+      <div class="nm-date">2026. október 1. (csütörtök)</div>
+      <div class="nm-matchup">
+        <span class="nm-time">20:15</span>
+        <span class="nm-vs">vs</span>
+        <span class="nm-opp">BKG</span>
+      </div>
+      <div class="nm-venue">📍 Lónyay Utcai Református Gimnázium és Kollégium</div>
+    </div>
+    <div class="event-training">
+      <span class="et-label">🏋️ Edzés</span>
+      <span class="et-date">októ. 6. (ked)</span>
+      <span class="et-time">20:00</span>
+      <span class="et-venue">📍 Lónyay</span>
+    </div>
+    </div>
   </section>
   <section id="tabella" class="anchor-section"></section>
   <section id="meccsek" class="anchor-section">

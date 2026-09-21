@@ -5004,7 +5004,7 @@ def _nav_html(active_key=None, depth=0, home=False):
     if home:
         # Homepage single-page navigation: anchor scroll a szekciókhoz
         anchors = [
-            ("#kovetkezo", "Következő"),
+            ("#kovetkezo", "Események"),
             ("#tabella", "Tabella"),
             ("#meccsek", "Meccsek"),
             ("#naptar", "Naptár"),
@@ -5165,43 +5165,70 @@ def generate_homepage(team_summaries):
             grouped[lg] = []
         grouped[lg].append(ts)
 
-    # KÖVETKEZŐ MECCS hero-kártya + kompakt W-L jelvény (egy csapatra: Közgáz B)
+    # KÖVETKEZŐ ESEMÉNYEK — 5 legközelebbi, meccs (nagy) + edzés (vékony sor)
     cards_html = ""
+    weekdays = ["hétfő","kedd","szerda","csütörtök","péntek","szombat","vasárnap"]
+
+    def _hu_date(d):
+        try:
+            return f'{d.year}. {MONTH_NAMES_HU[d.month].lower()} {d.day}. ({weekdays[d.weekday()]})'
+        except Exception:
+            return d.strftime("%Y-%m-%d")
+
+    def _short_hu_date(d):
+        return f'{MONTH_NAMES_HU[d.month].lower()[:4]}. {d.day}. ({weekdays[d.weekday()][:3]})'
+
     if team_summaries:
-        ts = team_summaries[0]  # Csak Közgáz B van (2026/27 óta)
+        ts = team_summaries[0]  # Közgáz B
         w = ts.get("wins", 0)
         l = ts.get("losses", 0)
-        upcoming = ts.get("upcoming", [])
         record_pill = ""
         if w or l:
             record_pill = f'<div class="record-pill"><span class="rp-w">{w}W</span><span class="rp-sep">–</span><span class="rp-l">{l}L</span></div>'
 
-        next_html = ""
-        if upcoming:
-            nm = upcoming[0]
-            opp = nm["away_team"] if nm["is_home"] else nm["home_team"]
-            opp_short = calendar_short_name(opp)
-            # Magyar dátum
+        # Meccs események
+        events = []
+        for nm in ts.get("upcoming", []):
             try:
-                dt = datetime.strptime(nm["date"], "%Y-%m-%d")
-                weekdays = ["hétfő","kedd","szerda","csütörtök","péntek","szombat","vasárnap"]
-                date_hu = f'{dt.year}. {MONTH_NAMES_HU[dt.month].lower()} {dt.day}. ({weekdays[dt.weekday()]})'
+                d = datetime.strptime(nm["date"], "%Y-%m-%d").date()
             except Exception:
-                date_hu = nm["date"]
-            time_str = nm.get("time", "")
-            venue = nm.get("venue", "")
-            is_cup = nm.get("is_cup", False)
-            # Card class + label — kupa mindig felülírja a hazai/idegen színt
-            if is_cup:
-                hv_class = "nm-cup"
-                hv_label = nm.get("comp_label", "KUPA").upper()
-            else:
-                hv_class = "nm-home" if nm["is_home"] else "nm-away"
-                hv_label = "HAZAI" if nm["is_home"] else "IDEGENBELI"
-            venue_html = f'<div class="nm-venue">📍 {venue}</div>' if venue else ""
-            next_html = f'''
+                continue
+            events.append({"date": d, "kind": "match", "data": nm})
+
+        # Edzés események — csak a mai naptól előre
+        today = datetime.now().date()
+        kg_cfg = TEAMS.get("kozgaz-b")
+        if kg_cfg and kg_cfg.get("training_schedule"):
+            match_dates_set = {nm["date"] for nm in ts.get("upcoming", []) if nm.get("date")}
+            for d, dt_start in generate_training_dates(kg_cfg, match_dates=match_dates_set):
+                if d >= today:
+                    events.append({"date": d, "kind": "training", "start": dt_start,
+                                    "location": kg_cfg["training_schedule"].get("location", "")})
+
+        # Rendezés dátum szerint, ma és utána, top 5
+        events = [e for e in events if e["date"] >= today]
+        events.sort(key=lambda e: e["date"])
+        events = events[:5]
+
+        event_html_parts = []
+        for e in events:
+            if e["kind"] == "match":
+                nm = e["data"]
+                opp = nm["away_team"] if nm["is_home"] else nm["home_team"]
+                opp_short = calendar_short_name(opp)
+                date_hu = _hu_date(e["date"])
+                time_str = nm.get("time", "")
+                venue = nm.get("venue", "")
+                is_cup = nm.get("is_cup", False)
+                if is_cup:
+                    hv_class = "nm-cup"; hv_label = nm.get("comp_label", "KUPA").upper()
+                else:
+                    hv_class = "nm-home" if nm["is_home"] else "nm-away"
+                    hv_label = "HAZAI" if nm["is_home"] else "IDEGENBELI"
+                venue_html = f'<div class="nm-venue">📍 {venue}</div>' if venue else ""
+                event_html_parts.append(f'''
     <div class="next-match-card {hv_class}">
-      <div class="nm-label">KÖVETKEZŐ MECCS · <span class="nm-hv">{hv_label}</span></div>
+      <div class="nm-label"><span class="nm-hv">{hv_label}</span></div>
       <div class="nm-date">{date_hu}</div>
       <div class="nm-matchup">
         <span class="nm-time">{time_str}</span>
@@ -5209,9 +5236,22 @@ def generate_homepage(team_summaries):
         <span class="nm-opp">{opp_short}</span>
       </div>
       {venue_html}
-    </div>'''
+    </div>''')
+            else:
+                # Edzés — vékony sor
+                date_short = _short_hu_date(e["date"])
+                time_str = e["start"].strftime("%H:%M")
+                loc_short = e["location"].split(" ")[0] if e["location"] else ""
+                loc_html = f'<span class="et-venue">📍 {loc_short}</span>' if loc_short else ""
+                event_html_parts.append(f'''
+    <div class="event-training">
+      <span class="et-label">🏋️ Edzés</span>
+      <span class="et-date">{date_short}</span>
+      <span class="et-time">{time_str}</span>
+      {loc_html}
+    </div>''')
 
-        cards_html = record_pill + next_html
+        cards_html = record_pill + "".join(event_html_parts)
 
     # Build ALL match rows (all teams), JS will pick the right 5+5 per filter
     all_matches = []
@@ -5638,6 +5678,30 @@ def generate_homepage(team_summaries):
   .hero-cta {{ text-align:center; margin-bottom:8px; }}
   .hero-cta .next-match-card {{ text-align:left; }}
 
+  /* Vékony edzés-sor a Következő Események közé */
+  .event-training {{
+    display:flex; align-items:center; gap:12px;
+    padding:8px 14px; margin-bottom:10px;
+    background:rgba(253,203,110,0.06);
+    border-left:3px solid rgba(253,203,110,0.5);
+    border-radius:8px;
+    font-size:0.82rem; text-align:left;
+  }}
+  .event-training .et-label {{
+    color:#fdcb6e; font-weight:700; text-transform:uppercase;
+    font-size:0.7rem; letter-spacing:0.5px; white-space:nowrap;
+  }}
+  .event-training .et-date {{ color:var(--text); font-weight:600; }}
+  .event-training .et-time {{
+    color:var(--text-dim); margin-left:auto;
+    font-variant-numeric:tabular-nums; font-weight:600;
+  }}
+  .event-training .et-venue {{ color:var(--text-dim); font-size:0.75rem; opacity:0.7; }}
+  @media(max-width:600px) {{
+    .event-training {{ font-size:0.78rem; padding:7px 12px; gap:8px; }}
+    .event-training .et-venue {{ display:none; }}
+  }}
+
   @media(max-width:600px) {{
     body {{ padding:10px; }}
     .container {{ overflow-x:hidden; }}
@@ -5673,9 +5737,10 @@ def generate_homepage(team_summaries):
     <div class="sub">Közgáz SC és DSK/B &middot; NB2 Kelet &middot; 2026/27 szezon</div>
   </div>
   <section id="kovetkezo" class="anchor-section">
-  <div class="hero-cta">
-    {cards_html}
-  </div>
+    <div class="section-title">KÖVETKEZŐ ESEMÉNYEK</div>
+    <div class="hero-cta">
+      {cards_html}
+    </div>
   </section>
   <section id="tabella" class="anchor-section">{standings_section}</section>
   <section id="meccsek" class="anchor-section">{matches_section}</section>
