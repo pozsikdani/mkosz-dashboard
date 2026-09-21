@@ -5537,47 +5537,70 @@ def generate_homepage(team_summaries):
     {months_html}
     {calendar_js}"""
 
-    # ── EDZÉSLÁTOGATÁS szekció (raw Google Sheets fetch) ──
+    # ── EDZÉSLÁTOGATÁS szekció — vízszintes bar chart, csak akik ≥1x voltak ──
     attendance_section = ""
     att_rows = _fetch_attendance_raw()
+    # Kiszűrjük akik 0-szor voltak
+    att_rows = [r for r in att_rows if r["attended"] >= 1]
     if att_rows:
-        # Rendezés: százalék csökkenő, tie-break névvel
         att_rows.sort(key=lambda r: (-r["pct"], r["name"]))
-        rows_html = ""
-        for i, r in enumerate(att_rows, 1):
+        bars_html = ""
+        for r in att_rows:
             pct = r["pct"]
-            # Szín-fokozás: 80%+ zöld, 50-79 semleges, <50 halványabb
+            # Szín a bar-hoz: 80%+ zöld, 50-79 sárga, <50 piros-narancs
             if pct >= 80:
+                bar_color = "rgba(0,184,148,0.5)"
                 pct_color = "var(--green)"
             elif pct >= 50:
-                pct_color = "var(--text)"
+                bar_color = "rgba(253,203,110,0.5)"
+                pct_color = "var(--accent4)"
             else:
-                pct_color = "var(--text-dim)"
-            rows_html += (
-                f'<tr>'
-                f'<td class="att-rank">{i}.</td>'
-                f'<td class="att-name">{r["name"]}</td>'
-                f'<td class="att-ratio">{r["ratio"]}</td>'
-                f'<td class="att-pct" style="color:{pct_color};">{pct:.0f}%</td>'
-                f'</tr>'
+                bar_color = "rgba(225,112,85,0.4)"
+                pct_color = "var(--red)"
+            bars_html += (
+                f'<div class="att-bar">'
+                f'<div class="att-bar-fill" style="width:{pct:.0f}%;background:{bar_color};"></div>'
+                f'<div class="att-bar-row">'
+                f'<span class="att-bar-name">{r["name"]}</span>'
+                f'<span class="att-bar-val"><span class="att-ratio-small">{r["ratio"]}</span> '
+                f'<span class="att-pct-small" style="color:{pct_color};">{pct:.0f}%</span></span>'
+                f'</div></div>'
             )
         attendance_section = f'''
-    <div class="section-title">EDZÉSLÁTOGATÁS</div>
-    <div class="att-wrap">
-      <table class="att-tbl"><tbody>{rows_html}</tbody></table>
-      <div class="att-note">Forrás: klubbelső Google Sheet · napi frissítés</div>
-    </div>
+    <div class="section-title">EDZÉSLÁTOGATÁS <span class="att-count">· {len(att_rows)} játékos</span></div>
+    <div class="att-chart">{bars_html}</div>
+    <div class="att-note">Forrás: klubbelső Google Sheet · napi frissítés</div>
     <style>
-      .att-wrap {{ margin-top:8px; margin-bottom:24px; }}
-      .att-tbl {{ width:100%; border-collapse:collapse; font-size:0.85rem; }}
-      .att-tbl tr {{ transition:background 0.15s; }}
-      .att-tbl tr:hover {{ background:rgba(255,255,255,0.02); }}
-      .att-tbl td {{ padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); }}
-      .att-rank {{ color:var(--text-dim); font-weight:600; width:32px; font-size:0.75rem; }}
-      .att-name {{ font-weight:600; }}
-      .att-ratio {{ text-align:right; color:var(--text-dim); font-variant-numeric:tabular-nums; }}
-      .att-pct {{ text-align:right; font-weight:700; font-variant-numeric:tabular-nums; min-width:52px; }}
-      .att-note {{ text-align:right; margin-top:6px; font-size:0.7rem; color:var(--text-dim); font-style:italic; }}
+      .att-count {{ color:var(--text-dim); font-weight:400; text-transform:none; letter-spacing:0; font-size:0.85em; }}
+      .att-chart {{
+        display:flex; flex-direction:column; gap:3px;
+        margin:8px 0 8px; padding:8px; border-radius:12px;
+        background:var(--card); border:1px solid var(--border);
+      }}
+      .att-bar {{
+        position:relative; padding:6px 12px;
+        border-radius:6px; overflow:hidden;
+        background:rgba(255,255,255,0.02);
+      }}
+      .att-bar-fill {{
+        position:absolute; left:0; top:0; bottom:0;
+        z-index:0; transition:width 0.4s;
+      }}
+      .att-bar-row {{
+        position:relative; z-index:1;
+        display:flex; justify-content:space-between; align-items:center;
+        font-size:0.82rem;
+      }}
+      .att-bar-name {{ font-weight:600; color:var(--text); }}
+      .att-bar-val {{ display:flex; gap:8px; align-items:baseline; font-variant-numeric:tabular-nums; }}
+      .att-ratio-small {{ color:var(--text-dim); font-size:0.72rem; }}
+      .att-pct-small {{ font-weight:700; min-width:36px; text-align:right; }}
+      .att-note {{ text-align:right; margin:4px 0 24px; font-size:0.7rem; color:var(--text-dim); font-style:italic; }}
+      @media(max-width:600px) {{
+        .att-bar {{ padding:5px 10px; }}
+        .att-bar-row {{ font-size:0.75rem; }}
+        .att-ratio-small {{ font-size:0.65rem; }}
+      }}
     </style>'''
 
     return f"""<!DOCTYPE html>
