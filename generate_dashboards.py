@@ -3140,8 +3140,17 @@ CALENDAR_CSS = """
   pointer-events:none;
 }
 .cal-day.today .cell-icon { top:14px; }
+.cal-km-tag {
+  position:absolute; bottom:3px; right:4px;
+  font-size:.5rem; font-weight:700; letter-spacing:.3px;
+  padding:1px 4px; border-radius:4px;
+  background:rgba(253,203,110,0.18); color:#fdcb6e;
+  border:1px solid rgba(253,203,110,0.4);
+  line-height:1.2; white-space:nowrap;
+}
 @media(max-width:600px) {
   .cell-icon { font-size:.6rem; top:3px; right:3px; }
+  .cal-km-tag { font-size:.42rem; padding:0 3px; bottom:2px; right:2px; }
 }
 .cal-day.has-match { border:1px solid var(--border); }
 /* Szín-differenciálás: hazai (piros) / idegen (kék) / kupa (lila) */
@@ -3268,6 +3277,8 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
                         color_cls = " home"; cell_icon = "🏠"
                     else:
                         color_cls = " away"; cell_icon = "✈️"
+                    max_km = max((mi.get("km") or 0) for mi in day_matches)
+                    km_cell_html = f'<span class="cal-km-tag" title="~{max_km} km Budapesttől">🚗 {max_km}km</span>' if max_km else ""
                     match_items = ""
                     for idx, mi in enumerate(day_matches):
                         lcfg = mi["lg_cfg"]
@@ -3284,6 +3295,7 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
                     cells += f'''<div class="cal-day has-match{color_cls}" data-date="{date_str}">
   <span class="day-num">{day}</span><span class="cell-icon">{cell_icon}</span>
   <div class="match-info">{match_items}</div>
+  {km_cell_html}
 </div>'''
                 else:
                     mi = matches_by_date[key]
@@ -3302,6 +3314,8 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
                     else:
                         score_line = ""
                         badge_html = ""
+                    km_val = mi.get("km") or 0
+                    km_cell_html = f'<span class="cal-km-tag" title="~{km_val} km Budapesttől">🚗 {km_val}km</span>' if km_val else ""
                     cells += f'''<div class="cal-day has-match{color_cls}" data-date="{date_str}">
   <span class="day-num">{day}</span><span class="cell-icon">{cell_icon}</span>
   <div class="match-info">
@@ -3312,6 +3326,7 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
     </div>
     <span class="match-time">{mi["time"]}</span>
   </div>
+  {km_cell_html}
 </div>'''
             elif training_dates and date_str in training_dates:
                 t = training_dates[date_str]
@@ -5589,6 +5604,7 @@ def generate_homepage(team_summaries):
                 "team_short": ts["short"],
                 "league": lg,
                 "lg_cfg": tcfg,
+                "km": None if is_home else _away_distance_km(opponent),
             })
 
     # Edzések a homepage naptárba is (a Közgáz B config alapján, meccsnapokon kihagyva)
