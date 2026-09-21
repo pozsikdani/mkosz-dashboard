@@ -111,6 +111,28 @@ ATTENDANCE_NAME_MAP = {
 
 ATTENDANCE_COACH = "POZSIK DÁNIEL"
 
+# Idegenbeli meccsek "vidéki" távolság-jelölése (km, egyirányban).
+# Az ellenfél nevében keressük case-insensitive módon.
+AWAY_DISTANCES_KM = {
+    "nyíregyháza": 225,
+    "nyíkse": 225,
+    "sunshine": 225,
+    "szerencs": 185,
+    "cegléd": 70,
+    "cekk": 70,
+}
+
+
+def _away_distance_km(opp_name):
+    """Ha az ellenfél neve tartalmaz egy vidéki helyszínt, visszaadja a km-t."""
+    if not opp_name:
+        return None
+    n = opp_name.lower()
+    for key, km in AWAY_DISTANCES_KM.items():
+        if key in n:
+            return km
+    return None
+
 def _fetch_attendance_raw():
     """Fetch raw CSV rows: [{name, ratio, pct}, ...] minden aki szerepel a spreadsheet-en.
     Ha a fetch sikertelen (pl. spreadsheet nem publikus), üres listát ad vissza.
@@ -5318,9 +5340,15 @@ def generate_homepage(team_summaries):
                     hv_class = "nm-home" if nm["is_home"] else "nm-away"
                     hv_label = "HAZAI" if nm["is_home"] else "IDEGENBELI"
                 venue_html = f'<div class="nm-venue">📍 {venue}</div>' if venue else ""
+                # Idegenbeli meccs esetén távolság-jelölés
+                distance_html = ""
+                if not nm["is_home"]:
+                    km = _away_distance_km(opp)
+                    if km:
+                        distance_html = f'<span class="km-tag" title="Autós távolság Budapesttől (egyirányban)">🚗 ~{km} km</span>'
                 event_html_parts.append(f'''
     <div class="next-match-card {hv_class}">
-      <div class="nm-label"><span class="nm-hv">{hv_label}</span></div>
+      <div class="nm-label"><span class="nm-hv">{hv_label}</span> {distance_html}</div>
       <div class="nm-date">{date_hu}</div>
       <div class="nm-matchup">
         <span class="nm-time">{time_str}</span>
@@ -5370,11 +5398,13 @@ def generate_homepage(team_summaries):
             })
         for m in ts.get("upcoming", []):
             opp = m["away_team"] if m["is_home"] else m["home_team"]
+            km = None if m["is_home"] else _away_distance_km(opp)
             all_matches.append({
                 "date": m["date"], "type": "upcoming",
                 "time": m.get("time", ""), "opp": calendar_short_name(opp),
                 "is_home": m["is_home"], "team_short": ts["short"],
                 "league": lg, "tcfg": tcfg,
+                "km": km,
             })
     # Sort: played desc by date, then upcoming asc — but we render all and let JS pick
     all_matches.sort(key=lambda x: (x["date"], 0 if x["type"] == "played" else 1))
@@ -5482,12 +5512,15 @@ def generate_homepage(team_summaries):
         </div>"""
         else:
             opp_display = ('@' if not item['is_home'] else '') + item['opp']
+            km_html = ""
+            if item.get('km'):
+                km_html = f'<span class="km-tag km-small" title="~{item["km"]} km Budapesttől">🚗 {item["km"]}km</span>'
             match_rows += f"""
         <div class="match-row upcoming" data-team="{item['team_short']}" data-type="upcoming" data-date="{item['date']}" style="display:none">
           <div class="m-date">{date_str}</div>
           {hv_badge}
           {tag}
-          <div class="m-detail">{opp_display}</div>
+          <div class="m-detail">{opp_display} {km_html}</div>
           <div class="m-time">{item.get('time','')}</div>
           <span class="m-badge">&nbsp;</span>
         </div>"""
@@ -5741,7 +5774,17 @@ def generate_homepage(team_summaries):
     font-size:0.62rem; font-weight:700; text-transform:uppercase;
     letter-spacing:1.2px; color:var(--text-dim); margin-bottom:4px;
     position:relative; z-index:1;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   }}
+  .km-tag {{
+    display:inline-flex; align-items:center; gap:4px;
+    background:rgba(253,203,110,0.18); color:var(--accent4);
+    padding:3px 8px; border-radius:12px;
+    font-size:0.68rem; font-weight:700;
+    text-transform:none; letter-spacing:0.3px;
+    border:1px solid rgba(253,203,110,0.3);
+  }}
+  .km-tag.km-small {{ padding:1px 6px; font-size:0.62rem; }}
   .nm-hv {{ color:var(--home-accent); }}
   .nm-away .nm-hv {{ color:var(--away-accent); }}
   .nm-cup .nm-hv {{ color:var(--cup-accent); }}

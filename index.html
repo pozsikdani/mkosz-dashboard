@@ -172,7 +172,17 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
     font-size:0.62rem; font-weight:700; text-transform:uppercase;
     letter-spacing:1.2px; color:var(--text-dim); margin-bottom:4px;
     position:relative; z-index:1;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   }
+  .km-tag {
+    display:inline-flex; align-items:center; gap:4px;
+    background:rgba(253,203,110,0.18); color:var(--accent4);
+    padding:3px 8px; border-radius:12px;
+    font-size:0.68rem; font-weight:700;
+    text-transform:none; letter-spacing:0.3px;
+    border:1px solid rgba(253,203,110,0.3);
+  }
+  .km-tag.km-small { padding:1px 6px; font-size:0.62rem; }
   .nm-hv { color:var(--home-accent); }
   .nm-away .nm-hv { color:var(--away-accent); }
   .nm-cup .nm-hv { color:var(--cup-accent); }
@@ -480,7 +490,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
       <span class="et-venue">📍 Lónyay</span>
     </div>
     <div class="next-match-card nm-cup">
-      <div class="nm-label"><span class="nm-hv">HEPP KUPA</span></div>
+      <div class="nm-label"><span class="nm-hv">HEPP KUPA</span> </div>
       <div class="nm-date">2026. szeptember 24. (csütörtök)</div>
       <div class="nm-matchup">
         <span class="nm-time">20:15</span>
@@ -496,7 +506,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
       <span class="et-venue">📍 Lónyay</span>
     </div>
     <div class="next-match-card nm-home">
-      <div class="nm-label"><span class="nm-hv">HAZAI</span></div>
+      <div class="nm-label"><span class="nm-hv">HAZAI</span> </div>
       <div class="nm-date">2026. október 1. (csütörtök)</div>
       <div class="nm-matchup">
         <span class="nm-time">20:15</span>
@@ -521,7 +531,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">09.24</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">MAFC</div>
+          <div class="m-detail">MAFC </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -529,7 +539,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">10.01</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">BKG</div>
+          <div class="m-detail">BKG </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -537,7 +547,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">10.13</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">Pénzügyőr</div>
+          <div class="m-detail">Pénzügyőr </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -545,7 +555,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">10.31</div>
           <span class="m-hv">@</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">@FKE</div>
+          <div class="m-detail">@FKE </div>
           <div class="m-time">18:00</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -553,7 +563,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">11.07</div>
           <span class="m-hv">@</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">@BLF</div>
+          <div class="m-detail">@BLF </div>
           <div class="m-time">12:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -561,7 +571,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">11.17</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">V.egyház</div>
+          <div class="m-detail">V.egyház </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -569,7 +579,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">11.20</div>
           <span class="m-hv">@</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">@NYÍKSE</div>
+          <div class="m-detail">@NYÍKSE <span class="km-tag km-small" title="~225 km Budapesttől">🚗 225km</span></div>
           <div class="m-time">19:00</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -577,7 +587,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">11.26</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">VBW</div>
+          <div class="m-detail">VBW </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -585,7 +595,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">12.03</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">Szerencs</div>
+          <div class="m-detail">Szerencs </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -593,7 +603,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">12.10</div>
           <span class="m-hv">@</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">@BKG</div>
+          <div class="m-detail">@BKG </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -601,7 +611,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">01.07</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">FKE</div>
+          <div class="m-detail">FKE </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -609,7 +619,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">01.16</div>
           <span class="m-hv">@</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">@Pénzügyőr</div>
+          <div class="m-detail">@Pénzügyőr </div>
           <div class="m-time">19:00</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -617,7 +627,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">01.28</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">BLF</div>
+          <div class="m-detail">BLF </div>
           <div class="m-time">20:15</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -625,7 +635,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">02.07</div>
           <span class="m-hv">@</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">@V.egyház</div>
+          <div class="m-detail">@V.egyház </div>
           <div class="m-time">18:00</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -633,7 +643,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">02.11</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">NYÍKSE</div>
+          <div class="m-detail">NYÍKSE </div>
           <div class="m-time">18:45</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -641,7 +651,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">02.19</div>
           <span class="m-hv">@</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">@VBW</div>
+          <div class="m-detail">@VBW <span class="km-tag km-small" title="~70 km Budapesttől">🚗 70km</span></div>
           <div class="m-time">20:30</div>
           <span class="m-badge">&nbsp;</span>
         </div>
@@ -649,7 +659,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
           <div class="m-date">02.27</div>
           <span class="m-hv">@</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
-          <div class="m-detail">@Szerencs</div>
+          <div class="m-detail">@Szerencs <span class="km-tag km-small" title="~185 km Budapesttől">🚗 185km</span></div>
           <div class="m-time">18:00</div>
           <span class="m-badge">&nbsp;</span>
         </div>
