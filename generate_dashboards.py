@@ -3134,6 +3134,15 @@ CALENDAR_CSS = """
 }
 .cal-day.empty { background:transparent; min-height:0; }
 .day-num { font-size:.68rem; color:var(--text-dim); font-weight:500; }
+.cell-icon {
+  position:absolute; top:4px; right:5px;
+  font-size:.72rem; line-height:1; opacity:.85;
+  pointer-events:none;
+}
+.cal-day.today .cell-icon { top:14px; }
+@media(max-width:600px) {
+  .cell-icon { font-size:.6rem; top:3px; right:3px; }
+}
 .cal-day.has-match { border:1px solid var(--border); }
 /* Szín-differenciálás: hazai (piros) / idegen (kék) / kupa (lila) */
 .cal-day.has-match.home {
@@ -3252,14 +3261,13 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
             if key in matches_by_date:
                 if multi_team:
                     day_matches = matches_by_date[key]
-                    # Egy nap első meccse határozza meg a cella szín-osztályát
                     first = day_matches[0]
                     if first.get("is_cup"):
-                        color_cls = " cup"
+                        color_cls = " cup"; cell_icon = "🏆"
                     elif first.get("home"):
-                        color_cls = " home"
+                        color_cls = " home"; cell_icon = "🏠"
                     else:
-                        color_cls = " away"
+                        color_cls = " away"; cell_icon = "✈️"
                     match_items = ""
                     for idx, mi in enumerate(day_matches):
                         lcfg = mi["lg_cfg"]
@@ -3274,17 +3282,17 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
                         sep = '<div class="cal-match-sep"></div>' if idx > 0 else ''
                         match_items += f'{sep}<div class="cal-match">{tag}{detail}</div>'
                     cells += f'''<div class="cal-day has-match{color_cls}" data-date="{date_str}">
-  <span class="day-num">{day}</span>
+  <span class="day-num">{day}</span><span class="cell-icon">{cell_icon}</span>
   <div class="match-info">{match_items}</div>
 </div>'''
                 else:
                     mi = matches_by_date[key]
                     if mi.get("is_cup"):
-                        color_cls = " cup"
+                        color_cls = " cup"; cell_icon = "🏆"
                     elif mi.get("home"):
-                        color_cls = " home"
+                        color_cls = " home"; cell_icon = "🏠"
                     else:
-                        color_cls = " away"
+                        color_cls = " away"; cell_icon = "✈️"
                     if mi["played"] and mi["win"] is not None:
                         badge_letter = "W" if mi["win"] else "L"
                         bc = "w" if mi["win"] else "l"
@@ -3295,7 +3303,7 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
                         score_line = ""
                         badge_html = ""
                     cells += f'''<div class="cal-day has-match{color_cls}" data-date="{date_str}">
-  <span class="day-num">{day}</span>
+  <span class="day-num">{day}</span><span class="cell-icon">{cell_icon}</span>
   <div class="match-info">
     <div class="cal-match">
       <span class="match-opp">{mi["opp"]}</span>
@@ -3306,10 +3314,9 @@ def _build_calendar_grid(matches_by_date, multi_team=False, training_dates=None)
   </div>
 </div>'''
             elif training_dates and date_str in training_dates:
-                # Edzés napja (meccs nincs ezen a napon)
                 t = training_dates[date_str]
                 cells += f'''<div class="cal-day training-day" data-date="{date_str}">
-  <span class="day-num">{day}</span>
+  <span class="day-num">{day}</span><span class="cell-icon">🏋️</span>
   <div class="training-info"><span class="training-label">Edzés</span><span class="training-time">{t}</span></div>
 </div>'''
             else:
