@@ -35,7 +35,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html dashboards/ dashboards-a/ dashboards-noi/ leftoverz/ dashboards-mefob/ dashboards-mefob-ferfi/
+          git add index.html dashboards/ kozgaz-b.ics
           git diff --staged --quiet || (
             git commit -m "Napi frissítés (auto): $(date +%Y-%m-%d)" &&
             git push
