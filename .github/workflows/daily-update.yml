@@ -26,10 +26,17 @@ jobs:
       - name: Stats DB letöltése
         run: git clone --depth 1 https://github.com/pozsikdani/mkosz-stats.git /tmp/mkosz-stats
 
+      - name: Scoresheet DB letöltése (Hepp Kupa)
+        run: git clone --depth 1 https://github.com/pozsikdani/mkosz-scoresheet.git /tmp/mkosz-scoresheet || true
+
       - name: Dashboard generálás
         env:
           STATS_DB_PATH: /tmp/mkosz-stats/mkosz_stats.sqlite
+          SCORESHEET_DB_PATH: /tmp/mkosz-scoresheet/scoresheet.sqlite
         run: python3 generate_dashboards.py site
+
+      - name: Commit-preview → meccs oldalak stagelése
+        run: git add dashboards/meccs/ 2>/dev/null || true
 
       - name: Commit és push ha változott
         run: |

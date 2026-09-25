@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="hu"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KÖZGÁZ SC ÉS DSK/B vs MAFC · Hepp Kupa</title>
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+
+/* ============ TÉMA VÁLTÓ (világos / sötét) ============ */
+/* Alap (sötét) — a :root már definiálja a --bg, --card, --text stb.
+   itt csak a HÁZI (H) / IDEGEN (A) / KUPA (C) színeket adjuk hozzá,
+   plus a világos téma override-okat. */
+:root {
+  --home-accent: #ff3b5c;      /* hazai — élénkebb Közgáz piros */
+  --home-accent-bg: rgba(255,59,92,0.28);
+  --away-accent: #22d3ee;      /* idegenbeli — élénkebb ciánkék */
+  --away-accent-bg: rgba(34,211,238,0.25);
+  --cup-accent: #c084fc;       /* kupa — élénkebb lila */
+  --cup-accent-bg: rgba(192,132,252,0.28);
+}
+:root[data-theme="light"] {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --card-hover: #f8f9fa;
+  --border: rgba(0,0,0,0.08);
+  --text: #1c1c1e;
+  --text-dim: #5c5f6e;
+  --home-accent: #C41E3A;
+  --home-accent-bg: rgba(196,30,58,0.18);
+  --away-accent: #0284c7;
+  --away-accent-bg: rgba(2,132,199,0.15);
+  --cup-accent: #8b5cf6;
+  --cup-accent-bg: rgba(139,92,246,0.15);
+}
+
+/* Automatikus rendszer-preferencia (csak ha nincs kézi választás) */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --card-hover: #f8f9fa;
+    --border: rgba(0,0,0,0.08);
+    --text: #1c1c1e;
+    --text-dim: #5c5f6e;
+    --home-accent-bg: rgba(196,30,58,0.10);
+    --away-accent-bg: rgba(23,162,184,0.12);
+    --cup-accent-bg: rgba(168,85,247,0.12);
+  }
+}
+
+/* ============ SMOOTH SCROLL (single-page nav) ============ */
+html { scroll-behavior:smooth; scroll-padding-top:80px; }
+.anchor-section { scroll-margin-top:80px; }
+
+/* ============ NAV ============ */
+.site-nav {
+  display:flex; align-items:center; justify-content:space-between;
+  margin:0 auto 28px; padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.nav-anchor {
+  font-size:0.75rem; font-weight:600; color:var(--text-dim);
+  text-decoration:none; text-transform:uppercase; letter-spacing:0.6px;
+  padding:6px 10px; border-radius:8px; transition:all .18s;
+}
+.nav-anchor:hover { color:var(--text); background:var(--card-hover); }
+.nav-logo {
+  font-weight:900; font-size:1rem; letter-spacing:1.5px;
+  color:var(--accent); text-decoration:none;
+  transition:opacity .2s;
+}
+.nav-logo:hover { opacity:0.8; }
+.nav-links { display:flex; gap:24px; align-items:center; }
+.nav-links a, .nav-links .nav-link {
+  font-size:0.82rem; font-weight:600; color:var(--text-dim);
+  text-decoration:none; text-transform:uppercase; letter-spacing:0.8px;
+  transition:color .2s;
+}
+.nav-links a:hover { color:var(--text); }
+.nav-links a.active { color:var(--accent); }
+.nav-links .disabled { opacity:0.3; cursor:default; }
+
+/* Téma-váltó gomb */
+.theme-toggle {
+  background:transparent; border:1px solid var(--border);
+  color:var(--text-dim); cursor:pointer;
+  width:36px; height:36px; border-radius:10px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:1rem; transition:all .2s;
+}
+.theme-toggle:hover { background:var(--card-hover); color:var(--text); }
+.theme-toggle .theme-icon-light { display:none; }
+.theme-toggle .theme-icon-dark { display:inline; }
+:root[data-theme="light"] .theme-toggle .theme-icon-light { display:inline; }
+:root[data-theme="light"] .theme-toggle .theme-icon-dark { display:none; }
+
+@media(max-width:600px) {
+  .site-nav { flex-direction:column; gap:12px; text-align:center; }
+  .nav-links { gap:16px; flex-wrap:wrap; justify-content:center; }
+}
+
+<style>
+body { background:var(--bg); color:var(--text); margin:0; padding:0; font-family:system-ui,sans-serif; }
+.match-container { max-width:900px; margin:0 auto; padding:16px; }
+.match-hero { background:linear-gradient(135deg, rgba(108,92,231,0.20), rgba(108,92,231,0.05));
+  border:1px solid rgba(108,92,231,0.4); border-radius:14px; padding:22px 20px; margin-bottom:20px; }
+.match-hero .cup-badge { display:inline-block; font-size:.7rem; font-weight:700; letter-spacing:1.5px;
+  color:#a29bfe; background:rgba(108,92,231,0.15); border:1px solid rgba(108,92,231,0.35);
+  padding:3px 10px; border-radius:6px; margin-bottom:10px; }
+.match-hero h1 { margin:0 0 12px; font-size:1.5rem; }
+.match-hero .scoreline { font-size:2.4rem; font-weight:800; margin:8px 0; letter-spacing:1px; }
+.match-hero .scoreline .us { color:var(--green); } .match-hero .scoreline.lost .us { color:var(--red); }
+.match-hero .scoreline .sep { color:var(--text-dim); margin:0 12px; font-weight:500; }
+.match-hero .meta { font-size:.85rem; color:var(--text-dim); margin-top:8px; }
+.result-badge { display:inline-block; padding:4px 12px; border-radius:6px;
+  font-size:.75rem; font-weight:800; letter-spacing:1px; margin-right:8px; }
+.result-badge.won { background:rgba(0,184,148,0.18); color:var(--green); border:1px solid rgba(0,184,148,0.35); }
+.result-badge.lost { background:rgba(225,112,85,0.18); color:var(--red); border:1px solid rgba(225,112,85,0.35); }
+.diff { color:var(--text-dim); font-size:1.1rem; margin-left:8px; }
+h2 { font-size:1.05rem; margin:24px 0 12px; letter-spacing:.5px; text-transform:uppercase; color:var(--text-dim); }
+.q-table { width:100%; border-collapse:collapse; background:var(--card); border-radius:10px; overflow:hidden; }
+.q-table th, .q-table td { padding:8px 12px; text-align:center; font-size:.9rem; border-bottom:1px solid rgba(255,255,255,0.05); }
+.q-table th { background:rgba(255,255,255,0.03); color:var(--text-dim); font-weight:600; font-size:.75rem; letter-spacing:1px; }
+.q-table td:first-child { text-align:left; font-weight:600; }
+.q-table .tot { font-weight:800; color:var(--text); }
+.tp-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.tp-card { background:var(--card); border-radius:10px; padding:14px 16px; border:1px solid var(--border); }
+.tp-head { font-size:.72rem; font-weight:700; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px; }
+.tp-row { display:flex; align-items:center; gap:10px; padding:5px 0; font-size:.9rem; }
+.tp-jn { display:inline-block; width:32px; text-align:center; font-weight:700; color:var(--accent); background:rgba(196,30,58,0.12); border-radius:4px; padding:2px 0; font-size:.72rem; }
+.tp-nm { flex:1; }
+.tp-pts { font-weight:800; color:var(--green); }
+.box { background:var(--card); border-radius:10px; overflow:hidden; margin-bottom:14px; border:1px solid var(--border); }
+.box-head { padding:10px 14px; background:rgba(255,255,255,0.03); font-weight:700; font-size:.9rem; letter-spacing:.5px; }
+.box-head.us { color:var(--green); } .box-head.opp { color:var(--text-dim); }
+.box table { width:100%; border-collapse:collapse; }
+.box th, .box td { padding:7px 8px; font-size:.82rem; text-align:center; border-bottom:1px solid rgba(255,255,255,0.04); }
+.box th { background:rgba(255,255,255,0.02); color:var(--text-dim); font-weight:600; font-size:.7rem; letter-spacing:.5px; }
+.box td.pname { text-align:left; font-weight:500; }
+.box td.jn { color:var(--accent); font-weight:700; width:28px; }
+.box td.pts { font-weight:800; }
+.box tr.totals { background:rgba(255,255,255,0.03); font-weight:700; }
+.box tr.totals td { border-top:2px solid var(--border); }
+.starter-mark { color:var(--green); font-weight:800; margin-right:5px; }
+.pf-5 { color:var(--red); font-weight:700; }
+.back-link { display:inline-flex; align-items:center; gap:6px; color:var(--text-dim);
+  text-decoration:none; font-size:.85rem; padding:8px 12px; border-radius:6px;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border); margin-bottom:12px; }
+.back-link:hover { color:var(--text); }
+@media(max-width:600px) {
+  .tp-grid { grid-template-columns:1fr; }
+  .match-hero h1 { font-size:1.15rem; }
+  .match-hero .scoreline { font-size:1.9rem; }
+  .box th, .box td { padding:5px 4px; font-size:.72rem; }
+}
+</style>
+</head><body>
+<div class="match-container">
+  <a href="/" class="back-link">← Vissza a főoldalra</a>
+  <div class="match-hero">
+    <div class="cup-badge">🏆 HEPP KUPA · HAZAI</div>
+    <h1>KÖZGÁZ SC ÉS DSK/B vs MAFC</h1>
+    <div class="scoreline won"><span class="us">72</span><span class="sep">–</span><span>61</span></div>
+    <div><span class="result-badge won">GYŐZELEM</span><span class="diff">+11</span></div>
+    <div class="meta">2026. szeptember 24. · 20:15 · LÓNYAY UTCAI REFORMÁTUS GIMNÁZIUM ÉS K…</div>
+  </div>
+
+  <h2>Negyedenkénti bontás</h2>
+  
+    <table class="q-table">
+      <thead><tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Σ</th></tr></thead>
+      <tbody>
+        <tr class="team-us"><td>Közgáz B</td><td>11</td><td>18</td><td>20</td><td>23</td><td class="tot">72</td></tr>
+        <tr class="team-opp"><td>MAFC</td><td>13</td><td>11</td><td>15</td><td>22</td><td class="tot">61</td></tr>
+      </tbody>
+    </table>
+
+  <h2>Top pontszerzők</h2>
+  <div class="tp-grid"><div class="tp-card"><div class="tp-head">Közgáz B</div><div class="tp-row"><span class="tp-jn">#5</span><span class="tp-nm">Látos András</span><span class="tp-pts">14p</span></div><div class="tp-row"><span class="tp-jn">#25</span><span class="tp-nm">Jenei Koppány Tamás</span><span class="tp-pts">13p</span></div><div class="tp-row"><span class="tp-jn">#20</span><span class="tp-nm">Lénárt Zoltán</span><span class="tp-pts">11p</span></div></div><div class="tp-card"><div class="tp-head">MAFC</div><div class="tp-row"><span class="tp-jn">#9</span><span class="tp-nm">Klöczl András</span><span class="tp-pts">17p</span></div><div class="tp-row"><span class="tp-jn">#14</span><span class="tp-nm">Mészáros János Gyula</span><span class="tp-pts">14p</span></div><div class="tp-row"><span class="tp-jn">#5</span><span class="tp-nm">Vantal András László</span><span class="tp-pts">11p</span></div></div></div>
+
+  <h2>Közgáz B – box score</h2>
+  <div class="box">
+    <div class="box-head us">Közgáz SC és DSK/B</div>
+    <table><thead><tr><th></th><th>Játékos</th><th>P</th><th>2P</th><th>3P</th><th>BÜ</th><th>PF</th></tr></thead>
+    <tbody><tr class="team-us"><td class="jn">5</td><td class="pname">Látos András</td><td class="pts">14</td><td>6</td><td>0</td><td>2/4</td><td class="pf">2</td></tr>
+<tr class="team-us"><td class="jn">25</td><td class="pname"><span class="starter-mark">×</span>Jenei Koppány Tamás</td><td class="pts">13</td><td>4</td><td>0</td><td>5/8</td><td class="pf">2</td></tr>
+<tr class="team-us"><td class="jn">20</td><td class="pname"><span class="starter-mark">×</span>Lénárt Zoltán</td><td class="pts">11</td><td>2</td><td>2</td><td>1/2</td><td class="pf">3</td></tr>
+<tr class="team-us"><td class="jn">18</td><td class="pname">Kadocsa Márton</td><td class="pts">10</td><td>0</td><td>3</td><td>1/1</td><td class="pf">0</td></tr>
+<tr class="team-us"><td class="jn">11</td><td class="pname"><span class="starter-mark">×</span>Bartus Gergely</td><td class="pts">9</td><td>3</td><td>0</td><td>3/3</td><td class="pf">0</td></tr>
+<tr class="team-us"><td class="jn">39</td><td class="pname"><span class="starter-mark">×</span>Bencze Máté</td><td class="pts">9</td><td>2</td><td>1</td><td>2/2</td><td class="pf">3</td></tr>
+<tr class="team-us"><td class="jn">7</td><td class="pname">Bodnár Dániel</td><td class="pts">4</td><td>2</td><td>0</td><td>0/0</td><td class="pf">3</td></tr>
+<tr class="team-us"><td class="jn">38</td><td class="pname"><span class="starter-mark">×</span>Kis Balázs Barnabás</td><td class="pts">2</td><td>1</td><td>0</td><td>0/0</td><td class="pf">2</td></tr>
+<tr class="team-us"><td class="jn">22</td><td class="pname">Somogyi György</td><td class="pts">0</td><td>0</td><td>0</td><td>0/0</td><td class="pf">2</td></tr>
+<tr class="totals"><td></td><td>Összesen</td><td class="pts">72</td><td>20</td><td>6</td><td>14/20</td><td>17</td></tr></tbody></table>
+  </div>
+
+  <h2>MAFC – box score</h2>
+  <div class="box">
+    <div class="box-head opp">MAFC</div>
+    <table><thead><tr><th></th><th>Játékos</th><th>P</th><th>2P</th><th>3P</th><th>BÜ</th><th>PF</th></tr></thead>
+    <tbody><tr class="team-opp"><td class="jn">9</td><td class="pname">Klöczl András</td><td class="pts">17</td><td>5</td><td>0</td><td>7/10</td><td class="pf">2</td></tr>
+<tr class="team-opp"><td class="jn">14</td><td class="pname"><span class="starter-mark">×</span>Mészáros János Gyula</td><td class="pts">14</td><td>6</td><td>0</td><td>2/2</td><td class="pf">0</td></tr>
+<tr class="team-opp"><td class="jn">5</td><td class="pname"><span class="starter-mark">×</span>Vantal András László</td><td class="pts">11</td><td>1</td><td>2</td><td>3/6</td><td class="pf">0</td></tr>
+<tr class="team-opp"><td class="jn">4</td><td class="pname"><span class="starter-mark">×</span>Baráz Márk József</td><td class="pts">8</td><td>3</td><td>0</td><td>2/6</td><td class="pf">3</td></tr>
+<tr class="team-opp"><td class="jn">45</td><td class="pname"><span class="starter-mark">×</span>Vantal Gergely István</td><td class="pts">6</td><td>3</td><td>0</td><td>0/0</td><td class="pf">2</td></tr>
+<tr class="team-opp"><td class="jn">1</td><td class="pname"><span class="starter-mark">×</span>Naser Ali Ahmed</td><td class="pts">3</td><td>0</td><td>1</td><td>0/0</td><td class="pf">2</td></tr>
+<tr class="team-opp"><td class="jn">15</td><td class="pname">Jakobicz Balázs</td><td class="pts">2</td><td>1</td><td>0</td><td>0/0</td><td class="pf">2</td></tr>
+<tr class="team-opp"><td class="jn">11</td><td class="pname">Várfalvi Dániel</td><td class="pts">0</td><td>0</td><td>0</td><td>0/0</td><td class="pf">1</td></tr>
+<tr class="totals"><td></td><td>Összesen</td><td class="pts">61</td><td>19</td><td>3</td><td>14/24</td><td>12</td></tr></tbody></table>
+  </div>
+</div>
+
+<script>
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('theme'); } catch(e) {}
+  if (saved === 'light' || saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', saved);
+  }
+  function toggleTheme() {
+    var cur = document.documentElement.getAttribute('data-theme');
+    if (!cur) {
+      // rendszer-preferencia szerint volt — ellenkezőjére állítjuk
+      var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      cur = prefersLight ? 'light' : 'dark';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch(e) {}
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.theme-toggle').forEach(function(btn){
+      btn.addEventListener('click', toggleTheme);
+    });
+  });
+})();
+</script>
+
+</body></html>

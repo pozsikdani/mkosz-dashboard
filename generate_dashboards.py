@@ -18,6 +18,10 @@ STATS_DB_PATH = os.environ.get(
     "STATS_DB_PATH",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "mkosz-stats", "mkosz_stats.sqlite"),
 )
+SCORESHEET_DB_PATH = os.environ.get(
+    "SCORESHEET_DB_PATH",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "mkosz-scoresheet", "scoresheet.sqlite"),
+)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SEASON = "x2627"
@@ -5140,6 +5144,7 @@ def _nav_html(active_key=None, depth=0, home=False):
         # Homepage single-page navigation: anchor scroll a szekciókhoz
         anchors = [
             ("#kovetkezo", "Események"),
+            ("#legutobbi", "Utolsó"),
             ("#tabella", "Tabella"),
             ("#meccsek", "Meccsek"),
             ("#naptar", "Naptár"),
@@ -5287,6 +5292,290 @@ NAV_THEME_JS = """
 """
 
 
+def get_hepp_cup_matches(team_pattern):
+    """Reads Hepp Kupa matches (huna_cup → match_id FHKF-*) from scoresheet.sqlite
+    where our team plays. Returns list of dicts, newest first, played matches only."""
+    if not os.path.exists(SCORESHEET_DB_PATH):
+        return []
+    matches = []
+    try:
+        conn = sqlite3.connect(SCORESHEET_DB_PATH)
+        rows = conn.execute("""
+            SELECT match_id, team_a, team_b, score_a, score_b, match_date, match_time, venue
+            FROM matches
+            WHERE match_id LIKE 'FHKF-%'
+              AND (team_a LIKE ? OR team_b LIKE ?)
+              AND score_a IS NOT NULL AND score_b IS NOT NULL
+            ORDER BY match_date DESC
+        """, (team_pattern, team_pattern)).fetchall()
+        for mid, ta, tb, sa, sb, dt, tm, vn in rows:
+            pat = team_pattern.replace('%', '.*')
+            our_side = 'A' if re.search(pat, ta or '', re.IGNORECASE) else 'B'
+            our_score, opp_score = (sa, sb) if our_side == 'A' else (sb, sa)
+            is_home = (our_side == 'A')
+            opp = tb if is_home else ta
+            qs = conn.execute("""
+                SELECT quarter, score_a, score_b FROM quarter_scores
+                WHERE match_id=? AND quarter IN ('1','2','3','4') ORDER BY quarter
+            """, (mid,)).fetchall()
+            our_q = [(int(q[0]), (q[1] if our_side == 'A' else q[2]) or 0,
+                                  (q[2] if our_side == 'A' else q[1]) or 0) for q in qs]
+            pgs = conn.execute("""
+                SELECT team, jersey_number, name, points, fg2_made, fg3_made,
+                       ft_made, ft_attempted, personal_fouls, starter
+                FROM player_game_stats WHERE match_id=?
+                ORDER BY team, points DESC, jersey_number
+            """, (mid,)).fetchall()
+            our_players = [p[1:] for p in pgs if p[0] == our_side]
+            opp_players = [p[1:] for p in pgs if p[0] != our_side]
+            matches.append({
+                'match_id': mid, 'date': dt, 'time': tm, 'venue': vn,
+                'our_team': (ta if is_home else tb), 'opp_team': opp,
+                'our_score': our_score, 'opp_score': opp_score,
+                'is_home': is_home, 'won': our_score > opp_score,
+                'quarters': our_q,
+                'our_players': our_players, 'opp_players': opp_players,
+            })
+        conn.close()
+    except sqlite3.Error as e:
+        print(f"  Hepp Kupa DB hiba: {e}")
+    return matches
+
+
+def _hepp_score_row_html(players, is_our_team):
+    """Box score table rows for one team's roster."""
+    tot_p = tot_fg2 = tot_fg3 = tot_ft = tot_fta = tot_pf = 0
+    rows = []
+    for jn, nm, pts, fg2, fg3, ft, fta, pf, starter in players:
+        tot_p += pts or 0; tot_fg2 += fg2 or 0; tot_fg3 += fg3 or 0
+        tot_ft += ft or 0; tot_fta += fta or 0; tot_pf += pf or 0
+        ft_str = f"{ft}/{fta}" if fta else "0/0"
+        star = '<span class="starter-mark">×</span>' if starter else ''
+        pf_cls = " pf-5" if (pf or 0) >= 5 else ""
+        rows.append(f'<tr class="{"team-us" if is_our_team else "team-opp"}"><td class="jn">{jn or ""}</td>'
+                    f'<td class="pname">{star}{(nm or "").title()}</td>'
+                    f'<td class="pts">{pts}</td><td>{fg2}</td><td>{fg3}</td>'
+                    f'<td>{ft_str}</td><td class="pf{pf_cls}">{pf}</td></tr>')
+    ft_tot = f"{tot_ft}/{tot_fta}" if tot_fta else "0/0"
+    rows.append(f'<tr class="totals"><td></td><td>Összesen</td><td class="pts">{tot_p}</td>'
+                f'<td>{tot_fg2}</td><td>{tot_fg3}</td><td>{ft_tot}</td><td>{tot_pf}</td></tr>')
+    return "\n".join(rows)
+
+
+def generate_hepp_match_page(match, cfg):
+    """Renders full match detail page for a Hepp Kupa match."""
+    m = match
+    result_cls = "won" if m['won'] else "lost"
+    result_lbl = "GYŐZELEM" if m['won'] else "VERESÉG"
+    hv_lbl = "hazai" if m['is_home'] else "vendég"
+    diff = m['our_score'] - m['opp_score']
+    diff_str = f"+{diff}" if diff > 0 else str(diff)
+    date_hu = ""
+    try:
+        d = datetime.strptime(m['date'], '%Y-%m-%d')
+        HU_MONTHS = ['január','február','március','április','május','június',
+                     'július','augusztus','szeptember','október','november','december']
+        date_hu = f"{d.year}. {HU_MONTHS[d.month-1]} {d.day}."
+    except Exception:
+        date_hu = m['date']
+
+    q_rows = ""
+    if m['quarters']:
+        q_us = [q[1] for q in m['quarters']]
+        q_opp = [q[2] for q in m['quarters']]
+        q_rows = f"""
+    <table class="q-table">
+      <thead><tr><th></th>{"".join(f"<th>Q{i+1}</th>" for i in range(len(q_us)))}<th>Σ</th></tr></thead>
+      <tbody>
+        <tr class="team-us"><td>Közgáz B</td>{"".join(f"<td>{v}</td>" for v in q_us)}<td class="tot">{sum(q_us)}</td></tr>
+        <tr class="team-opp"><td>{m['opp_team']}</td>{"".join(f"<td>{v}</td>" for v in q_opp)}<td class="tot">{sum(q_opp)}</td></tr>
+      </tbody>
+    </table>"""
+
+    us_rows = _hepp_score_row_html(m['our_players'], True)
+    opp_rows = _hepp_score_row_html(m['opp_players'], False)
+
+    top_us = sorted(m['our_players'], key=lambda p: -(p[2] or 0))[:3]
+    top_opp = sorted(m['opp_players'], key=lambda p: -(p[2] or 0))[:3]
+
+    def _tp_card(players, label):
+        items = "".join(
+            f'<div class="tp-row"><span class="tp-jn">#{p[0]}</span>'
+            f'<span class="tp-nm">{(p[1] or "").title()}</span>'
+            f'<span class="tp-pts">{p[2]}p</span></div>'
+            for p in players
+        )
+        return f'<div class="tp-card"><div class="tp-head">{label}</div>{items}</div>'
+
+    top_scorers_html = f'<div class="tp-grid">{_tp_card(top_us, "Közgáz B")}{_tp_card(top_opp, m["opp_team"])}</div>'
+
+    return f"""<!DOCTYPE html>
+<html lang="hu"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{m['our_team']} vs {m['opp_team']} · Hepp Kupa</title>
+<link rel="icon" type="image/png" href="/kozgaz_logo.png">
+{NAV_CSS}
+<style>
+body {{ background:var(--bg); color:var(--text); margin:0; padding:0; font-family:system-ui,sans-serif; }}
+.match-container {{ max-width:900px; margin:0 auto; padding:16px; }}
+.match-hero {{ background:linear-gradient(135deg, rgba(108,92,231,0.20), rgba(108,92,231,0.05));
+  border:1px solid rgba(108,92,231,0.4); border-radius:14px; padding:22px 20px; margin-bottom:20px; }}
+.match-hero .cup-badge {{ display:inline-block; font-size:.7rem; font-weight:700; letter-spacing:1.5px;
+  color:#a29bfe; background:rgba(108,92,231,0.15); border:1px solid rgba(108,92,231,0.35);
+  padding:3px 10px; border-radius:6px; margin-bottom:10px; }}
+.match-hero h1 {{ margin:0 0 12px; font-size:1.5rem; }}
+.match-hero .scoreline {{ font-size:2.4rem; font-weight:800; margin:8px 0; letter-spacing:1px; }}
+.match-hero .scoreline .us {{ color:var(--green); }} .match-hero .scoreline.lost .us {{ color:var(--red); }}
+.match-hero .scoreline .sep {{ color:var(--text-dim); margin:0 12px; font-weight:500; }}
+.match-hero .meta {{ font-size:.85rem; color:var(--text-dim); margin-top:8px; }}
+.result-badge {{ display:inline-block; padding:4px 12px; border-radius:6px;
+  font-size:.75rem; font-weight:800; letter-spacing:1px; margin-right:8px; }}
+.result-badge.won {{ background:rgba(0,184,148,0.18); color:var(--green); border:1px solid rgba(0,184,148,0.35); }}
+.result-badge.lost {{ background:rgba(225,112,85,0.18); color:var(--red); border:1px solid rgba(225,112,85,0.35); }}
+.diff {{ color:var(--text-dim); font-size:1.1rem; margin-left:8px; }}
+h2 {{ font-size:1.05rem; margin:24px 0 12px; letter-spacing:.5px; text-transform:uppercase; color:var(--text-dim); }}
+.q-table {{ width:100%; border-collapse:collapse; background:var(--card); border-radius:10px; overflow:hidden; }}
+.q-table th, .q-table td {{ padding:8px 12px; text-align:center; font-size:.9rem; border-bottom:1px solid rgba(255,255,255,0.05); }}
+.q-table th {{ background:rgba(255,255,255,0.03); color:var(--text-dim); font-weight:600; font-size:.75rem; letter-spacing:1px; }}
+.q-table td:first-child {{ text-align:left; font-weight:600; }}
+.q-table .tot {{ font-weight:800; color:var(--text); }}
+.tp-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }}
+.tp-card {{ background:var(--card); border-radius:10px; padding:14px 16px; border:1px solid var(--border); }}
+.tp-head {{ font-size:.72rem; font-weight:700; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px; }}
+.tp-row {{ display:flex; align-items:center; gap:10px; padding:5px 0; font-size:.9rem; }}
+.tp-jn {{ display:inline-block; width:32px; text-align:center; font-weight:700; color:var(--accent); background:rgba(196,30,58,0.12); border-radius:4px; padding:2px 0; font-size:.72rem; }}
+.tp-nm {{ flex:1; }}
+.tp-pts {{ font-weight:800; color:var(--green); }}
+.box {{ background:var(--card); border-radius:10px; overflow:hidden; margin-bottom:14px; border:1px solid var(--border); }}
+.box-head {{ padding:10px 14px; background:rgba(255,255,255,0.03); font-weight:700; font-size:.9rem; letter-spacing:.5px; }}
+.box-head.us {{ color:var(--green); }} .box-head.opp {{ color:var(--text-dim); }}
+.box table {{ width:100%; border-collapse:collapse; }}
+.box th, .box td {{ padding:7px 8px; font-size:.82rem; text-align:center; border-bottom:1px solid rgba(255,255,255,0.04); }}
+.box th {{ background:rgba(255,255,255,0.02); color:var(--text-dim); font-weight:600; font-size:.7rem; letter-spacing:.5px; }}
+.box td.pname {{ text-align:left; font-weight:500; }}
+.box td.jn {{ color:var(--accent); font-weight:700; width:28px; }}
+.box td.pts {{ font-weight:800; }}
+.box tr.totals {{ background:rgba(255,255,255,0.03); font-weight:700; }}
+.box tr.totals td {{ border-top:2px solid var(--border); }}
+.starter-mark {{ color:var(--green); font-weight:800; margin-right:5px; }}
+.pf-5 {{ color:var(--red); font-weight:700; }}
+.back-link {{ display:inline-flex; align-items:center; gap:6px; color:var(--text-dim);
+  text-decoration:none; font-size:.85rem; padding:8px 12px; border-radius:6px;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border); margin-bottom:12px; }}
+.back-link:hover {{ color:var(--text); }}
+@media(max-width:600px) {{
+  .tp-grid {{ grid-template-columns:1fr; }}
+  .match-hero h1 {{ font-size:1.15rem; }}
+  .match-hero .scoreline {{ font-size:1.9rem; }}
+  .box th, .box td {{ padding:5px 4px; font-size:.72rem; }}
+}}
+</style>
+</head><body>
+<div class="match-container">
+  <a href="/" class="back-link">← Vissza a főoldalra</a>
+  <div class="match-hero">
+    <div class="cup-badge">🏆 HEPP KUPA · {hv_lbl.upper()}</div>
+    <h1>{m['our_team']} vs {m['opp_team']}</h1>
+    <div class="scoreline {result_cls}"><span class="us">{m['our_score']}</span><span class="sep">–</span><span>{m['opp_score']}</span></div>
+    <div><span class="result-badge {result_cls}">{result_lbl}</span><span class="diff">{diff_str}</span></div>
+    <div class="meta">{date_hu} · {m['time'] or ''} · {m['venue'] or ''}</div>
+  </div>
+
+  <h2>Negyedenkénti bontás</h2>
+  {q_rows}
+
+  <h2>Top pontszerzők</h2>
+  {top_scorers_html}
+
+  <h2>Közgáz B – box score</h2>
+  <div class="box">
+    <div class="box-head us">Közgáz SC és DSK/B</div>
+    <table><thead><tr><th></th><th>Játékos</th><th>P</th><th>2P</th><th>3P</th><th>BÜ</th><th>PF</th></tr></thead>
+    <tbody>{us_rows}</tbody></table>
+  </div>
+
+  <h2>{m['opp_team']} – box score</h2>
+  <div class="box">
+    <div class="box-head opp">{m['opp_team']}</div>
+    <table><thead><tr><th></th><th>Játékos</th><th>P</th><th>2P</th><th>3P</th><th>BÜ</th><th>PF</th></tr></thead>
+    <tbody>{opp_rows}</tbody></table>
+  </div>
+</div>
+{NAV_THEME_JS}
+</body></html>"""
+
+
+def _hepp_latest_card_html(match):
+    """Compact 'Legutóbbi meccs' card for the homepage."""
+    if not match:
+        return ""
+    m = match
+    result_cls = "won" if m['won'] else "lost"
+    result_lbl = "W" if m['won'] else "L"
+    date_hu = ""
+    try:
+        d = datetime.strptime(m['date'], '%Y-%m-%d')
+        HU_MONTHS = ['jan.','feb.','márc.','ápr.','máj.','jún.','júl.','aug.','szept.','okt.','nov.','dec.']
+        date_hu = f"{d.year}. {HU_MONTHS[d.month-1]} {d.day}."
+    except Exception:
+        date_hu = m['date']
+    top = sorted(m['our_players'], key=lambda p: -(p[2] or 0))[:3]
+    top_html = "".join(
+        f'<div class="lm-scorer"><span class="lm-jn">#{p[0]}</span>'
+        f'<span class="lm-nm">{(p[1] or "").title()}</span>'
+        f'<span class="lm-pts">{p[2]}p</span></div>'
+        for p in top
+    )
+    return f"""
+<div class="last-match-card {result_cls}">
+  <a href="dashboards/meccs/{m['match_id']}.html" class="lm-link">
+    <div class="lm-header">
+      <span class="lm-tag">🏆 HEPP KUPA</span>
+      <span class="lm-badge {result_cls}">{result_lbl}</span>
+      <span class="lm-date">{date_hu}</span>
+    </div>
+    <div class="lm-title">Közgáz B <span class="lm-vs">vs</span> {m['opp_team']}</div>
+    <div class="lm-score {result_cls}"><span class="lm-us">{m['our_score']}</span><span class="lm-sep">–</span><span>{m['opp_score']}</span></div>
+    <div class="lm-top">{top_html}</div>
+    <div class="lm-cta">Meccs részletek →</div>
+  </a>
+</div>"""
+
+
+LAST_MATCH_CSS = """
+  .last-match-card { background:var(--card); border:1px solid var(--border); border-radius:12px;
+    overflow:hidden; margin-top:10px; }
+  .last-match-card.won { border-left:4px solid var(--green); }
+  .last-match-card.lost { border-left:4px solid var(--red); }
+  .lm-link { display:block; padding:14px 18px; color:inherit; text-decoration:none; }
+  .lm-link:hover { background:rgba(255,255,255,0.02); }
+  .lm-header { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:.72rem;
+    color:var(--text-dim); margin-bottom:6px; }
+  .lm-tag { font-weight:700; letter-spacing:1px; color:#a29bfe;
+    background:rgba(108,92,231,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(108,92,231,0.3); }
+  .lm-badge { font-weight:800; padding:2px 8px; border-radius:4px; font-size:.7rem; letter-spacing:.5px; }
+  .lm-badge.won { background:rgba(0,184,148,0.2); color:var(--green); }
+  .lm-badge.lost { background:rgba(225,112,85,0.2); color:var(--red); }
+  .lm-title { font-size:1rem; font-weight:600; margin-bottom:4px; }
+  .lm-vs { color:var(--text-dim); font-weight:400; }
+  .lm-score { font-size:1.9rem; font-weight:800; letter-spacing:1px; margin:6px 0; }
+  .lm-score .lm-us { color:var(--green); }
+  .lm-score.lost .lm-us { color:var(--red); }
+  .lm-score .lm-sep { color:var(--text-dim); margin:0 10px; font-weight:500; }
+  .lm-top { display:flex; flex-wrap:wrap; gap:8px 14px; margin:8px 0 6px; font-size:.8rem; }
+  .lm-scorer { display:flex; align-items:center; gap:6px; }
+  .lm-jn { color:var(--accent); font-weight:700; font-size:.72rem;
+    background:rgba(196,30,58,0.12); padding:1px 5px; border-radius:3px; }
+  .lm-nm { color:var(--text); }
+  .lm-pts { color:var(--green); font-weight:700; }
+  .lm-cta { font-size:.78rem; color:var(--text-dim); margin-top:6px; font-weight:600; }
+  @media(max-width:600px) {
+    .lm-score { font-size:1.55rem; }
+    .lm-title { font-size:.92rem; }
+  }
+"""
+
+
 def generate_homepage(team_summaries):
     """Generate the main club homepage with team cards and upcoming matches."""
     # Group team summaries by league, preserving order
@@ -5430,6 +5719,16 @@ def generate_homepage(team_summaries):
             })
     # Sort: played desc by date, then upcoming asc — but we render all and let JS pick
     all_matches.sort(key=lambda x: (x["date"], 0 if x["type"] == "played" else 1))
+
+    # Legutóbbi Hepp Kupa meccs (scoresheet.sqlite-ból)
+    last_match_section = ""
+    kg_b = TEAMS.get("kozgaz-b")
+    hepp_matches = get_hepp_cup_matches(kg_b["team_pattern"]) if kg_b else []
+    if hepp_matches:
+        latest = hepp_matches[0]
+        last_match_section = f'''
+    <div class="section-title">LEGUTÓBBI MECCS</div>
+    {_hepp_latest_card_html(latest)}'''
 
     # Bajnoki tabella szekció (MKOSZ-ról scraped)
     standings_section = ""
@@ -5769,6 +6068,8 @@ def generate_homepage(team_summaries):
   .rp-l {{ color:var(--red); }}
   .rp-sep {{ color:var(--text-dim); }}
 
+  {LAST_MATCH_CSS}
+
   /* Következő meccs kártya — 3 variáns: HAZAI (piros), IDEGEN (kék), KUPA (lila) */
   .next-match-card {{
     border-radius:14px; padding:14px 18px; margin-bottom:12px;
@@ -5966,6 +6267,7 @@ def generate_homepage(team_summaries):
       {cards_html}
     </div>
   </section>
+  <section id="legutobbi" class="anchor-section">{last_match_section}</section>
   <section id="tabella" class="anchor-section">{standings_section}</section>
   <section id="meccsek" class="anchor-section">{matches_section}</section>
   <section id="naptar" class="anchor-section">{calendar_section}</section>
@@ -6331,6 +6633,20 @@ def generate_site():
             "cal_data": matches,
             "standings": standings,
         })
+
+    # Hepp Kupa meccs-oldalak (scoresheet.sqlite alapján, külön a bajnokitól)
+    kg_b = TEAMS.get("kozgaz-b")
+    if kg_b:
+        hepp = get_hepp_cup_matches(kg_b["team_pattern"])
+        if hepp:
+            meccs_dir = os.path.join(BASE_DIR, kg_b["out_dir"], "meccs")
+            os.makedirs(meccs_dir, exist_ok=True)
+            for m in hepp:
+                html = generate_hepp_match_page(m, kg_b)
+                out_path = os.path.join(meccs_dir, f"{m['match_id']}.html")
+                with open(out_path, "w", encoding="utf-8") as f:
+                    f.write(html)
+            print(f"  ✓ {len(hepp)} Hepp Kupa meccs-oldal → {kg_b['out_dir']}/meccs/")
 
     hp = generate_homepage(summaries)
     with open(os.path.join(BASE_DIR, "index.html"), "w", encoding="utf-8") as f:

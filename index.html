@@ -144,6 +144,39 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
   .rp-l { color:var(--red); }
   .rp-sep { color:var(--text-dim); }
 
+  
+  .last-match-card { background:var(--card); border:1px solid var(--border); border-radius:12px;
+    overflow:hidden; margin-top:10px; }
+  .last-match-card.won { border-left:4px solid var(--green); }
+  .last-match-card.lost { border-left:4px solid var(--red); }
+  .lm-link { display:block; padding:14px 18px; color:inherit; text-decoration:none; }
+  .lm-link:hover { background:rgba(255,255,255,0.02); }
+  .lm-header { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:.72rem;
+    color:var(--text-dim); margin-bottom:6px; }
+  .lm-tag { font-weight:700; letter-spacing:1px; color:#a29bfe;
+    background:rgba(108,92,231,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(108,92,231,0.3); }
+  .lm-badge { font-weight:800; padding:2px 8px; border-radius:4px; font-size:.7rem; letter-spacing:.5px; }
+  .lm-badge.won { background:rgba(0,184,148,0.2); color:var(--green); }
+  .lm-badge.lost { background:rgba(225,112,85,0.2); color:var(--red); }
+  .lm-title { font-size:1rem; font-weight:600; margin-bottom:4px; }
+  .lm-vs { color:var(--text-dim); font-weight:400; }
+  .lm-score { font-size:1.9rem; font-weight:800; letter-spacing:1px; margin:6px 0; }
+  .lm-score .lm-us { color:var(--green); }
+  .lm-score.lost .lm-us { color:var(--red); }
+  .lm-score .lm-sep { color:var(--text-dim); margin:0 10px; font-weight:500; }
+  .lm-top { display:flex; flex-wrap:wrap; gap:8px 14px; margin:8px 0 6px; font-size:.8rem; }
+  .lm-scorer { display:flex; align-items:center; gap:6px; }
+  .lm-jn { color:var(--accent); font-weight:700; font-size:.72rem;
+    background:rgba(196,30,58,0.12); padding:1px 5px; border-radius:3px; }
+  .lm-nm { color:var(--text); }
+  .lm-pts { color:var(--green); font-weight:700; }
+  .lm-cta { font-size:.78rem; color:var(--text-dim); margin-top:6px; font-weight:600; }
+  @media(max-width:600px) {
+    .lm-score { font-size:1.55rem; }
+    .lm-title { font-size:.92rem; }
+  }
+
+
   /* Következő meccs kártya — 3 variáns: HAZAI (piros), IDEGEN (kék), KUPA (lila) */
   .next-match-card {
     border-radius:14px; padding:14px 18px; margin-bottom:12px;
@@ -465,7 +498,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
 </head>
 <body>
 <div class="container">
-  <nav class="site-nav"><a href="index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links"><a href="#kovetkezo" class="nav-anchor">Események</a><a href="#tabella" class="nav-anchor">Tabella</a><a href="#meccsek" class="nav-anchor">Meccsek</a><a href="#naptar" class="nav-anchor">Naptár</a><a href="#edzeslatogatas" class="nav-anchor">Edzés</a><a href="#feliratkozas" class="nav-anchor">Feliratkozás</a><button type="button" class="theme-toggle" title="Világos / sötét mód" aria-label="Téma váltás"><span class="theme-icon-dark">🌙</span><span class="theme-icon-light">☀️</span></button></div></nav>
+  <nav class="site-nav"><a href="index.html" class="nav-logo">KÖZGÁZ BASKETBALL</a><div class="nav-links"><a href="#kovetkezo" class="nav-anchor">Események</a><a href="#legutobbi" class="nav-anchor">Utolsó</a><a href="#tabella" class="nav-anchor">Tabella</a><a href="#meccsek" class="nav-anchor">Meccsek</a><a href="#naptar" class="nav-anchor">Naptár</a><a href="#edzeslatogatas" class="nav-anchor">Edzés</a><a href="#feliratkozas" class="nav-anchor">Feliratkozás</a><button type="button" class="theme-toggle" title="Világos / sötét mód" aria-label="Téma váltás"><span class="theme-icon-dark">🌙</span><span class="theme-icon-light">☀️</span></button></div></nav>
 <script>
 (function(){
   var saved = null;
@@ -541,6 +574,22 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
     </div>
     </div>
   </section>
+  <section id="legutobbi" class="anchor-section">
+    <div class="section-title">LEGUTÓBBI MECCS</div>
+    
+<div class="last-match-card won">
+  <a href="dashboards/meccs/FHKF-1022.html" class="lm-link">
+    <div class="lm-header">
+      <span class="lm-tag">🏆 HEPP KUPA</span>
+      <span class="lm-badge won">W</span>
+      <span class="lm-date">2026. szept. 24.</span>
+    </div>
+    <div class="lm-title">Közgáz B <span class="lm-vs">vs</span> MAFC</div>
+    <div class="lm-score won"><span class="lm-us">72</span><span class="lm-sep">–</span><span>61</span></div>
+    <div class="lm-top"><div class="lm-scorer"><span class="lm-jn">#5</span><span class="lm-nm">Látos András</span><span class="lm-pts">14p</span></div><div class="lm-scorer"><span class="lm-jn">#25</span><span class="lm-nm">Jenei Koppány Tamás</span><span class="lm-pts">13p</span></div><div class="lm-scorer"><span class="lm-jn">#20</span><span class="lm-nm">Lénárt Zoltán</span><span class="lm-pts">11p</span></div></div>
+    <div class="lm-cta">Meccs részletek →</div>
+  </a>
+</div></section>
   <section id="tabella" class="anchor-section"></section>
   <section id="meccsek" class="anchor-section">
     <div class="section-title">MECCSEK</div>
