@@ -5414,8 +5414,8 @@ def generate_hepp_match_page(match, cfg):
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{m['our_team']} vs {m['opp_team']} · Hepp Kupa</title>
 <link rel="icon" type="image/png" href="/kozgaz_logo.png">
-{NAV_CSS}
 <style>
+{NAV_CSS}
 body {{ background:var(--bg); color:var(--text); margin:0; padding:0; font-family:system-ui,sans-serif; }}
 .match-container {{ max-width:900px; margin:0 auto; padding:16px; }}
 .match-hero {{ background:linear-gradient(135deg, rgba(108,92,231,0.20), rgba(108,92,231,0.05));
