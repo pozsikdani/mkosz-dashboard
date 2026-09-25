@@ -5682,7 +5682,7 @@ def _hepp_latest_card_html(match):
 
 LAST_MATCH_CSS = """
   .last-match-card { background:var(--card); border:1px solid var(--border); border-radius:12px;
-    overflow:hidden; margin-top:10px; }
+    overflow:hidden; margin:10px 0 28px; }
   .last-match-card.won { border-left:4px solid var(--green); }
   .last-match-card.lost { border-left:4px solid var(--red); }
   .lm-link { display:block; padding:14px 18px; color:inherit; text-decoration:none; }
