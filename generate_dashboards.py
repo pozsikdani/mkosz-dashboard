@@ -5739,7 +5739,7 @@ def generate_homepage(team_summaries):
             return d.strftime("%Y-%m-%d")
 
     def _short_hu_date(d):
-        return f'{MONTH_NAMES_HU[d.month].lower()[:4]}. {d.day}. ({weekdays[d.weekday()][:3]})'
+        return f'{MONTH_NAMES_HU[d.month].lower()} {d.day}. ({weekdays[d.weekday()]})'
 
     if team_summaries:
         ts = team_summaries[0]  # Közgáz B
