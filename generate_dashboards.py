@@ -5342,6 +5342,144 @@ def get_hepp_cup_matches(team_pattern):
     return matches
 
 
+def get_hepp_match_details(match_id, team_pattern):
+    """Reads a Hepp Kupa match from scoresheet.sqlite in the same dict shape
+    as get_match_details() so generate_match_page() can render it fully."""
+    if not os.path.exists(SCORESHEET_DB_PATH):
+        return None
+    conn = sqlite3.connect(SCORESHEET_DB_PATH)
+    try:
+        m_row = conn.execute("""
+            SELECT match_date, match_time, venue, team_a, team_b, score_a, score_b
+            FROM matches WHERE match_id = ?
+        """, (match_id,)).fetchone()
+        if not m_row:
+            return None
+        match_date, match_time, venue, team_a, team_b, score_a, score_b = m_row
+
+        pat = team_pattern.replace('%', '.*')
+        kg_side = 'A' if (team_a and re.search(pat, team_a, re.IGNORECASE)) else 'B'
+        kg_is_home = (kg_side == 'A')
+        opp_side = 'B' if kg_side == 'A' else 'A'
+        kg_score = score_a if kg_is_home else score_b
+        opp_score = score_b if kg_is_home else score_a
+        kg_won = (kg_score is not None and opp_score is not None and kg_score > opp_score)
+
+        q_rows = conn.execute("""
+            SELECT quarter, score_a, score_b FROM quarter_scores
+            WHERE match_id = ? AND quarter IN ('1','2','3','4') ORDER BY quarter
+        """, (match_id,)).fetchall()
+        quarters = [(int(q[0]), q[1] or 0, q[2] or 0) for q in q_rows]
+
+        prog_rows = conn.execute("""
+            SELECT se.event_seq, se.quarter, se.score_a, se.score_b,
+                   se.team, se.points, se.shot_type,
+                   pgs.name AS player_name, se.minute
+            FROM scoring_events se
+            LEFT JOIN player_game_stats pgs
+              ON pgs.match_id = se.match_id
+             AND pgs.team = se.team
+             AND pgs.license_number = se.license_number
+            WHERE se.match_id = ? AND se.made = 1
+            ORDER BY se.event_seq
+        """, (match_id,)).fetchall()
+        progression = [
+            {"seq": r[0], "quarter": r[1], "score_a": r[2], "score_b": r[3],
+             "team": r[4], "points": r[5], "shot": r[6],
+             "player": (r[7] or "").title() if r[7] else None, "minute": r[8]}
+            for r in prog_rows
+        ]
+
+        pgs_rows = conn.execute("""
+            SELECT team, jersey_number, license_number, name, points,
+                   fg2_made, fg3_made, ft_made, ft_attempted,
+                   personal_fouls, starter
+            FROM player_game_stats WHERE match_id = ?
+            ORDER BY team, points DESC, jersey_number
+        """, (match_id,)).fetchall()
+        kg_players, opp_players = [], []
+        for team, jn, lic, name, pts, fg2, fg3, ftm, fta, pf, starter in pgs_rows:
+            p = {
+                "license": lic, "name": (name or "").title(), "jersey": jn or "",
+                "points": pts or 0, "fg2_made": fg2 or 0, "fg3_made": fg3 or 0,
+                "ft_made": ftm or 0, "ft_att": fta or 0,
+                "pf": pf or 0, "starter": bool(starter),
+                "tech": 0, "unsport": 0,
+            }
+            (kg_players if team == kg_side else opp_players).append(p)
+
+        su_rows = conn.execute("""
+            SELECT team, jersey_number,
+                   SUM(CASE WHEN foul_category='T' THEN 1 ELSE 0 END),
+                   SUM(CASE WHEN foul_category='U' THEN 1 ELSE 0 END)
+            FROM personal_fouls
+            WHERE match_id = ? AND foul_category IN ('T','U')
+            GROUP BY team, jersey_number
+        """, (match_id,)).fetchall()
+        su_map = {(r[0], r[1]): (r[2] or 0, r[3] or 0) for r in su_rows}
+        for p in kg_players:
+            k = (kg_side, p["jersey"] if p["jersey"] != "" else None)
+            if k in su_map: p["tech"], p["unsport"] = su_map[k]
+        for p in opp_players:
+            k = (opp_side, p["jersey"] if p["jersey"] != "" else None)
+            if k in su_map: p["tech"], p["unsport"] = su_map[k]
+
+        timeouts = conn.execute("""
+            SELECT team, quarter, minute FROM timeouts
+            WHERE match_id = ? ORDER BY quarter, minute
+        """, (match_id,)).fetchall()
+
+        tf_rows = conn.execute("""
+            SELECT team, quarter, COUNT(*) FROM personal_fouls
+            WHERE match_id = ? AND (foul_category NOT IN ('T','U') OR foul_category IS NULL)
+            GROUP BY team, quarter
+        """, (match_id,)).fetchall()
+
+        foul_events = conn.execute("""
+            SELECT team, jersey_number, quarter, minute FROM personal_fouls
+            WHERE match_id = ? AND jersey_number IS NOT NULL
+            ORDER BY quarter, CAST(minute AS INTEGER)
+        """, (match_id,)).fetchall()
+
+        orphan_kg = conn.execute("""
+            SELECT COUNT(*) FROM personal_fouls
+            WHERE match_id = ? AND team = ? AND jersey_number IS NULL
+        """, (match_id, kg_side)).fetchone()[0]
+
+        opp_total = {
+            "points": opp_score or 0,
+            "fg2_made": sum(p["fg2_made"] for p in opp_players),
+            "fg3_made": sum(p["fg3_made"] for p in opp_players),
+            "ft_made": sum(p["ft_made"] for p in opp_players),
+            "ft_att": sum(p["ft_att"] for p in opp_players),
+            "top_scorer": None,
+        }
+        if opp_players:
+            ts = max(opp_players, key=lambda p: p["points"])
+            if ts["points"] > 0:
+                opp_total["top_scorer"] = {"name": ts["name"], "points": ts["points"]}
+
+        return {
+            "gamecode": match_id, "match_date": match_date, "match_time": match_time,
+            "venue": venue or "",
+            "team_a_name": team_a, "team_b_name": team_b,
+            "score_a": score_a, "score_b": score_b,
+            "kg_side": kg_side, "kg_is_home": kg_is_home, "kg_won": kg_won,
+            "kg_team_name": team_a if kg_is_home else team_b,
+            "opp_team_name": team_b if kg_is_home else team_a,
+            "kg_score": kg_score, "opp_score": opp_score,
+            "quarters": quarters, "progression": progression,
+            "kg_players": kg_players, "opp_players": opp_players,
+            "opp_total": opp_total,
+            "timeouts": [{"team": t, "quarter": q, "minute": m} for t, q, m in timeouts],
+            "team_fouls": [{"team": t, "quarter": q, "count": c} for t, q, c in tf_rows],
+            "foul_events": [{"team": t, "jersey": j, "quarter": q, "minute": m} for t, j, q, m in foul_events],
+            "orphan_fouls_kg": orphan_kg,
+        }
+    finally:
+        conn.close()
+
+
 def _hepp_score_row_html(players, is_our_team):
     """Box score table rows for one team's roster."""
     tot_p = tot_fg2 = tot_fg3 = tot_ft = tot_fta = tot_pf = 0
@@ -6635,6 +6773,8 @@ def generate_site():
         })
 
     # Hepp Kupa meccs-oldalak (scoresheet.sqlite alapján, külön a bajnokitól)
+    # Ugyanazt a gazdag generate_match_page()-t használjuk mint a bajnoki meccsekhez:
+    # a get_hepp_match_details() ugyanolyan shape-ű dict-et ad vissza.
     kg_b = TEAMS.get("kozgaz-b")
     if kg_b:
         hepp = get_hepp_cup_matches(kg_b["team_pattern"])
@@ -6642,7 +6782,10 @@ def generate_site():
             meccs_dir = os.path.join(BASE_DIR, kg_b["out_dir"], "meccs")
             os.makedirs(meccs_dir, exist_ok=True)
             for m in hepp:
-                html = generate_hepp_match_page(m, kg_b)
+                details = get_hepp_match_details(m['match_id'], kg_b["team_pattern"])
+                if not details:
+                    continue
+                html = generate_match_page(details, kg_b, "kozgaz-b")
                 out_path = os.path.join(meccs_dir, f"{m['match_id']}.html")
                 with open(out_path, "w", encoding="utf-8") as f:
                     f.write(html)
