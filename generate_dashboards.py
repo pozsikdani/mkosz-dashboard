@@ -4713,34 +4713,39 @@ document.querySelectorAll('#chartLegend .legend-item').forEach(el => {{
 
 
 def _ics_subscribe_card(team_key):
-    """Feliratkozás-kártya a naptár-oldalra. team_key → az .ics filenév."""
-    ics_url_https = f"https://www.kozgazkosar.hu/{team_key}.ics"
-    ics_url_webcal = f"webcal://www.kozgazkosar.hu/{team_key}.ics"
-    # Google Calendar "add by URL" — a cid= értéket URL-encode-elve, webcal:// URL-lel
-    # (Google Calendar így ismeri fel megbízhatóan)
-    gcal_url = "https://calendar.google.com/calendar/r?cid=" + urllib.parse.quote(ics_url_webcal, safe="")
-    # Outlook.com — a rru=addsubscription forma (URL-encode kell)
-    outlook_url = (
-        "https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription"
-        "&url=" + urllib.parse.quote(ics_url_https, safe="") +
-        "&name=" + urllib.parse.quote("Közgáz B", safe="")
-    )
+    """Feliratkozás-kártya — meccsek és edzések KÜLÖN feed, hogy a naptár
+    appban külön színt lehessen adni nekik."""
+    def _feed_row(suffix, label, icon, hint):
+        url_https = f"https://www.kozgazkosar.hu/{team_key}{suffix}.ics"
+        url_webcal = f"webcal://www.kozgazkosar.hu/{team_key}{suffix}.ics"
+        gcal = "https://calendar.google.com/calendar/r?cid=" + urllib.parse.quote(url_webcal, safe="")
+        outlook = ("https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription"
+                   "&url=" + urllib.parse.quote(url_https, safe="") +
+                   "&name=" + urllib.parse.quote(f"Közgáz B — {label}", safe=""))
+        safe_id = suffix.replace("-", "") or "all"
+        return f'''
+    <div class="ics-feed">
+      <div class="ics-feed-head">
+        <span class="ics-feed-icon">{icon}</span>
+        <span class="ics-feed-label">{label}</span>
+        <span class="ics-feed-hint">{hint}</span>
+      </div>
+      <div class="ics-btns">
+        <a class="ics-btn ics-apple" href="{url_webcal}" title="iPhone / Mac / Apple Calendar">🍎 Apple</a>
+        <a class="ics-btn ics-google" href="{gcal}" target="_blank" rel="noopener" title="Google Calendar">🅶 Google</a>
+        <a class="ics-btn ics-outlook" href="{outlook}" target="_blank" rel="noopener" title="Outlook.com">🅾 Outlook</a>
+      </div>
+      <div class="ics-url-row">
+        <code class="ics-url" id="icsUrl-{safe_id}">{url_https}</code>
+        <button class="ics-copy" onclick="navigator.clipboard.writeText('{url_https}');this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)" title="Másolás">📋</button>
+      </div>
+    </div>'''
     return f'''
   <div class="ics-card">
     <div class="ics-title">📅 Naptár feliratkozás</div>
-    <div class="ics-desc">Kösd össze a naptárad — új meccsek automatikusan felkerülnek. Egy kattintás:</div>
-    <div class="ics-btns">
-      <a class="ics-btn ics-apple" href="{ics_url_webcal}" title="iPhone / Mac / Apple Calendar">🍎 Apple Calendar</a>
-      <a class="ics-btn ics-google" href="{gcal_url}" target="_blank" rel="noopener" title="Google Calendar">🅶 Google Calendar</a>
-      <a class="ics-btn ics-outlook" href="{outlook_url}" target="_blank" rel="noopener" title="Outlook.com">🅾 Outlook</a>
-    </div>
-    <div class="ics-manual">
-      Vagy manuális URL <span class="ics-hint">(Feliratkozás / Subscribe funkcióval)</span>:
-      <div class="ics-url-row">
-        <code class="ics-url" id="icsUrl">{ics_url_https}</code>
-        <button class="ics-copy" onclick="navigator.clipboard.writeText('{ics_url_https}');this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)" title="Másolás">📋</button>
-      </div>
-    </div>
+    <div class="ics-desc">Két külön feed — meccsek és edzések. Iratkozz fel mindkettőre, és a naptár-appodban külön színt adhatsz nekik.</div>
+    {_feed_row("-meccsek", "Meccsek", "🏀", "bajnoki + kupa")}
+    {_feed_row("-edzesek", "Edzések", "🏋️", "heti edzések")}
   </div>
   <style>
     .ics-card {{
@@ -4749,8 +4754,18 @@ def _ics_subscribe_card(team_key):
       padding:18px 22px; margin:16px 0;
     }}
     .ics-title {{ font-weight:800; font-size:1.05rem; margin-bottom:4px; color:#fff; }}
-    .ics-desc {{ font-size:0.85rem; color:var(--text-dim); margin-bottom:12px; }}
-    .ics-btns {{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }}
+    .ics-desc {{ font-size:0.85rem; color:var(--text-dim); margin-bottom:16px; }}
+    .ics-feed {{
+      background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
+      border-radius:10px; padding:12px 14px; margin-bottom:12px;
+    }}
+    .ics-feed-head {{
+      display:flex; align-items:baseline; gap:8px; margin-bottom:10px;
+    }}
+    .ics-feed-icon {{ font-size:1.1rem; }}
+    .ics-feed-label {{ font-weight:700; font-size:0.95rem; color:var(--text); }}
+    .ics-feed-hint {{ font-size:0.72rem; color:var(--text-dim); opacity:0.75; }}
+    .ics-btns {{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }}
     .ics-btn {{
       display:inline-block; padding:9px 14px; border-radius:8px;
       background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
@@ -4822,14 +4837,27 @@ def generate_training_dates(cfg, match_dates=None):
     return results
 
 
-def generate_ics(matches, cfg):
-    """Egy .ics naptár-fájlt generál a csapat meccseiből (RFC 5545).
-    A naptár-appok (Apple / Google / Outlook) automatikusan frissítik ha
-    'feliratkozás'-ként adják hozzá a webcal:// URL-t.
+def generate_ics(matches, cfg, event_filter="all"):
+    """Egy .ics naptár-fájlt generál a csapat eseményeiből (RFC 5545).
+    event_filter: 'all' | 'matches' | 'trainings' — melyik típusú események
+    kerüljenek bele. Az elkülönített feed-ek lehetővé teszik, hogy a
+    felhasználó a naptár-appjában külön színt adjon a meccseknek és
+    edzéseknek (Apple/Google/Outlook csak per-CALENDAR színt támogat).
     """
     team_short = cfg["team_short"]
     team_name = cfg["team_name"]
     now_utc = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+
+    cal_suffix = {
+        "all": "— meccsek + edzések",
+        "matches": "— meccsek",
+        "trainings": "— edzések",
+    }[event_filter]
+    cal_desc = {
+        "all": f"{team_name} bajnoki + kupa meccsek és edzések.",
+        "matches": f"{team_name} bajnoki + kupa meccsek. Színezd külön az appodban.",
+        "trainings": f"{team_name} heti edzések. Színezd külön az appodban.",
+    }[event_filter]
 
     lines = [
         "BEGIN:VCALENDAR",
@@ -4837,9 +4865,9 @@ def generate_ics(matches, cfg):
         f"PRODID:-//kozgazkosar.hu//{team_short} Naptár//HU",
         "CALSCALE:GREGORIAN",
         "METHOD:PUBLISH",
-        f"X-WR-CALNAME:{_ics_escape(team_name)} — meccsek",
+        f"X-WR-CALNAME:{_ics_escape(team_name)} {cal_suffix}",
         "X-WR-TIMEZONE:Europe/Budapest",
-        f"X-WR-CALDESC:{_ics_escape(team_name)} bajnoki + kupa meccsek. Napi frissítés a kozgazkosar.hu-ról.",
+        f"X-WR-CALDESC:{_ics_escape(cal_desc)} Napi frissítés a kozgazkosar.hu-ról.",
         # Európai időzóna definíció (Apple/Google elfogadja e nélkül is, de biztos ami biztos)
         "BEGIN:VTIMEZONE",
         "TZID:Europe/Budapest",
@@ -4860,6 +4888,13 @@ def generate_ics(matches, cfg):
         "END:VTIMEZONE",
     ]
 
+    # --- MECCSEK ---
+    include_matches = event_filter in ("all", "matches")
+    include_trainings = event_filter in ("all", "trainings")
+
+    all_matches = matches
+    if not include_matches:
+        matches = []
     for m in matches:
         date_str = m.get("date")
         if not date_str:
@@ -4928,9 +4963,9 @@ def generate_ics(matches, cfg):
         lines.append("END:VEVENT")
 
     # --- EDZÉSEK ---
-    ts = cfg.get("training_schedule")
+    ts = cfg.get("training_schedule") if include_trainings else None
     if ts:
-        match_dates = {m.get("date") for m in matches if m.get("date")}
+        match_dates = {m.get("date") for m in all_matches if m.get("date")}
         dur_min = ts.get("duration_min", 90)
         loc = ts.get("location", "")
         for d, dt_start in generate_training_dates(cfg, match_dates=match_dates):
@@ -6699,13 +6734,15 @@ def generate_team(team_key):
     if cal_data:
         # naptar.html eltávolítva 2026-09: a homepage NAPTÁR szekció ugyanezt mutatja
 
-        # ICS naptár-feed (feliratkozáshoz)
-        ics_content = generate_ics(cal_data, cfg)
-        # A repo gyökerébe rakjuk hogy a webcal://www.kozgazkosar.hu/{team_key}.ics stimmeljen
-        ics_path = os.path.join(BASE_DIR, f"{team_key}.ics")
-        with open(ics_path, "w", encoding="utf-8") as f:
-            f.write(ics_content)
-        print(f"  ✓ {team_key}.ics ({len(cal_data)} esemény)")
+        # ICS naptár-feed-ek (feliratkozáshoz)
+        # Külön meccsek + edzések feed, hogy a naptár-appban külön színt lehessen
+        # nekik adni. Az egyesített feed is megmarad backwards-kompatibilisen.
+        for suffix, ef in [("", "all"), ("-meccsek", "matches"), ("-edzesek", "trainings")]:
+            ics_content = generate_ics(cal_data, cfg, event_filter=ef)
+            ics_path = os.path.join(BASE_DIR, f"{team_key}{suffix}.ics")
+            with open(ics_path, "w", encoding="utf-8") as f:
+                f.write(ics_content)
+        print(f"  ✓ {team_key}.ics + {team_key}-meccsek.ics + {team_key}-edzesek.ics")
 
     # dashboards/index.html csak akkor generálódik, ha van roster (van értelme
     # a játékos-grid oldalnak). 2026/27 elején üres → skip.

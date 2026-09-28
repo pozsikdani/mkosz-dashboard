@@ -1091,17 +1091,39 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
   <section id="feliratkozas" class="anchor-section">
   <div class="ics-card">
     <div class="ics-title">📅 Naptár feliratkozás</div>
-    <div class="ics-desc">Kösd össze a naptárad — új meccsek automatikusan felkerülnek. Egy kattintás:</div>
-    <div class="ics-btns">
-      <a class="ics-btn ics-apple" href="webcal://www.kozgazkosar.hu/kozgaz-b.ics" title="iPhone / Mac / Apple Calendar">🍎 Apple Calendar</a>
-      <a class="ics-btn ics-google" href="https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fwww.kozgazkosar.hu%2Fkozgaz-b.ics" target="_blank" rel="noopener" title="Google Calendar">🅶 Google Calendar</a>
-      <a class="ics-btn ics-outlook" href="https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription&url=https%3A%2F%2Fwww.kozgazkosar.hu%2Fkozgaz-b.ics&name=K%C3%B6zg%C3%A1z%20B" target="_blank" rel="noopener" title="Outlook.com">🅾 Outlook</a>
-    </div>
-    <div class="ics-manual">
-      Vagy manuális URL <span class="ics-hint">(Feliratkozás / Subscribe funkcióval)</span>:
+    <div class="ics-desc">Két külön feed — meccsek és edzések. Iratkozz fel mindkettőre, és a naptár-appodban külön színt adhatsz nekik.</div>
+    
+    <div class="ics-feed">
+      <div class="ics-feed-head">
+        <span class="ics-feed-icon">🏀</span>
+        <span class="ics-feed-label">Meccsek</span>
+        <span class="ics-feed-hint">bajnoki + kupa</span>
+      </div>
+      <div class="ics-btns">
+        <a class="ics-btn ics-apple" href="webcal://www.kozgazkosar.hu/kozgaz-b-meccsek.ics" title="iPhone / Mac / Apple Calendar">🍎 Apple</a>
+        <a class="ics-btn ics-google" href="https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fwww.kozgazkosar.hu%2Fkozgaz-b-meccsek.ics" target="_blank" rel="noopener" title="Google Calendar">🅶 Google</a>
+        <a class="ics-btn ics-outlook" href="https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription&url=https%3A%2F%2Fwww.kozgazkosar.hu%2Fkozgaz-b-meccsek.ics&name=K%C3%B6zg%C3%A1z%20B%20%E2%80%94%20Meccsek" target="_blank" rel="noopener" title="Outlook.com">🅾 Outlook</a>
+      </div>
       <div class="ics-url-row">
-        <code class="ics-url" id="icsUrl">https://www.kozgazkosar.hu/kozgaz-b.ics</code>
-        <button class="ics-copy" onclick="navigator.clipboard.writeText('https://www.kozgazkosar.hu/kozgaz-b.ics');this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)" title="Másolás">📋</button>
+        <code class="ics-url" id="icsUrl-meccsek">https://www.kozgazkosar.hu/kozgaz-b-meccsek.ics</code>
+        <button class="ics-copy" onclick="navigator.clipboard.writeText('https://www.kozgazkosar.hu/kozgaz-b-meccsek.ics');this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)" title="Másolás">📋</button>
+      </div>
+    </div>
+    
+    <div class="ics-feed">
+      <div class="ics-feed-head">
+        <span class="ics-feed-icon">🏋️</span>
+        <span class="ics-feed-label">Edzések</span>
+        <span class="ics-feed-hint">heti edzések</span>
+      </div>
+      <div class="ics-btns">
+        <a class="ics-btn ics-apple" href="webcal://www.kozgazkosar.hu/kozgaz-b-edzesek.ics" title="iPhone / Mac / Apple Calendar">🍎 Apple</a>
+        <a class="ics-btn ics-google" href="https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fwww.kozgazkosar.hu%2Fkozgaz-b-edzesek.ics" target="_blank" rel="noopener" title="Google Calendar">🅶 Google</a>
+        <a class="ics-btn ics-outlook" href="https://outlook.live.com/owa?path=/calendar/action/compose&rru=addsubscription&url=https%3A%2F%2Fwww.kozgazkosar.hu%2Fkozgaz-b-edzesek.ics&name=K%C3%B6zg%C3%A1z%20B%20%E2%80%94%20Edz%C3%A9sek" target="_blank" rel="noopener" title="Outlook.com">🅾 Outlook</a>
+      </div>
+      <div class="ics-url-row">
+        <code class="ics-url" id="icsUrl-edzesek">https://www.kozgazkosar.hu/kozgaz-b-edzesek.ics</code>
+        <button class="ics-copy" onclick="navigator.clipboard.writeText('https://www.kozgazkosar.hu/kozgaz-b-edzesek.ics');this.textContent='✓';setTimeout(()=>this.textContent='📋',1500)" title="Másolás">📋</button>
       </div>
     </div>
   </div>
@@ -1112,8 +1134,18 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
       padding:18px 22px; margin:16px 0;
     }
     .ics-title { font-weight:800; font-size:1.05rem; margin-bottom:4px; color:#fff; }
-    .ics-desc { font-size:0.85rem; color:var(--text-dim); margin-bottom:12px; }
-    .ics-btns { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .ics-desc { font-size:0.85rem; color:var(--text-dim); margin-bottom:16px; }
+    .ics-feed {
+      background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
+      border-radius:10px; padding:12px 14px; margin-bottom:12px;
+    }
+    .ics-feed-head {
+      display:flex; align-items:baseline; gap:8px; margin-bottom:10px;
+    }
+    .ics-feed-icon { font-size:1.1rem; }
+    .ics-feed-label { font-weight:700; font-size:0.95rem; color:var(--text); }
+    .ics-feed-hint { font-size:0.72rem; color:var(--text-dim); opacity:0.75; }
+    .ics-btns { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
     .ics-btn {
       display:inline-block; padding:9px 14px; border-radius:8px;
       background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
