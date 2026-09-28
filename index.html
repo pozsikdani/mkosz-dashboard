@@ -372,23 +372,23 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
 .cal-day.has-match { border:1px solid var(--border); }
 /* Szín-differenciálás: hazai (piros) / idegen (kék) / kupa (lila) */
 .cal-day.has-match.home {
-  background:linear-gradient(180deg, var(--home-accent-bg) 0%, transparent 80%);
+  background:linear-gradient(180deg, var(--home-accent-bg) 0%, var(--home-accent-bg) 60%, transparent 100%);
   border-color:var(--home-accent);
-  border-left:3px solid var(--home-accent);
+  border-left:4px solid var(--home-accent);
 }
 .cal-day.has-match.away {
-  background:linear-gradient(180deg, var(--away-accent-bg) 0%, transparent 80%);
+  background:linear-gradient(180deg, var(--away-accent-bg) 0%, var(--away-accent-bg) 60%, transparent 100%);
   border-color:var(--away-accent);
-  border-left:3px solid var(--away-accent);
+  border-left:4px solid var(--away-accent);
 }
 .cal-day.has-match.cup {
-  background:linear-gradient(180deg, var(--cup-accent-bg) 0%, transparent 80%);
+  background:linear-gradient(180deg, var(--cup-accent-bg) 0%, var(--cup-accent-bg) 60%, transparent 100%);
   border-color:var(--cup-accent);
-  border-left:3px solid var(--cup-accent);
+  border-left:4px solid var(--cup-accent);
 }
 .cal-day.training-day {
-  background:repeating-linear-gradient(45deg,rgba(253,203,110,0.10) 0 6px,rgba(253,203,110,0.04) 6px 12px);
-  border:1px dashed rgba(253,203,110,0.3);
+  background:repeating-linear-gradient(45deg,rgba(253,203,110,0.06) 0 6px,rgba(253,203,110,0.02) 6px 12px);
+  border:1px dashed rgba(253,203,110,0.22);
 }
 .training-info { margin-top:2px; display:flex; flex-direction:column; gap:1px; }
 .training-label {
