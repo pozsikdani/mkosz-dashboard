@@ -155,6 +155,7 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
     color:var(--text-dim); margin-bottom:6px; }
   .lm-tag { font-weight:700; letter-spacing:1px; color:#a29bfe;
     background:rgba(108,92,231,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(108,92,231,0.3); }
+  .lm-tag.lm-tag-league { color:#ff6b85; background:rgba(255,59,92,0.14); border-color:rgba(255,59,92,0.3); }
   .lm-badge { font-weight:800; padding:2px 8px; border-radius:4px; font-size:.7rem; letter-spacing:.5px; }
   .lm-badge.won { background:rgba(0,184,148,0.2); color:var(--green); }
   .lm-badge.lost { background:rgba(225,112,85,0.2); color:var(--red); }
@@ -281,6 +282,13 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
   .match-row:last-child { border-bottom:none; }
   .match-row.played { opacity:.45; }
   .match-row.played:hover { opacity:.7; }
+  a.match-row-link { color:inherit; text-decoration:none; cursor:pointer; }
+  a.match-row-link:hover { background:rgba(255,255,255,0.03); }
+  a.match-row-link::after {
+    content:'›'; color:var(--text-dim); font-weight:700; margin-left:6px;
+    opacity:0; transition:opacity .15s;
+  }
+  a.match-row-link:hover::after { opacity:.8; }
   .m-date { color:var(--text-dim); font-size:0.8rem; font-weight:500; }
   .m-hv {
     font-size:0.68rem; font-weight:800; text-align:center;
@@ -574,15 +582,15 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
     <div class="section-title">LEGUTÓBBI MECCS</div>
     
 <div class="last-match-card won">
-  <a href="dashboards/meccs/FHKF-1022.html" class="lm-link">
+  <a href="dashboards/meccs/F2KE-0012.html" class="lm-link">
     <div class="lm-header">
-      <span class="lm-tag">🏆 HEPP KUPA</span>
+      <span class="lm-tag lm-tag-league">🏀 BAJNOKI</span>
       <span class="lm-badge won">W</span>
-      <span class="lm-date">2026. szept. 24.</span>
+      <span class="lm-date">2026. okt. 1.</span>
     </div>
-    <div class="lm-title">Közgáz B <span class="lm-vs">vs</span> MAFC</div>
-    <div class="lm-score won"><span class="lm-us">72</span><span class="lm-sep">–</span><span>61</span></div>
-    <div class="lm-top"><div class="lm-scorer"><span class="lm-jn">#5</span><span class="lm-nm">Látos András</span><span class="lm-pts">14p</span></div><div class="lm-scorer"><span class="lm-jn">#25</span><span class="lm-nm">Jenei Koppány Tamás</span><span class="lm-pts">13p</span></div><div class="lm-scorer"><span class="lm-jn">#20</span><span class="lm-nm">Lénárt Zoltán</span><span class="lm-pts">11p</span></div></div>
+    <div class="lm-title">Közgáz B <span class="lm-vs">vs</span> BKG PRIMA AKADÉMIA II.</div>
+    <div class="lm-score won"><span class="lm-us">74</span><span class="lm-sep">–</span><span>49</span></div>
+    <div class="lm-top"><div class="lm-scorer"><span class="lm-jn">#20</span><span class="lm-nm">Lénárt Zoltán</span><span class="lm-pts">14p</span></div><div class="lm-scorer"><span class="lm-jn">#11</span><span class="lm-nm">Bartus Gergely</span><span class="lm-pts">12p</span></div><div class="lm-scorer"><span class="lm-jn">#14</span><span class="lm-nm">Bernacchini Dániel</span><span class="lm-pts">11p</span></div></div>
     <div class="lm-cta">Meccs részletek →</div>
   </a>
 </div></section>
@@ -628,22 +636,22 @@ html { scroll-behavior:smooth; scroll-padding-top:80px; }
   <section id="meccsek" class="anchor-section">
     <div class="section-title">MECCSEK</div>
     <div class="matches-list">
-        <div class="match-row played" data-team="KÖZGÁZ B" data-type="played" data-date="2026-09-24" style="display:none">
+        <a class="match-row played match-row-link" href="dashboards/meccs/FHKF-1022.html" data-team="KÖZGÁZ B" data-type="played" data-date="2026-09-24" style="display:none">
           <div class="m-date">09.24</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
           <div class="m-detail">KÖZGÁZ B – MAFC</div>
           <div class="m-score win">72-61</div>
           <span class="m-badge w">W</span>
-        </div>
-        <div class="match-row played" data-team="KÖZGÁZ B" data-type="played" data-date="2026-10-01" style="display:none">
+        </a>
+        <a class="match-row played match-row-link" href="dashboards/meccs/F2KE-0012.html" data-team="KÖZGÁZ B" data-type="played" data-date="2026-10-01" style="display:none">
           <div class="m-date">10.01</div>
           <span class="m-hv">vs</span>
           <span class="row-league-tag" style="color:#C41E3A;background:rgba(196,30,58,0.12);border-color:rgba(196,30,58,0.3)">KÖZGÁZ B</span>
           <div class="m-detail">KÖZGÁZ B – BKG</div>
           <div class="m-score win">74-49</div>
           <span class="m-badge w">W</span>
-        </div>
+        </a>
         <div class="match-row upcoming" data-team="KÖZGÁZ B" data-type="upcoming" data-date="2026-10-13" style="display:none">
           <div class="m-date">10.13</div>
           <span class="m-hv">vs</span>

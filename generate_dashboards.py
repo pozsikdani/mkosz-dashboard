@@ -5293,19 +5293,23 @@ NAV_THEME_JS = """
 
 
 def get_hepp_cup_matches(team_pattern):
-    """Reads Hepp Kupa matches (huna_cup → match_id FHKF-*) from scoresheet.sqlite
-    where our team plays. Returns list of dicts, newest first, played matches only."""
+    """Reads MINDEN scoresheet.sqlite-ban lévő MI-vonatkozású lejátszott meccset
+    (bajnoki F2KE-*, kupa FHKF-*, stb). A mkosz_stats.sqlite daily-import néha
+    késik az új szezonnal — innen közvetlen fallback. Visszaad: list of dicts,
+    legújabb elöl, lejátszott meccsek. Minden meccs kap egy 'is_cup' flaget."""
     if not os.path.exists(SCORESHEET_DB_PATH):
         return []
     matches = []
     try:
         conn = sqlite3.connect(SCORESHEET_DB_PATH)
+        # Csak az aktuális szezon meccsei (2026/27 kezdete: 2026-08-01)
+        # — a korábbi szezonok archívumban élnek külön.
         rows = conn.execute("""
             SELECT match_id, team_a, team_b, score_a, score_b, match_date, match_time, venue
             FROM matches
-            WHERE match_id LIKE 'FHKF-%'
-              AND (team_a LIKE ? OR team_b LIKE ?)
+            WHERE (team_a LIKE ? OR team_b LIKE ?)
               AND score_a IS NOT NULL AND score_b IS NOT NULL
+              AND match_date >= '2026-08-01'
             ORDER BY match_date DESC
         """, (team_pattern, team_pattern)).fetchall()
         for mid, ta, tb, sa, sb, dt, tm, vn in rows:
@@ -5333,6 +5337,7 @@ def get_hepp_cup_matches(team_pattern):
                 'our_team': (ta if is_home else tb), 'opp_team': opp,
                 'our_score': our_score, 'opp_score': opp_score,
                 'is_home': is_home, 'won': our_score > opp_score,
+                'is_cup': mid.startswith('FHKF-'),
                 'quarters': our_q,
                 'our_players': our_players, 'opp_players': opp_players,
             })
@@ -5664,11 +5669,14 @@ def _hepp_latest_card_html(match):
         f'<span class="lm-pts">{p[2]}p</span></div>'
         for p in top
     )
+    is_cup = m.get('is_cup', False)
+    tag_html = '🏆 HEPP KUPA' if is_cup else '🏀 BAJNOKI'
+    tag_cls = 'lm-tag' + ('' if is_cup else ' lm-tag-league')
     return f"""
 <div class="last-match-card {result_cls}">
   <a href="dashboards/meccs/{m['match_id']}.html" class="lm-link">
     <div class="lm-header">
-      <span class="lm-tag">🏆 HEPP KUPA</span>
+      <span class="{tag_cls}">{tag_html}</span>
       <span class="lm-badge {result_cls}">{result_lbl}</span>
       <span class="lm-date">{date_hu}</span>
     </div>
@@ -5691,6 +5699,7 @@ LAST_MATCH_CSS = """
     color:var(--text-dim); margin-bottom:6px; }
   .lm-tag { font-weight:700; letter-spacing:1px; color:#a29bfe;
     background:rgba(108,92,231,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(108,92,231,0.3); }
+  .lm-tag.lm-tag-league { color:#ff6b85; background:rgba(255,59,92,0.14); border-color:rgba(255,59,92,0.3); }
   .lm-badge { font-weight:800; padding:2px 8px; border-radius:4px; font-size:.7rem; letter-spacing:.5px; }
   .lm-badge.won { background:rgba(0,184,148,0.2); color:var(--green); }
   .lm-badge.lost { background:rgba(225,112,85,0.2); color:var(--red); }
@@ -5858,10 +5867,14 @@ def generate_homepage(team_summaries):
     # Sort: played desc by date, then upcoming asc — but we render all and let JS pick
     all_matches.sort(key=lambda x: (x["date"], 0 if x["type"] == "played" else 1))
 
-    # Legutóbbi Hepp Kupa meccs (scoresheet.sqlite-ból)
+    # Legutóbbi meccs (scoresheet.sqlite-ból) + date → match_id map
+    # a MECCSEK sorokhoz, hogy linkelni tudjunk a meccs-oldalra.
     last_match_section = ""
+    date_to_match_id = {}
     kg_b = TEAMS.get("kozgaz-b")
     hepp_matches = get_hepp_cup_matches(kg_b["team_pattern"]) if kg_b else []
+    for hm in hepp_matches:
+        date_to_match_id[hm['date']] = hm['match_id']
     if hepp_matches:
         latest = hepp_matches[0]
         last_match_section = f'''
@@ -5960,15 +5973,23 @@ def generate_homepage(team_summaries):
             wl = "W" if item["win"] else "L"
             wl_cls = "w" if item["win"] else "l"
             sc_cls = "win" if item["win"] else "loss"
+            mid = date_to_match_id.get(item['date'])
+            # Ha van hozzá meccs-oldal, a sor klikkelhető <a> wrapper
+            if mid:
+                row_tag_open = f'<a class="match-row played match-row-link" href="dashboards/meccs/{mid}.html"'
+                row_tag_close = '</a>'
+            else:
+                row_tag_open = '<div class="match-row played"'
+                row_tag_close = '</div>'
             match_rows += f"""
-        <div class="match-row played" data-team="{item['team_short']}" data-type="played" data-date="{item['date']}" style="display:none">
+        {row_tag_open} data-team="{item['team_short']}" data-type="played" data-date="{item['date']}" style="display:none">
           <div class="m-date">{date_str}</div>
           {hv_badge}
           {tag}
           <div class="m-detail">{item['matchup']}</div>
           <div class="m-score {sc_cls}">{item['score']}</div>
           <span class="m-badge {wl_cls}">{wl}</span>
-        </div>"""
+        {row_tag_close}"""
         else:
             opp_display = ('@' if not item['is_home'] else '') + item['opp']
             km_html = ""
@@ -6312,6 +6333,13 @@ def generate_homepage(team_summaries):
   .match-row:last-child {{ border-bottom:none; }}
   .match-row.played {{ opacity:.45; }}
   .match-row.played:hover {{ opacity:.7; }}
+  a.match-row-link {{ color:inherit; text-decoration:none; cursor:pointer; }}
+  a.match-row-link:hover {{ background:rgba(255,255,255,0.03); }}
+  a.match-row-link::after {{
+    content:'›'; color:var(--text-dim); font-weight:700; margin-left:6px;
+    opacity:0; transition:opacity .15s;
+  }}
+  a.match-row-link:hover::after {{ opacity:.8; }}
   .m-date {{ color:var(--text-dim); font-size:0.8rem; font-weight:500; }}
   .m-hv {{
     font-size:0.68rem; font-weight:800; text-align:center;
