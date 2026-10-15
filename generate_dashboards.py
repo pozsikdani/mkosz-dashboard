@@ -5304,14 +5304,20 @@ def get_hepp_cup_matches(team_pattern):
         conn = sqlite3.connect(SCORESHEET_DB_PATH)
         # Csak az aktuális szezon meccsei (2026/27 kezdete: 2026-08-01)
         # — a korábbi szezonok archívumban élnek külön.
+        # Fallback: ha a matches.score_a/b NULL (a parser nem töltötte ki
+        # a végeredményt), de van scoring_events, használjuk azok MAX-át.
         rows = conn.execute("""
-            SELECT match_id, team_a, team_b, score_a, score_b, match_date, match_time, venue
-            FROM matches
-            WHERE (team_a LIKE ? OR team_b LIKE ?)
-              AND score_a IS NOT NULL AND score_b IS NOT NULL
-              AND match_date >= '2026-08-01'
-            ORDER BY match_date DESC
+            SELECT m.match_id, m.team_a, m.team_b,
+                   COALESCE(m.score_a, (SELECT MAX(score_a) FROM scoring_events WHERE match_id=m.match_id)) AS score_a,
+                   COALESCE(m.score_b, (SELECT MAX(score_b) FROM scoring_events WHERE match_id=m.match_id)) AS score_b,
+                   m.match_date, m.match_time, m.venue
+            FROM matches m
+            WHERE (m.team_a LIKE ? OR m.team_b LIKE ?)
+              AND m.match_date >= '2026-08-01'
+            ORDER BY m.match_date DESC
         """, (team_pattern, team_pattern)).fetchall()
+        # Szűrés: csak akkor vesszük fel, ha a (fallback utáni) score létezik
+        rows = [r for r in rows if r[3] is not None and r[4] is not None]
         for mid, ta, tb, sa, sb, dt, tm, vn in rows:
             pat = team_pattern.replace('%', '.*')
             our_side = 'A' if re.search(pat, ta or '', re.IGNORECASE) else 'B'
@@ -5355,9 +5361,11 @@ def get_hepp_match_details(match_id, team_pattern):
     conn = sqlite3.connect(SCORESHEET_DB_PATH)
     try:
         m_row = conn.execute("""
-            SELECT match_date, match_time, venue, team_a, team_b, score_a, score_b
+            SELECT match_date, match_time, venue, team_a, team_b,
+                   COALESCE(score_a, (SELECT MAX(score_a) FROM scoring_events WHERE match_id=?)) AS score_a,
+                   COALESCE(score_b, (SELECT MAX(score_b) FROM scoring_events WHERE match_id=?)) AS score_b
             FROM matches WHERE match_id = ?
-        """, (match_id,)).fetchone()
+        """, (match_id, match_id, match_id)).fetchone()
         if not m_row:
             return None
         match_date, match_time, venue, team_a, team_b, score_a, score_b = m_row
