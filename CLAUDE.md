@@ -122,6 +122,7 @@ A hazai/vendég badge minden helyen **vs** (hazai) és **@** (vendég), fehér s
 - Rövid nevek: `CALENDAR_SHORT` dict + `calendar_short_name()`
 - Lejátszott: zöld W / piros L; jövőbeli: szürke
 - Fallback: `get_calendar_data_db()` ha scraping fail
+- **`data/kozgaz-b/schedule.json`** (`generate_schedule_json`, `publish_schedule_json` flag): a sorsolás JSON-ban a Gametime app MKOSZ-importjához (`www.kozgazkosar.hu/data/kozgaz-b/schedule.json`). Csak sikeres scrape után íródik (DB fallbacknél a régi marad). A mezőnevek szerződés a Gametime felé: átnevezés/törlés helyett új mező, törő változásnál `version` emelés.
 
 ## Edzéslátogatás (Közgáz B only)
 - Google Sheets CSV fetch a `fetch_training_attendance()`-ben
