@@ -78,6 +78,7 @@ TEAMS = {
             ],
         },
         "color": "#C41E3A",  # Közgáz piros
+        "publish_schedule_json": True,  # data/kozgaz-b/schedule.json → Gametime app MKOSZ-import
     },
 }
 
@@ -4822,6 +4823,44 @@ def generate_training_dates(cfg, match_dates=None):
     return results
 
 
+SCHEDULE_JSON_VERSION = 1
+
+
+def generate_schedule_json(matches, cfg, team_key):
+    """A sorsolás géppel olvasható formában (JSON) a Gametime app MKOSZ-importjához.
+    Csak a mkosz.hu-ról scrape-elt adatból készül (DB fallbacknél nem írjuk,
+    így a legutóbbi jó állapot marad kint). A meccs-mezők a scraper kimenetével
+    egyeznek; az időpont budapesti helyi idő.
+    """
+    out = []
+    for m in sorted(matches, key=lambda x: (x["date"], x["time"] or "")):
+        mid = m.get("match_id")
+        out.append({
+            "match_id": mid,
+            "competition": mid.rsplit("_", 1)[0] if mid else None,
+            "competition_label": m.get("comp_label") or cfg.get("group_name"),
+            "is_cup": bool(m.get("is_cup")),
+            "date": m["date"],
+            "time": m["time"] or None,
+            "home_team": m["home_team"],
+            "away_team": m["away_team"],
+            "is_home": m["is_home"],
+            "venue": m["venue"] or None,
+            "played": m["played"],
+            "home_score": m["home_score"],
+            "away_score": m["away_score"],
+        })
+    return json.dumps({
+        "version": SCHEDULE_JSON_VERSION,
+        "team": team_key,
+        "team_name": cfg["team_name"],
+        "season": cfg.get("mkosz_season"),
+        "timezone": "Europe/Budapest",
+        "generated_at": datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+        "matches": out,
+    }, ensure_ascii=False, indent=2) + "\n"
+
+
 def generate_ics(matches, cfg):
     """Egy .ics naptár-fájlt generál a csapat meccseiből (RFC 5545).
     A naptár-appok (Apple / Google / Outlook) automatikusan frissítik ha
@@ -6729,6 +6768,14 @@ def generate_team(team_key):
         played = sum(1 for m in cal_data if m["played"])
         upcoming = len(cal_data) - played
         print(f"  ✓ {len(cal_data)} meccs scraped ({played} lejátszott, {upcoming} következő)")
+
+        # Sorsolás JSON a Gametime app importjához — csak scrape-elt adatból
+        if cfg.get("publish_schedule_json"):
+            json_dir = os.path.join(BASE_DIR, "data", team_key)
+            os.makedirs(json_dir, exist_ok=True)
+            with open(os.path.join(json_dir, "schedule.json"), "w", encoding="utf-8") as f:
+                f.write(generate_schedule_json(cal_data, cfg, team_key))
+            print(f"  ✓ data/{team_key}/schedule.json ({len(cal_data)} meccs)")
     else:
         print(f"  ⚠ Scraping sikertelen, DB fallback...")
         cal_data = get_calendar_data_db(conn, cfg, tp)
