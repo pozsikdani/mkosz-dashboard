@@ -884,7 +884,12 @@ def _compute_player_view(player_tuple, bundle):
     js_games = []
     for g in gl:
         match_id, date, hv, opp, kg_score, opp_score, pts, f2, f3, ftm, fta, pfg, starter = g
-        win = kg_score > opp_score if (kg_score is not None and opp_score is not None) else False
+        # Végeredmény nélküli meccs (a jegyzőkönyv megjött, a pontszám nem):
+        # kimarad, mert a tábla csak GY-t vagy V-t tud írni, és a hiányzó
+        # eredményből vereség lett volna.
+        if kg_score is None or opp_score is None:
+            continue
+        win = kg_score > opp_score
         if pts is not None:
             share = round(100*pts/kg_score, 1) if kg_score else 0
             ft_str = f"{ftm}/{fta}" if fta else "0/0"
@@ -923,7 +928,10 @@ def generate_html(player_data, game_log, quarter_stats, opp_stats, tech, unsport
     pf_pg = round(pf/games, 1)
 
     played_games = [g for g in game_log if g[6] is not None]
-    total_team_pts = sum(g[4] for g in played_games)
+    # A csapat pontjai csak onnan, ahol ismerjük őket: egy jegyzőkönyvvel
+    # beérkezett, de végeredmény nélküli meccs (score_a/score_b NULL) különben
+    # az egész csapat dashboardját megdöntötte (int + None).
+    total_team_pts = sum(g[4] for g in played_games if g[4] is not None)
     share_pct = round(100*total_pts/total_team_pts, 1) if total_team_pts > 0 else 0
 
     pts_3fg = fg3 * 3
@@ -2248,6 +2256,8 @@ def _stats_to_js(d):
     game_log = []
     for g in d["game_log"]:
         gamecode, date, hv, opp, kg, op = g
+        if kg is None or op is None:
+            continue  # ld. fent: eredmény nélkül nincs GY/V
         game_log.append({
             "gamecode": gamecode,
             "date": date[5:].replace("-", "."), "hv": hv,
