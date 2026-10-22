@@ -136,7 +136,7 @@
       <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">2</div><div class="label">Meccs</div></div>
       <div class="header-stat"><div class="val" id="pFg3" style="color:var(--text-dim)">2</div><div class="label">3FG</div></div>
       <div class="header-stat"><div class="val" id="pMax" style="color:var(--green)">11</div><div class="label">Csúcs</div></div>
-      <div class="header-stat"><div class="val" style="color:var(--green)">9/10 (90%)</div><div class="label">Edzés</div></div>
+      <div class="header-stat"><div class="val" style="color:var(--green)">10/11 (91%)</div><div class="label">Edzés</div></div>
     </div>
   </div>
 
@@ -151,7 +151,7 @@
     <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">13</div><div class="desc">Összes pont</div></div>
     <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">100%</div><div class="desc" id="pFtDesc">FT% (1/1)</div></div>
     <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">1.5</div><div class="desc">Fault / meccs</div></div>
-    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">17.6%</div><div class="desc">Csapat pont részesedés</div></div>
+    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">9.7%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
   <div class="grid grid-2 mb20">
     <div class="card">
@@ -222,9 +222,9 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": 11, "fg2": 2, "fg3": 2, "ft": "1/1", "pf": 2, "share": 14.9, "start": false}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 0, "start": true}];
+const games = [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": 11, "fg2": 2, "fg3": 2, "ft": "1/1", "pf": 2, "share": 14.9, "start": false}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 3.3, "start": true}];
 const maxPts = 11;
-const PVIEWS = {"all": {"games": 2, "total_pts": 13, "ppg": 6.5, "fg2": 3, "fg3": 2, "ft_m": 1, "ft_a": 1, "ft_pct": 100, "pf": 3, "pf_pg": 1.5, "max_pts": 11, "starts": 1, "share_pct": 17.6, "pts_3fg": 6, "pts_2fg": 6, "pts_ft": 1, "q_data": [3, 0, 4, 6], "q_3fg_data": [0, 0, 0, 2], "opp_labels": ["Bkg Prima Akadémia.", "Pénzügyőr Sportegy."], "opp_ppg_data": [11.0, 2.0], "js_games": [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": 11, "fg2": 2, "fg3": 2, "ft": "1/1", "pf": 2, "share": 14.9, "start": false, "hv": "H"}], "tech": 0, "unsport": 0}, "home": {"games": 2, "total_pts": 13, "ppg": 6.5, "fg2": 3, "fg3": 2, "ft_m": 1, "ft_a": 1, "ft_pct": 100, "pf": 3, "pf_pg": 1.5, "max_pts": 11, "starts": 1, "share_pct": 17.6, "pts_3fg": 6, "pts_2fg": 6, "pts_ft": 1, "q_data": [3, 0, 4, 6], "q_3fg_data": [0, 0, 0, 2], "opp_labels": ["Bkg Prima Akadémia.", "Pénzügyőr Sportegy."], "opp_ppg_data": [11.0, 2.0], "js_games": [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": 11, "fg2": 2, "fg3": 2, "ft": "1/1", "pf": 2, "share": 14.9, "start": false, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 0, "total_pts": 0, "ppg": 0, "fg2": 0, "fg3": 0, "ft_m": 0, "ft_a": 0, "ft_pct": 0, "pf": 0, "pf_pg": 0, "max_pts": 0, "starts": 0, "share_pct": 0, "pts_3fg": 0, "pts_2fg": 0, "pts_ft": 0, "q_data": [0, 0, 0, 0], "q_3fg_data": [0, 0, 0, 0], "opp_labels": [], "opp_ppg_data": [], "js_games": [], "tech": 0, "unsport": 0}};
+const PVIEWS = {"all": {"games": 2, "total_pts": 13, "ppg": 6.5, "fg2": 3, "fg3": 2, "ft_m": 1, "ft_a": 1, "ft_pct": 100, "pf": 3, "pf_pg": 1.5, "max_pts": 11, "starts": 1, "share_pct": 9.7, "pts_3fg": 6, "pts_2fg": 6, "pts_ft": 1, "q_data": [3, 0, 4, 6], "q_3fg_data": [0, 0, 0, 2], "opp_labels": ["Bkg Prima Akadémia.", "Pénzügyőr Sportegy."], "opp_ppg_data": [11.0, 2.0], "js_games": [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": 11, "fg2": 2, "fg3": 2, "ft": "1/1", "pf": 2, "share": 14.9, "start": false, "hv": "H"}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 3.3, "start": true, "hv": "H"}], "tech": 0, "unsport": 0}, "home": {"games": 2, "total_pts": 13, "ppg": 6.5, "fg2": 3, "fg3": 2, "ft_m": 1, "ft_a": 1, "ft_pct": 100, "pf": 3, "pf_pg": 1.5, "max_pts": 11, "starts": 1, "share_pct": 9.7, "pts_3fg": 6, "pts_2fg": 6, "pts_ft": 1, "q_data": [3, 0, 4, 6], "q_3fg_data": [0, 0, 0, 2], "opp_labels": ["Bkg Prima Akadémia.", "Pénzügyőr Sportegy."], "opp_ppg_data": [11.0, 2.0], "js_games": [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": 11, "fg2": 2, "fg3": 2, "ft": "1/1", "pf": 2, "share": 14.9, "start": false, "hv": "H"}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 2, "fg2": 1, "fg3": 0, "ft": "0/0", "pf": 1, "share": 3.3, "start": true, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 0, "total_pts": 0, "ppg": 0, "fg2": 0, "fg3": 0, "ft_m": 0, "ft_a": 0, "ft_pct": 0, "pf": 0, "pf_pg": 0, "max_pts": 0, "starts": 0, "share_pct": 0, "pts_3fg": 0, "pts_2fg": 0, "pts_ft": 0, "q_data": [0, 0, 0, 0], "q_3fg_data": [0, 0, 0, 0], "opp_labels": [], "opp_ppg_data": [], "js_games": [], "tech": 0, "unsport": 0}};
 const HIGHLIGHT_PTS = 10;
 
 function renderPlayerGameLog(gms) {
