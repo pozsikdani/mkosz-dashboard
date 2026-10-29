@@ -582,9 +582,9 @@ new Chart(attCtx, {
   type:'bar',
   plugins:[attThresholdPlugin],
   data: {
-    labels:["Bernacchini", "Somogyi", "Kadocsa", "Lénárt", "Bartus", "Bencze", "Kovács", "Szalay", "Virág", "Matskási", "Szakács", "Fodor", "Horváth", "Essősy", "Földes", "Dudás", "Tóth"],
+    labels:["Bernacchini", "Kadocsa", "Lénárt", "Somogyi", "Bartus", "Bencze", "Kovács", "Szalay", "Virág", "Matskási", "Szakács", "Fodor", "Essősy", "Horváth", "Földes", "Dudás", "Tóth"],
     datasets:[{
-      data:[83, 75, 75, 67, 67, 67, 67, 58, 50, 42, 25, 17, 8, 8, 8, 0, 0],
+      data:[85, 77, 69, 69, 69, 69, 69, 62, 54, 46, 31, 15, 15, 8, 8, 0, 0],
       backgroundColor:["rgba(0,184,148,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)", "rgba(225,112,85,0.7)"],
       borderColor:["#00b894", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055", "#e17055"],
       borderWidth:2, borderRadius:4, borderSkipped:false,
@@ -595,7 +595,7 @@ new Chart(attCtx, {
     plugins: {
       legend:{ display:false },
       tooltip:{ callbacks:{ label: function(ctx) {
-        const ratios = ["10/12", "9/12", "9/12", "8/12", "8/12", "8/12", "8/12", "7/12", "6/12", "5/12", "3/12", "2/12", "1/12", "1/12", "1/12", "0/12", "0/12"];
+        const ratios = ["11/13", "10/13", "9/13", "9/13", "9/13", "9/13", "9/13", "8/13", "7/13", "6/13", "4/13", "2/13", "2/13", "1/13", "1/13", "0/13", "0/13"];
         return ratios[ctx.dataIndex] + ' (' + ctx.parsed.x + '%)';
       } } },
     },
