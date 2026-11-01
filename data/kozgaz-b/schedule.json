@@ -4,7 +4,7 @@
   "team_name": "KÖZGÁZ SC ÉS DSK/B",
   "season": "x2627",
   "timezone": "Europe/Budapest",
-  "generated_at": "2026-10-31T03:33:35Z",
+  "generated_at": "2026-11-01T03:39:43Z",
   "matches": [
     {
       "match_id": "huna_cup_1027",
@@ -77,9 +77,9 @@
       "away_team": "Közgáz SC és DSK/B",
       "is_home": false,
       "venue": "REGI Kosárlabdacsarnok",
-      "played": false,
-      "home_score": null,
-      "away_score": null
+      "played": true,
+      "home_score": 92,
+      "away_score": 75
     },
     {
       "match_id": "hun3k_141633",
