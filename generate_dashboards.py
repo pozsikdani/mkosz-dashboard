@@ -79,6 +79,12 @@ TEAMS = {
         },
         "color": "#C41E3A",  # Közgáz piros
         "publish_schedule_json": True,  # data/kozgaz-b/schedule.json → Gametime app MKOSZ-import
+        # A honlapi .ics kivezetése: ettől a naptól csak a „Költözött az appba”
+        # bejegyzés kerül bele, meccs és edzés nem. A csapat naptára a Gametime
+        # appban van (app.kozgazkosar.hu), saját, személyes linkű feeddel.
+        # A data/kozgaz-b/schedule.json ettől FÜGGETLEN, és továbbra is kell:
+        # azt az app MKOSZ-importja olvassa.
+        "calendar_moved_at": "2026-11-09",
     },
 }
 
@@ -4723,8 +4729,64 @@ document.querySelectorAll('#chartLegend .legend-item').forEach(el => {{
     return html
 
 
+ICS_CARD_CSS = """\
+  <style>
+    .ics-card {
+      background:linear-gradient(135deg,rgba(196,30,58,0.08) 0%,rgba(0,206,201,0.04) 100%);
+      border:1px solid rgba(196,30,58,0.25); border-radius:14px;
+      padding:18px 22px; margin:16px 0;
+    }
+    .ics-title { font-weight:800; font-size:1.05rem; margin-bottom:4px; color:#fff; }
+    .ics-desc { font-size:0.85rem; color:var(--text-dim); margin-bottom:12px; }
+    .ics-btns { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .ics-btn {
+      display:inline-block; padding:9px 14px; border-radius:8px;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+      color:var(--text); text-decoration:none; font-size:0.85rem; font-weight:600;
+      transition:all 0.15s;
+    }
+    .ics-btn:hover { background:var(--accent); border-color:var(--accent); color:#fff; transform:translateY(-1px); }
+    .ics-manual { font-size:0.75rem; color:var(--text-dim); }
+    .ics-hint { opacity:0.7; font-style:italic; }
+    .ics-url-row {
+      display:flex; align-items:center; gap:6px; margin-top:6px;
+      background:rgba(0,0,0,0.3); border-radius:6px; padding:6px 10px;
+    }
+    .ics-url {
+      flex:1; font-family:'SF Mono',Menlo,Consolas,monospace; font-size:0.72rem;
+      color:var(--accent2); overflow-x:auto; white-space:nowrap;
+    }
+    .ics-copy {
+      background:transparent; border:none; cursor:pointer; font-size:1rem; padding:2px 8px;
+    }
+    .ics-copy:hover { background:rgba(255,255,255,0.08); border-radius:4px; }
+    @media (max-width:600px) {
+      .ics-btns { flex-direction:column; }
+      .ics-btn { width:100%; text-align:center; }
+    }
+  </style>
+"""
+
+
 def _ics_subscribe_card(team_key):
-    """Feliratkozás-kártya a naptár-oldalra. team_key → az .ics filenév."""
+    """Feliratkozás-kártya a naptár-oldalra. team_key → az .ics filenév.
+
+    Ha a csapat naptára átköltözött az appba (calendar_moved_at), akkor a
+    kártya nem a honlapi .ics-re irányít — az már csak a „Költözött az appba”
+    bejegyzést tartalmazza —, hanem az appra.
+    """
+    if TEAMS.get(team_key, {}).get("calendar_moved_at"):
+        return f'''
+  <div class="ics-card">
+    <div class="ics-title">📱 A csapat naptára az appba költözött</div>
+    <div class="ics-desc">A meccsek és az edzések a Gametime appban vannak, a jelzésekkel együtt. Ez a honlapi naptár már nem frissül.</div>
+    <div class="ics-btns">
+      <a class="ics-btn" href="https://app.kozgazkosar.hu" target="_blank" rel="noopener">📱 Megnyitom az appot</a>
+    </div>
+    <div class="ics-manual">Az app a csapat tagjainak szól, belépés kell hozzá.</div>
+  </div>
+  {ICS_CARD_CSS}
+'''
     ics_url_https = f"https://www.kozgazkosar.hu/{team_key}.ics"
     ics_url_webcal = f"webcal://www.kozgazkosar.hu/{team_key}.ics"
     # Google Calendar "add by URL" — a cid= értéket URL-encode-elve, webcal:// URL-lel
@@ -4753,42 +4815,7 @@ def _ics_subscribe_card(team_key):
       </div>
     </div>
   </div>
-  <style>
-    .ics-card {{
-      background:linear-gradient(135deg,rgba(196,30,58,0.08) 0%,rgba(0,206,201,0.04) 100%);
-      border:1px solid rgba(196,30,58,0.25); border-radius:14px;
-      padding:18px 22px; margin:16px 0;
-    }}
-    .ics-title {{ font-weight:800; font-size:1.05rem; margin-bottom:4px; color:#fff; }}
-    .ics-desc {{ font-size:0.85rem; color:var(--text-dim); margin-bottom:12px; }}
-    .ics-btns {{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }}
-    .ics-btn {{
-      display:inline-block; padding:9px 14px; border-radius:8px;
-      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
-      color:var(--text); text-decoration:none; font-size:0.85rem; font-weight:600;
-      transition:all 0.15s;
-    }}
-    .ics-btn:hover {{ background:var(--accent); border-color:var(--accent); color:#fff; transform:translateY(-1px); }}
-    .ics-manual {{ font-size:0.75rem; color:var(--text-dim); }}
-    .ics-hint {{ opacity:0.7; font-style:italic; }}
-    .ics-url-row {{
-      display:flex; align-items:center; gap:6px; margin-top:6px;
-      background:rgba(0,0,0,0.3); border-radius:6px; padding:6px 10px;
-    }}
-    .ics-url {{
-      flex:1; font-family:'SF Mono',Menlo,Consolas,monospace; font-size:0.72rem;
-      color:var(--accent2); overflow-x:auto; white-space:nowrap;
-    }}
-    .ics-copy {{
-      background:transparent; border:none; cursor:pointer; font-size:1rem; padding:2px 8px;
-    }}
-    .ics-copy:hover {{ background:rgba(255,255,255,0.08); border-radius:4px; }}
-    @media (max-width:600px) {{
-      .ics-btns {{ flex-direction:column; }}
-      .ics-btn {{ width:100%; text-align:center; }}
-    }}
-  </style>
-'''
+{ICS_CARD_CSS}'''
 
 
 def _ics_escape(s):
@@ -4871,11 +4898,71 @@ def generate_schedule_json(matches, cfg, team_key):
     }, ensure_ascii=False, indent=2) + "\n"
 
 
+def generate_ics_moved(cfg):
+    """A kivezetett naptár: egyetlen „Költözött az appba” bejegyzés.
+
+    A feliratkozók naptárából a régi meccsek és edzések maguktól eltűnnek,
+    mert egy feliratkozott naptár a feed tükre — ezért nem kell nekik kézzel
+    törölni semmit. Ami marad, az ez az egy sor, ami megmondja, hol van a
+    csapat naptára.
+
+    A DTSTAMP a költözés napjából jön, nem a futás idejéből: így a napi
+    újragenerálás bájtra ugyanezt a fájlt írja, nem keletkezik napi commit,
+    és a naptárak nem szinkronizálnak újra a semmiért.
+    """
+    team_name = cfg["team_name"]
+    team_short = cfg["team_short"]
+    moved_at = datetime.strptime(cfg["calendar_moved_at"], "%Y-%m-%d").date()
+    day = moved_at.strftime("%Y%m%d")
+    # Egész napos bejegyzés: a DTEND kizárólagos, ezért a következő nap.
+    day_end = (moved_at + timedelta(days=1)).strftime("%Y%m%d")
+    # slugify: a UID ASCII legyen, és örökre ugyanez maradjon — ha megváltozik,
+    # a feliratkozóknál új bejegyzés lesz belőle, a régi meg ott marad.
+    uid = f"moved-to-app-{slugify(team_short)}@kozgazkosar.hu"
+    desc = (
+        "A csapat naptára átköltözött a Gametime appba: ott van minden meccs és "
+        "edzés, és ott lehet jelezni, hogy jössz-e.\\n\\n"
+        "App: https://app.kozgazkosar.hu\\n\\n"
+        "Ez a honlapi naptár már nem frissül. A benne volt meccsek és edzések "
+        "maguktól eltűnnek a naptáradból, nem kell törölni őket."
+    )
+    return "\r\n".join([
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        f"PRODID:-//kozgazkosar.hu//{team_short} Naptár//HU",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        f"X-WR-CALNAME:{_ics_escape(team_name)} — a naptár az appba költözött",
+        "X-WR-TIMEZONE:Europe/Budapest",
+        f"X-WR-CALDESC:{_ics_escape(team_name)}: a csapat naptára a Gametime appban van "
+        "(app.kozgazkosar.hu). Ez a naptár már nem frissül.",
+        "BEGIN:VEVENT",
+        f"UID:{uid}",
+        f"DTSTAMP:{day}T000000Z",
+        f"DTSTART;VALUE=DATE:{day}",
+        f"DTEND;VALUE=DATE:{day_end}",
+        "SUMMARY:📱 Költözött az appba",
+        f"DESCRIPTION:{desc}",
+        "STATUS:CONFIRMED",
+        "TRANSP:TRANSPARENT",
+        "END:VEVENT",
+        "END:VCALENDAR",
+        "",
+    ])
+
+
 def generate_ics(matches, cfg):
     """Egy .ics naptár-fájlt generál a csapat meccseiből (RFC 5545).
     A naptár-appok (Apple / Google / Outlook) automatikusan frissítik ha
     'feliratkozás'-ként adják hozzá a webcal:// URL-t.
+
+    Ha a csapat naptára átköltözött az appba (calendar_moved_at), akkor a
+    meccsek és az edzések helyére egyetlen bejegyzés kerül — a `matches`
+    ilyenkor nem számít, tehát a DB-fallbackes futás is a kivezetett naptárat
+    írja.
     """
+    if cfg.get("calendar_moved_at"):
+        return generate_ics_moved(cfg)
     team_short = cfg["team_short"]
     team_name = cfg["team_name"]
     now_utc = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
