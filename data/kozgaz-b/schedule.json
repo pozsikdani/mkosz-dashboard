@@ -4,7 +4,7 @@
   "team_name": "KÖZGÁZ SC ÉS DSK/B",
   "season": "x2627",
   "timezone": "Europe/Budapest",
-  "generated_at": "2026-11-04T04:15:05Z",
+  "generated_at": "2026-11-05T04:34:06Z",
   "matches": [
     {
       "match_id": "huna_cup_1027",
@@ -82,21 +82,6 @@
       "away_score": 75
     },
     {
-      "match_id": "hun3k_141633",
-      "competition": "hun3k",
-      "competition_label": "NB2 Kelet",
-      "is_cup": false,
-      "date": "2026-11-07",
-      "time": "12:15",
-      "home_team": "BLF SE",
-      "away_team": "Közgáz SC és DSK/B",
-      "is_home": false,
-      "venue": "REGI Kosárlabdacsarnok",
-      "played": false,
-      "home_score": null,
-      "away_score": null
-    },
-    {
       "match_id": "hun3k_141641",
       "competition": "hun3k",
       "competition_label": "NB2 Kelet",
@@ -137,6 +122,21 @@
       "away_team": "VBW CEKK Cegléd",
       "is_home": true,
       "venue": "Lónyay Utcai Református Gimnázium és Kollégium",
+      "played": false,
+      "home_score": null,
+      "away_score": null
+    },
+    {
+      "match_id": "hun3k_141633",
+      "competition": "hun3k",
+      "competition_label": "NB2 Kelet",
+      "is_cup": false,
+      "date": "2026-11-28",
+      "time": "12:15",
+      "home_team": "BLF SE",
+      "away_team": "Közgáz SC és DSK/B",
+      "is_home": false,
+      "venue": "REGI Kosárlabdacsarnok",
       "played": false,
       "home_score": null,
       "away_score": null
