@@ -34,14 +34,30 @@ mkosz-scout-web/         ← Interaktív scout dashboard (külön projekt)
 - **gh CLI**: `/opt/homebrew/bin/gh`
 - **Nyelv**: Python 3 + HTML/JS (Chart.js)
 
-## Daily CI Pipeline (UTC)
-| Időpont | Mit | Hol |
+## CI Pipeline (UTC) — 2026-11-18 óta kétóránként
+
+| Ütemezés | Mit | Hol |
 |---|---|---|
-| 06:00 | Scoresheet PDF letöltés + extract | mkosz-scoresheet |
+| `17 */2 * * *` | Scoresheet PDF letöltés + extract | mkosz-scoresheet |
 | 06:00 | PBP scrape | mkosz-play-by-play |
 | 06:00 | Edzéslátogatás (Google Sheets → HTML in-place) | mkosz-dashboard/update-attendance.yml |
-| 06:30 | DB import: scoresheet + pbp + web → mkosz_stats.sqlite | mkosz-stats/daily-import.yml |
-| 07:00 | Dashboard regen + Pages deploy | mkosz-dashboard/daily-update.yml |
+| `37 */2 * * *` | DB import: scoresheet + pbp + web → mkosz_stats.sqlite | mkosz-stats/daily-import.yml |
+| `57 */2 * * *` | Dashboard regen + Pages deploy | mkosz-dashboard/daily-update.yml |
+
+**Miért kétóránként és miért nem kerek percben:** a meccs estéjén felkerülő
+jegyzőkönyv másfél nappal később ért a honlapra. Két oka volt. (1) A GitHub a
+kerek percre ütemezett futásokat órákkal csúsztatja (mérve 2026-11-18-án: a
+22:00-s extract 01:31–04:19 között, a 6:30-as import 13:44–16:23 között indult).
+(2) A regen 04–06 UTC között futott, az import viszont 14–16 között — tehát a
+honlap **mindig az előző napi adatbázisból épült**. Kétóránként a sorrend nem
+számít: minden lépés a pillanatnyi bemenetet olvassa, a leghosszabb út ~6 óra.
+
+A `mkosz-stats` importja nem fut le vakon minden alkalommal: a „Van-e új adat"
+lépés a két forrásrepó fejét nézi (`ci_state.json`), és csak változásra indul —
+napi egy teljes futás viszont mindig van a tabella, a roster és a shotchart
+miatt, ami a webről jön. Ez nem Actions-percet spórol (a repók publikusak),
+hanem a 267 MB-os `mkosz-stats` repót védi: minden importáló futás új blobot
+tesz a történetbe az 56 MB-os adatbázisból.
 
 **Manuális trigger** (ha a CI nem találja meg az új meccset):
 ```bash

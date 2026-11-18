@@ -1,8 +1,19 @@
 name: Napi dashboard frissítés
 
+# Kétóránként, nem naponta egyszer (2026-11-18). A meccs estéjén felkerülő
+# jegyzőkönyv másfél nappal később ért a honlapra. Nem (csak) a csúszás miatt:
+# ez a 00:00-s regen mérve 04:07 és 05:56 között indult, a mkosz-stats importja
+# viszont 13:44 és 16:23 között — vagyis a regen AZ IMPORT ELŐTT futott, és
+# mindig az előző napi adatbázisból épített. Kétóránként ez magától megszűnik:
+# minden futás a pillanatnyi adatbázist klónozza.
+#
+# A :57 perc szándékos — a kerek óra a GitHub ütemezőjének a legterheltebb
+# pillanata, és ott a legnagyobb a csúszás. Korai kilépés nincs: a naptár és a
+# sorsolás a webről frissül, nem az adatbázisból, tehát a regen akkor is dolgozik,
+# ha új meccs nincs; commit pedig eddig is csak változáskor volt.
 on:
   schedule:
-    - cron: '0 0 * * *'  # 00:00 UTC — GH Actions szokásos 5-6h késleltetéssel is még reggelre lefut
+    - cron: '57 */2 * * *'
   workflow_dispatch: {}
 
 permissions:
