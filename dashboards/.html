@@ -132,8 +132,8 @@
       </div>
     </div>
     <div class="header-stats">
-      <div class="header-stat"><div class="val" id="pPpg" style="color:var(--text-dim)">8.7</div><div class="label">PPG</div></div>
-      <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">3</div><div class="label">Meccs</div></div>
+      <div class="header-stat"><div class="val" id="pPpg" style="color:var(--text-dim)">9.0</div><div class="label">PPG</div></div>
+      <div class="header-stat"><div class="val" id="pGames" style="color:var(--text-dim)">4</div><div class="label">Meccs</div></div>
       <div class="header-stat"><div class="val" id="pFg3" style="color:var(--text-dim)">3</div><div class="label">3FG</div></div>
       <div class="header-stat"><div class="val" id="pMax" style="color:var(--green)">10</div><div class="label">Csúcs</div></div>
       
@@ -148,10 +148,10 @@
   </div>
 
   <div class="grid grid-4 mb20">
-    <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">26</div><div class="desc">Összes pont</div></div>
-    <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">75%</div><div class="desc" id="pFtDesc">FT% (3/4)</div></div>
-    <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">1.7</div><div class="desc">Fault / meccs</div></div>
-    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">11.5%</div><div class="desc">Csapat pont részesedés</div></div>
+    <div class="card mini-stat"><div class="big" id="pTotal" style="color:var(--text-dim)">36</div><div class="desc">Összes pont</div></div>
+    <div class="card mini-stat"><div class="big" id="pFtBig" style="color:var(--text-dim)">83%</div><div class="desc" id="pFtDesc">FT% (5/6)</div></div>
+    <div class="card mini-stat"><div class="big" id="pPfPg" style="color:var(--red)">1.2</div><div class="desc">Fault / meccs</div></div>
+    <div class="card mini-stat"><div class="big" id="pShare" style="color:var(--green)">11.3%</div><div class="desc">Csapat pont részesedés</div></div>
   </div>
   <div class="grid grid-2 mb20">
     <div class="card">
@@ -163,18 +163,18 @@
       <div style="margin-top:20px;">
         <div class="shot-row">
           <div class="shot-label" style="color:#c0c2ce">3FG</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:64%;background:#c0c2ce;color:#1a1b20;">3 db</div></div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:41%;background:#c0c2ce;color:#1a1b20;">3 db</div></div>
           <div class="shot-pct" style="color:#c0c2ce">9 pt</div>
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:#8b8da0">2FG</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:100%;background:#8b8da0;">7 db</div></div>
-          <div class="shot-pct" style="color:#8b8da0">14 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:100%;background:#8b8da0;">11 db</div></div>
+          <div class="shot-pct" style="color:#8b8da0">22 pt</div>
         </div>
         <div class="shot-row">
           <div class="shot-label" style="color:#5a5c6a">FT</div>
-          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:21%;background:#5a5c6a;">3/4</div></div>
-          <div class="shot-pct" style="color:#5a5c6a">3 pt</div>
+          <div class="shot-bar-outer"><div class="shot-bar-inner" style="width:23%;background:#5a5c6a;">5/6</div></div>
+          <div class="shot-pct" style="color:#5a5c6a">5 pt</div>
         </div>
       </div>
       <div style="margin-top:20px;"><div class="chart-wrap" style="height:160px;"><canvas id="shotPie"></canvas></div></div>
@@ -205,13 +205,13 @@
       <div>
         <div style="color:var(--green);font-weight:700;margin-bottom:6px;">Erősségek</div>
         <ul style="padding-left:18px;color:var(--text-dim);">
-          <li><span style="color:#fff;font-weight:600;">3 meccsen lépett pályára</span></li>
+          <li><span style="color:#fff;font-weight:600;">Fegyelmezett: 1.2 fault/meccs</span></li>
         </ul>
       </div>
       <div>
         <div style="color:var(--red);font-weight:700;margin-bottom:6px;">Fejlesztendő területek</div>
         <ul style="padding-left:18px;color:var(--text-dim);">
-          <li><span style="color:#fff;font-weight:600;">Q1 a leggyengébb negyed (0.7 pont/meccs)</span></li>
+          <li><span style="color:#fff;font-weight:600;">Q1 a leggyengébb negyed (0.5 pont/meccs)</span></li>
         </ul>
       </div>
     </div>
@@ -222,10 +222,10 @@ Chart.defaults.color='#8b8da0';
 Chart.defaults.borderColor='rgba(255,255,255,0.06)';
 Chart.defaults.font.family="'Inter',sans-serif";
 
-const games = [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": null}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 7, "fg2": 0, "fg3": 2, "ft": "1/2", "pf": 3, "share": 11.7, "start": false}, {"date": "10.31", "opp": "Fke", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 2, "share": 12.0, "start": true}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false}];
+const games = [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": null}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 7, "fg2": 0, "fg3": 2, "ft": "1/2", "pf": 3, "share": 11.7, "start": false}, {"date": "10.31", "opp": "Fke", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 2, "share": 12.0, "start": true}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false}];
 const maxPts = 10;
-const PVIEWS = {"all": {"games": 3, "total_pts": 26, "ppg": 8.7, "fg2": 7, "fg3": 3, "ft_m": 3, "ft_a": 4, "ft_pct": 75, "pf": 5, "pf_pg": 1.7, "max_pts": 10, "starts": 1, "share_pct": 11.5, "pts_3fg": 9, "pts_2fg": 14, "pts_ft": 3, "q_data": [2, 12, 9, 3], "q_3fg_data": [0, 3, 0, 1], "opp_labels": ["BKG-Veresegyh.", "Fke", "Pénzügyőr Sportegy."], "opp_ppg_data": [10.0, 9.0, 7.0], "js_games": [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": null, "hv": "H"}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 7, "fg2": 0, "fg3": 2, "ft": "1/2", "pf": 3, "share": 11.7, "start": false, "hv": "H"}, {"date": "10.31", "opp": "Fke", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 2, "share": 12.0, "start": true, "hv": "V"}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false, "hv": "H"}], "tech": 0, "unsport": 0}, "home": {"games": 2, "total_pts": 17, "ppg": 8.5, "fg2": 4, "fg3": 2, "ft_m": 3, "ft_a": 4, "ft_pct": 75, "pf": 3, "pf_pg": 1.5, "max_pts": 10, "starts": 0, "share_pct": 11.2, "pts_3fg": 6, "pts_2fg": 8, "pts_ft": 3, "q_data": [2, 5, 7, 3], "q_3fg_data": [0, 1, 0, 1], "opp_labels": ["BKG-Veresegyh.", "Pénzügyőr Sportegy."], "opp_ppg_data": [10.0, 7.0], "js_games": [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": null, "hv": "H"}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 7, "fg2": 0, "fg3": 2, "ft": "1/2", "pf": 3, "share": 11.7, "start": false, "hv": "H"}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 1, "total_pts": 9, "ppg": 9.0, "fg2": 3, "fg3": 1, "ft_m": 0, "ft_a": 0, "ft_pct": 0, "pf": 2, "pf_pg": 2.0, "max_pts": 9, "starts": 1, "share_pct": 12.0, "pts_3fg": 3, "pts_2fg": 6, "pts_ft": 0, "q_data": [0, 7, 2, 0], "q_3fg_data": [0, 2, 0, 0], "opp_labels": ["Fke"], "opp_ppg_data": [9.0], "js_games": [{"date": "10.31", "opp": "Fke", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 2, "share": 12.0, "start": true, "hv": "V"}], "tech": 0, "unsport": 0}};
-const HIGHLIGHT_PTS = 13;
+const PVIEWS = {"all": {"games": 4, "total_pts": 36, "ppg": 9.0, "fg2": 11, "fg3": 3, "ft_m": 5, "ft_a": 6, "ft_pct": 83, "pf": 5, "pf_pg": 1.2, "max_pts": 10, "starts": 1, "share_pct": 11.3, "pts_3fg": 9, "pts_2fg": 22, "pts_ft": 5, "q_data": [2, 12, 9, 3], "q_3fg_data": [0, 3, 0, 1], "opp_labels": ["BKG-Veresegyh.", "Fke", "Pénzügyőr Sportegy."], "opp_ppg_data": [10.0, 9.0, 7.0], "js_games": [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": null, "hv": "H"}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 7, "fg2": 0, "fg3": 2, "ft": "1/2", "pf": 3, "share": 11.7, "start": false, "hv": "H"}, {"date": "10.31", "opp": "Fke", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 2, "share": 12.0, "start": true, "hv": "V"}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false, "hv": "H"}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false, "hv": "H"}], "tech": 0, "unsport": 0}, "home": {"games": 3, "total_pts": 27, "ppg": 9.0, "fg2": 8, "fg3": 2, "ft_m": 5, "ft_a": 6, "ft_pct": 83, "pf": 3, "pf_pg": 1.0, "max_pts": 10, "starts": 0, "share_pct": 11.1, "pts_3fg": 6, "pts_2fg": 16, "pts_ft": 5, "q_data": [2, 5, 7, 3], "q_3fg_data": [0, 1, 0, 1], "opp_labels": ["BKG-Veresegyh.", "Pénzügyőr Sportegy."], "opp_ppg_data": [10.0, 7.0], "js_games": [{"date": "10.01", "opp": "Bkg Prima Akadémia.", "res": "W", "pts": null, "hv": "H"}, {"date": "10.13", "opp": "Pénzügyőr Sportegy.", "res": "L", "pts": 7, "fg2": 0, "fg3": 2, "ft": "1/2", "pf": 3, "share": 11.7, "start": false, "hv": "H"}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false, "hv": "H"}, {"date": "11.17", "opp": "BKG-Veresegyh.", "res": "W", "pts": 10, "fg2": 4, "fg3": 0, "ft": "2/2", "pf": 0, "share": 10.9, "start": false, "hv": "H"}], "tech": 0, "unsport": 0}, "away": {"games": 1, "total_pts": 9, "ppg": 9.0, "fg2": 3, "fg3": 1, "ft_m": 0, "ft_a": 0, "ft_pct": 0, "pf": 2, "pf_pg": 2.0, "max_pts": 9, "starts": 1, "share_pct": 12.0, "pts_3fg": 3, "pts_2fg": 6, "pts_ft": 0, "q_data": [0, 7, 2, 0], "q_3fg_data": [0, 2, 0, 0], "opp_labels": ["Fke"], "opp_ppg_data": [9.0], "js_games": [{"date": "10.31", "opp": "Fke", "res": "L", "pts": 9, "fg2": 3, "fg3": 1, "ft": "0/0", "pf": 2, "share": 12.0, "start": true, "hv": "V"}], "tech": 0, "unsport": 0}};
+const HIGHLIGHT_PTS = 14;
 
 function renderPlayerGameLog(gms) {
   const tbody = document.getElementById('gameLogBody');
@@ -273,7 +273,7 @@ new Chart(document.getElementById('scoringTrend').getContext('2d'), {
       pointBorderColor:played.map(g=>g.res==='W'?'#00b894':'#e17055'),
       pointRadius:6, pointHoverRadius:9, borderWidth:3,
     }, {
-      label:'Átlag (8.7)', data:played.map(()=>8.7),
+      label:'Átlag (9.0)', data:played.map(()=>9.0),
       borderColor:'rgba(255,255,255,0.2)', borderDash:[6,4],
       pointRadius:0, borderWidth:1, fill:false,
     }]
@@ -292,8 +292,8 @@ new Chart(document.getElementById('scoringTrend').getContext('2d'), {
 new Chart(document.getElementById('shotPie').getContext('2d'), {
   type:'doughnut',
   data: {
-    labels:['3FG (9 pt)','2FG (14 pt)','FT (3 pt)'],
-    datasets:[{ data:[9,14,3], backgroundColor:['#c0c2ce','#8b8da0','#5a5c6a'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
+    labels:['3FG (9 pt)','2FG (22 pt)','FT (5 pt)'],
+    datasets:[{ data:[9,22,5], backgroundColor:['#c0c2ce','#8b8da0','#5a5c6a'], borderColor:'#151518', borderWidth:3, hoverOffset:8 }]
   },
   options: { responsive:true, maintainAspectRatio:false, cutout:'60%',
     plugins:{ legend:{ position:'right', labels:{ padding:12, usePointStyle:true, font:{size:11} } } }
