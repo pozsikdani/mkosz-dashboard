@@ -4,7 +4,7 @@
   "team_name": "KÖZGÁZ SC ÉS DSK/B",
   "season": "x2627",
   "timezone": "Europe/Budapest",
-  "generated_at": "2026-11-26T14:34:39Z",
+  "generated_at": "2026-11-26T23:24:19Z",
   "matches": [
     {
       "match_id": "huna_cup_1027",
@@ -122,9 +122,9 @@
       "away_team": "VBW CEKK Cegléd",
       "is_home": true,
       "venue": "Lónyay Utcai Református Gimnázium és Kollégium",
-      "played": false,
-      "home_score": null,
-      "away_score": null
+      "played": true,
+      "home_score": 116,
+      "away_score": 68
     },
     {
       "match_id": "hun3k_141633",
